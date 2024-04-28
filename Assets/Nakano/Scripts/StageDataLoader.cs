@@ -2,10 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
+/// <summary>
+/// CSVファイルを読み込み、配置データに変換する
+/// </summary>
 public class StageDataLoader : MonoBehaviour
 {
+    [SerializeField, Header("データが不足している場合エラーを表示しますか")] bool isErrorDisp = false;
+    [SerializeField] ShapeData shapeData;
+
     string folderName = "/Nakano/StageData";
+    string mapSizeFile = "/MapSizeData.csv";
 
     /// <summary>
     /// ファイル・ディレクトリの存在確認
@@ -29,95 +37,121 @@ public class StageDataLoader : MonoBehaviour
         }
     }
 
-    public List<List<List<StageCreate.Shape>>> LoadStage(string stageName)
+    /// <summary>
+    /// オブジェクトの配置データ取得
+    /// </summary>
+    /// <param name="stageName">プレイステージ</param>
+    /// <returns>三次元の配置データを返す</returns>
+    public ShapeData.Shape[,,] LoadStageMap(string stageName)
     {
         string fileName = Application.dataPath + folderName + "/" + stageName + ".csv";
         string dataStr = "";
 
         FileCheck(fileName); // 存在確認
 
-        Vector3 size = new Vector3(0,0,0);
-        List<List<List<StageCreate.Shape>>> map = new();
+        // マップのサイズを取得
+        Vector3 mapSize = LoadStageSize(stageName);
 
+        // データ配列
+        ShapeData.Shape[,,] map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+        // 読み込み
         StreamReader reader = new StreamReader(fileName);
         dataStr = reader.ReadToEnd();
         reader.Close();
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
-        for(int z = 0; z < line.Length; z++)
+        for (int z = 0; z < mapSize.z; z++)
         {
             // スキップしたい文章（説明文や補足）に来たら終わりにする
-            if (line[0][0] == '!') break;
+            if (line[z][0] == '!') break;
 
-            var cell = line[z].Split(","); // コンマで区切る セルごとに分かれる
-            
-            if(z == 0) // 1行目に書いてある幅・奥行・高さを代入
+            // エラー表示
+            if ((int)mapSize.y > line.Length && isErrorDisp)
             {
-                if (int.TryParse(cell[0], out int w)) size.x = w;
-                if (int.TryParse(cell[1], out int d)) size.z = d;
-                if (int.TryParse(cell[2], out int h)) size.y = h;
+                Debug.LogWarning("Z軸方向(Excel縦方向)のデータが不足しています。空白マスで補完します。 対象セル：縦" + (z + 1) + "番目");
             }
 
-            else
+            // MapSizeDataで指定したDepthよりデータ数が少なかった場合は補完
+            int d = (int)mapSize.z > line.Length ? (int)mapSize.z : line.Length;
+            string[] l = new string[d];
+            l[z] = line.Length <= z ? l[z] = "" : line[z];
+
+            var cell = l[z].Split(","); // コンマで区切る セルごとに分かれる
+
+            for (int x = 0; x < mapSize.x; x++)
             {
-                // 3次元のリストに代入
-                List<List<StageCreate.Shape>> zLine = new();
-
-                for (int x = 0; x < cell.Length; x++)
+                // エラー表示
+                if ((int)mapSize.x > cell.Length && isErrorDisp)
                 {
-                    var obj = cell[x].Split("/"); // スラッシュで区切る
+                    Debug.LogWarning("X軸方向（Excel横方向）のデータが不足しています。空白マスで補完します。 対象列：横" + (x + 1) + "番目");
+                }
+                // MapSizeDataで指定したWidthよりデータ数が少なかった場合は補完
+                int w = (int)mapSize.x > cell.Length ? (int)mapSize.x : cell.Length;
+                string[] c = new string[w];
+                c[x] = cell.Length <= x ? c[x] = "": cell[x];
 
-                    List<StageCreate.Shape> xCell = new();
+                var obj = c[x].Split("/"); // スラッシュで区切る
 
-                    for (int y = 0; y < size.z; y++)
+                for (int y = 0; y < mapSize.y; y++)
+                {
+                    // エラー表示
+                    if((int)mapSize.y > obj.Length && isErrorDisp)
                     {
-                        // 配列からデータが漏れないように調整する
-                        int h = (int)size.z > obj.Length ? (int)size.z : obj.Length;
-                        string[] o = new string[h];
-                        
-                        // 指定のデータ数に足りなかったらデータ数を追加補正
-                        if(obj.Length <= y) { o[y] = ""; }
-                        else o[y] = obj[y];
-
-                        // 生成する図形を代入
-                        StageCreate.Shape s = StringToShape(o[y]);
-                        xCell.Add(s);
+                        Debug.LogWarning("Y軸方向のデータが不足しています。空白マスで補完します。 対象セル：横" + (x+1) + "番目,縦" + (z+1) + "番目");
                     }
 
-                    zLine.Add(xCell);
-                }
+                    // MapSizeDataで指定したHeightよりデータ数が少なかった場合は補完
+                    int h = (int)mapSize.y > obj.Length ? (int)mapSize.y : obj.Length;
+                    string[] o = new string[h];
+                    o[y] = obj.Length <= y ? o[y] = "": obj[y];
 
-                map.Add(zLine);
+                    map[x, y, z] = shapeData.StringToShape(o[y]);
+                }
             }
         }
 
         return map;
     }
 
-    StageCreate.Shape StringToShape(string s)
+    /// <summary>
+    /// ステージのマップサイズデータを取得する
+    /// </summary>
+    /// <param name="stageName">プレイステージ</param>
+    /// <returns>サイズをVector3で返す</returns>
+    public Vector3 LoadStageSize(string stageName)
     {
-        StageCreate.Shape shape = new();
+        Vector3 mapSize = new Vector3(0, 0, 0);
 
-        switch (s)
+        string fileName = Application.dataPath + folderName + mapSizeFile;
+        string dataStr = "";
+
+        FileCheck(fileName); // 存在確認
+
+        // 読み込み
+        StreamReader reader = new StreamReader(fileName);
+        dataStr = reader.ReadToEnd();
+        reader.Close();
+
+        string[] line = dataStr.Split("\n"); // 改行で分割
+
+        for (int z = 0; z < line.Length; z++)
         {
-            case "C":
-            case "c":
-                shape = StageCreate.Shape.Cube;
-                break;
+            if(z == 0) continue; // スキップしたい文章（説明文や補足）に来たら / 1行目を飛ばす
+            if(line[z][0] == '!' || line[z][0] == '！') break;
 
-            case "S":
-            case "s":
-                shape = StageCreate.Shape.Sphere;
-                break;
+            var cell = line[z].Split(","); // コンマで区切る セルごとに分かれる
 
-            case "E":
-            case "e":
-            case "":
-                shape = StageCreate.Shape.Empty;
-                break;
+            // ステージ名と同じになるまでやり直す 大文字小文字を区別しない
+            if(string.Compare(stageName, cell[0], true) != 0) continue;
+
+            // マップのサイズを代入
+            if (int.TryParse(cell[1], out int w)) mapSize.x = w;
+            if (int.TryParse(cell[2], out int d)) mapSize.z = d;
+            if (int.TryParse(cell[3], out int h)) mapSize.y = h;
         }
 
-        return shape;
+        return mapSize;
     }
 }
