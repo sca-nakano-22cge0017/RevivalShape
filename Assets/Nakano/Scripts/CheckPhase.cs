@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class CheckPhase : MonoBehaviour
 {
-    [SerializeField, Header("ステージ名")] string stageName;
+    string stageName;
 
     [SerializeField] ShapeData shapeData;
     [SerializeField] StageDataLoader stageDataLoader;
+    [SerializeField] StageController stageController;
 
     [SerializeField] Transform objParent;
 
-    Vector3 mapSize = new Vector3(4, 4, 4);
-    public Vector3 MapSize { get { return mapSize; } }
+    Vector3 mapSize;
 
     ShapeData.Shape[,,] map;
     GameObject[,,] mapObj;
 
     void Start()
     {
-        // マップサイズ取得
-        mapSize = stageDataLoader.LoadStageSize(stageName);
+        stageName = stageController.StageName; // ステージ名取得
+        mapSize = stageController.MapSize; // サイズ代入
 
         // 配列初期化
         map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
@@ -28,6 +28,7 @@ public class CheckPhase : MonoBehaviour
 
         // 配置データ取得
         map = stageDataLoader.LoadStageMap(stageName);
+        stageController.CorrectAnswer = map; // 正答として保存
         
         StageInstance();
     }

@@ -9,7 +9,7 @@ public class ShapeData : MonoBehaviour
     /// <summary>
     /// オブジェクトの形
     /// </summary>
-    public enum Shape { Empty, Cube, Sphere, Cylinder, };
+    public enum Shape { Empty, Cube, Sphere, };
 
     /// <summary>
     /// string型からShapeに変換
@@ -64,9 +64,6 @@ public class ShapeData : MonoBehaviour
                 break;
             case Shape.Sphere:
                 objNum = 2;
-                break;
-            case Shape.Cylinder:
-                objNum = 3;
                 break;
             default:
                 objNum = 0;
