@@ -10,6 +10,10 @@ public class StageController : MonoBehaviour
     [SerializeField] ShapeData shapeData;
     [SerializeField] StageDataLoader stageDataLoader;
 
+    [SerializeField] CheckPhase checkPhase;
+    [SerializeField] SelectPhase selectPhase;
+    [SerializeField] PlayPhase playPhase;
+
     Vector3 mapSize = new Vector3(4, 4, 4);
     public Vector3 MapSize { get { return mapSize; } }
 
@@ -39,13 +43,40 @@ public class StageController : MonoBehaviour
         // マップサイズ取得
         mapSize = stageDataLoader.LoadStageSize(stageName);
 
-        // 配列
+        // 配列 要素数指定
         correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
     }
 
     void Update()
     {
-        
+
+    }
+
+    /// <summary>
+    /// 選択フェーズに移行
+    /// </summary>
+    public void ToSelectPhase()
+    {
+        checkPhase.CheckPhaseEnd();
+
+        selectPhase.SelectPhaseStart();
+    }
+
+    /// <summary>
+    /// 実行フェーズに移行
+    /// </summary>
+    public void ToPlayPhase()
+    {
+        selectPhase.SelectPhaseEnd();
+
+        StartCoroutine(PlayPhaseStart());
+    }
+
+    IEnumerator PlayPhaseStart()
+    {
+        yield return new WaitForSeconds(1f);
+
+        playPhase.PlayPhaseStart();
     }
 }

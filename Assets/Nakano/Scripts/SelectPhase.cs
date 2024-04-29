@@ -19,12 +19,19 @@ public class SelectPhase : MonoBehaviour
 
     void Start()
     {
+        // ボタンのウィンドウは閉じておく
+        buttonParent.SetActive(false);
+
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
         // 配列　要素数指定
+        //! 最大値は全ステージ統一したりするかも？
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
+        playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+        ShapeArrayInitialize();
 
         // マップの広さ分ボタンを生成
         for (int x = 0; x < (int)mapSize.x; x++)
@@ -38,22 +45,92 @@ public class SelectPhase : MonoBehaviour
 
     void Update()
     {
-        // debug
-        if(Input.GetKeyDown(KeyCode.Return))
-        {
-            InputNumSave();
-        }
+
     }
 
+    /// <summary>
+    /// ボタンに入力した数値を配列に保存する
+    /// </summary>
     void InputNumSave()
     {
-        for (int x = 0; x < (int)mapSize.x; x++)
+        for (int z = 0; z < (int)mapSize.z; z++)
         {
-            for (int z = 0; z < (int)mapSize.z; z++)
+            for (int x = 0; x < (int)mapSize.x; x++)
             {
                 // 入力した数をint型の配列に代入
                 playerInputData[x, z] = selectButtons[x, z].InputNum;
             }
         }
+    }
+
+    /// <summary>
+    /// ボタンに入力した数値を全て0に戻す
+    /// </summary>
+    void InputNumReset()
+    {
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                selectButtons[x, z].InputNum = 0;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 配置データの初期化
+    /// </summary>
+    void ShapeArrayInitialize()
+    {
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                for (int y = 0; y < (int)mapSize.y; y++)
+                {
+                    // とりあえず空白マスで埋める
+                    playerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// int型の配列からShape型の三次元配列に変換する
+    /// </summary>
+    void IntArrayToShapeArray()
+    {
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                // playerInputDataにはY軸方向に積む数が入っている
+                for (int y = 0; y < playerInputData[x, z]; y++)
+                {
+                    playerAnswer[x, y, z] = ShapeData.Shape.Cube;
+                }
+            }
+        }
+    }
+
+    public void SelectPhaseStart()
+    {
+        // ウィンドウを開く
+        buttonParent.SetActive(true);
+    }
+
+    public void SelectPhaseEnd()
+    {
+        InputNumSave();
+
+        InputNumReset();
+
+        IntArrayToShapeArray();
+
+        // ウィンドウを閉じる
+        buttonParent.SetActive(false);
+
+        // プレイヤーの答えを保存
+        stageController.PlayerAnswer = playerAnswer;
     }
 }
