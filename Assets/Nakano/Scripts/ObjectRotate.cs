@@ -36,7 +36,7 @@ public class ObjectRotate : MonoBehaviour
                 tx = (t1.position.x - sPos.x) / wid; //‰¡ˆÚ“®—Ê(-1<tx<1)
                 ty = (t1.position.y - sPos.y) / hei; //cˆÚ“®—Ê(-1<ty<1)
                 transform.rotation = sRot;
-                transform.Rotate(new Vector3(90 * ty, -90 * tx, 0), Space.World);
+                transform.Rotate(new Vector3(-90 * ty, -90 * tx, 0), Space.World);
             }
         }
     }

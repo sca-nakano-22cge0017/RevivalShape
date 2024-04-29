@@ -9,7 +9,6 @@ using System;
 /// </summary>
 public class StageDataLoader : MonoBehaviour
 {
-    [SerializeField, Header("データが不足している場合エラーを表示しますか")] bool isErrorDisp = false;
     [SerializeField] ShapeData shapeData;
 
     string folderName = "/Nakano/StageData";
@@ -65,47 +64,24 @@ public class StageDataLoader : MonoBehaviour
         for (int z = 0; z < mapSize.z; z++)
         {
             // スキップしたい文章（説明文や補足）に来たら終わりにする
-            if (line[z][0] == '!') break;
-
-            // エラー表示
-            if ((int)mapSize.y > line.Length && isErrorDisp)
-            {
-                Debug.LogWarning("Z軸方向(Excel縦方向)のデータが不足しています。空白マスで補完します。 対象セル：縦" + (z + 1) + "番目");
-            }
+            if (line[z].StartsWith("!")) break;
 
             // MapSizeDataで指定したDepthよりデータ数が少なかった場合は補完
-            int d = (int)mapSize.z > line.Length ? (int)mapSize.z : line.Length;
-            string[] l = new string[d];
-            l[z] = line.Length <= z ? l[z] = "" : line[z];
+            string[] l = DataComplement((int)mapSize.z, line.Length, line, z);
 
             var cell = l[z].Split(","); // コンマで区切る セルごとに分かれる
 
             for (int x = 0; x < mapSize.x; x++)
             {
-                // エラー表示
-                if ((int)mapSize.x > cell.Length && isErrorDisp)
-                {
-                    Debug.LogWarning("X軸方向（Excel横方向）のデータが不足しています。空白マスで補完します。 対象列：横" + (x + 1) + "番目");
-                }
                 // MapSizeDataで指定したWidthよりデータ数が少なかった場合は補完
-                int w = (int)mapSize.x > cell.Length ? (int)mapSize.x : cell.Length;
-                string[] c = new string[w];
-                c[x] = cell.Length <= x ? c[x] = "": cell[x];
+                string[] c = DataComplement((int)mapSize.x, cell.Length, cell, x);
 
                 var obj = c[x].Split("/"); // スラッシュで区切る
 
                 for (int y = 0; y < mapSize.y; y++)
                 {
-                    // エラー表示
-                    if((int)mapSize.y > obj.Length && isErrorDisp)
-                    {
-                        Debug.LogWarning("Y軸方向のデータが不足しています。空白マスで補完します。 対象セル：横" + (x+1) + "番目,縦" + (z+1) + "番目");
-                    }
-
                     // MapSizeDataで指定したHeightよりデータ数が少なかった場合は補完
-                    int h = (int)mapSize.y > obj.Length ? (int)mapSize.y : obj.Length;
-                    string[] o = new string[h];
-                    o[y] = obj.Length <= y ? o[y] = "": obj[y];
+                    string[] o = DataComplement((int)mapSize.y, obj.Length, obj, y);
 
                     map[x, y, z] = shapeData.StringToShape(o[y]);
                 }
@@ -113,6 +89,23 @@ public class StageDataLoader : MonoBehaviour
         }
 
         return map;
+    }
+
+    /// <summary>
+    /// データ補完
+    /// </summary>
+    /// <param name="idealDataSize">MapSizeDataで指定したデータ数　mapSize</param>
+    /// <param name="actualDataSize">実際にあるデータ数　string[]の要素数</param>
+    /// <param name="data">配置データが入っているstring[]</param>
+    /// <param name="dataNum">配列の何番目か</param>
+    /// <returns></returns>
+    string[] DataComplement(int idealDataSize, int actualDataSize, string[] data, int dataNum) 
+    {
+        // MapSizeDataで指定したデータ数より、実際のデータ数が少なかった場合は補完
+        int n = idealDataSize > actualDataSize ? idealDataSize : actualDataSize;
+        string[] s = new string[n];
+        s[dataNum] = actualDataSize <= dataNum ? s[dataNum] = "" : data[dataNum];
+        return s;
     }
 
     /// <summary>
