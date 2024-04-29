@@ -22,7 +22,7 @@ public class CheckPhase : MonoBehaviour
         stageName = stageController.StageName; // ステージ名取得
         mapSize = stageController.MapSize; // サイズ代入
 
-        // 配列初期化
+        // 配列 要素数指定
         map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
@@ -35,7 +35,6 @@ public class CheckPhase : MonoBehaviour
 
     void Update()
     {
-        
     }
 
     void StageInstance()
@@ -55,22 +54,10 @@ public class CheckPhase : MonoBehaviour
                 }
             }
         }
-
-        //StartCoroutine(Fall());
     }
 
-    IEnumerator Fall()
+    public void CheckPhaseEnd()
     {
-        for (int z = 0; z < mapSize.z; z++)
-        {
-            for (int x = 0; x < mapSize.x; x++)
-            {
-                for (int y = 0; y < mapSize.y; y++)
-                {
-                    mapObj[x, y, z].SetActive(false);
-                    yield return new WaitForSeconds(0.5f);
-                }
-            }
-        }
+        objParent.gameObject.SetActive(false);
     }
 }

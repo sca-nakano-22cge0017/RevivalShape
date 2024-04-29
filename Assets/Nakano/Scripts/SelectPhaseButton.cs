@@ -24,6 +24,11 @@ public class SelectPhaseButton : MonoBehaviour
         thisText = transform.GetChild(0).gameObject.GetComponent<Text>();
     }
 
+    private void Update()
+    {
+        thisText.text = inputNum.ToString(); // 表示変更
+    }
+
     /// <summary>
     /// ボタンを押したらカウントを増やす
     /// </summary>
@@ -32,7 +37,5 @@ public class SelectPhaseButton : MonoBehaviour
         inputNum++;
 
         if(inputNum > input_max) inputNum = 0;
-
-        thisText.text = inputNum.ToString(); // 表示変更
     }
 }
