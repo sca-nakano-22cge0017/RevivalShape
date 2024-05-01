@@ -40,4 +40,9 @@ public class ObjectRotate : MonoBehaviour
             }
         }
     }
+
+    public void RotateReset()
+    {
+        transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+    }
 }

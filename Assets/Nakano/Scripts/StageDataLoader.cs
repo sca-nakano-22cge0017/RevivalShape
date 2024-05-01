@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System;
 
 /// <summary>
 /// CSVファイルを読み込み、配置データに変換する
 /// </summary>
 public class StageDataLoader : MonoBehaviour
 {
+    string mapSizeDataText;
+
     [SerializeField] ShapeData shapeData;
 
     string folderName = "/Nakano/StageData";
@@ -117,7 +118,7 @@ public class StageDataLoader : MonoBehaviour
     {
         Vector3 mapSize = new Vector3(0, 0, 0);
 
-        string fileName = Application.dataPath + folderName + mapSizeFile;
+        string fileName  = Application.dataPath + folderName + mapSizeFile;
         string dataStr = "";
 
         FileCheck(fileName); // 存在確認

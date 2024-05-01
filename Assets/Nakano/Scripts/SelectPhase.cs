@@ -10,6 +10,8 @@ public class SelectPhase : MonoBehaviour
     [SerializeField] GameObject buttonParent;
     [SerializeField] GameObject buttonPrefab;
 
+    [SerializeField] GameObject selectPhaseUI;
+
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
     int[,] playerInputData; // 入力データ
 
@@ -20,7 +22,8 @@ public class SelectPhase : MonoBehaviour
     void Start()
     {
         // ボタンのウィンドウは閉じておく
-        buttonParent.SetActive(false);
+        //buttonParent.SetActive(false);
+        selectPhaseUI.SetActive(false);
 
         // マップサイズ取得
         mapSize = stageController.MapSize;
@@ -31,6 +34,8 @@ public class SelectPhase : MonoBehaviour
         playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
+        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(mapSize.x * 200, mapSize.z * 200);
+
         ShapeArrayInitialize();
 
         // マップの広さ分ボタンを生成
@@ -38,7 +43,7 @@ public class SelectPhase : MonoBehaviour
         {
             for (int z = 0; z < (int)mapSize.z; z++)
             {
-                selectButtons[x, z] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
+                selectButtons[z, x] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
     }
@@ -58,7 +63,7 @@ public class SelectPhase : MonoBehaviour
             for (int x = 0; x < (int)mapSize.x; x++)
             {
                 // 入力した数をint型の配列に代入
-                playerInputData[x, z] = selectButtons[x, z].InputNum;
+                playerInputData[z, x] = selectButtons[x, z].InputNum;
             }
         }
     }
@@ -105,7 +110,7 @@ public class SelectPhase : MonoBehaviour
             for (int x = 0; x < (int)mapSize.x; x++)
             {
                 // playerInputDataにはY軸方向に積む数が入っている
-                for (int y = 0; y < playerInputData[x, z]; y++)
+                for (int y = 0; y < playerInputData[z, x]; y++)
                 {
                     playerAnswer[x, y, z] = ShapeData.Shape.Cube;
                 }
@@ -116,7 +121,8 @@ public class SelectPhase : MonoBehaviour
     public void SelectPhaseStart()
     {
         // ウィンドウを開く
-        buttonParent.SetActive(true);
+        //buttonParent.SetActive(true);
+        selectPhaseUI.SetActive(true);
     }
 
     public void SelectPhaseEnd()
@@ -128,7 +134,8 @@ public class SelectPhase : MonoBehaviour
         IntArrayToShapeArray();
 
         // ウィンドウを閉じる
-        buttonParent.SetActive(false);
+        //buttonParent.SetActive(false);
+        selectPhaseUI.SetActive(false);
 
         // プレイヤーの答えを保存
         stageController.PlayerAnswer = playerAnswer;
