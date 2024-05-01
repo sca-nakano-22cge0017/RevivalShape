@@ -19,20 +19,18 @@ public class ShapeData : MonoBehaviour
     public Shape StringToShape(string s)
     {
         Shape shape = new();
+        string str = s.ToLower(); // ¬•¶š‚É•ÏŠ·
 
-        switch (s)
+        switch (str)
         {
-            case "C":
             case "c":
                 shape = Shape.Cube;
                 break;
 
-            case "S":
             case "s":
                 shape = Shape.Sphere;
                 break;
 
-            case "E":
             case "e":
             case " ":
                 shape = Shape.Empty;

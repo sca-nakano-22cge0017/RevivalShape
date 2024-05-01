@@ -9,6 +9,8 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField] Transform objParent;
 
+    [SerializeField] GameObject playPhaseUI;
+
     Vector3 mapSize;
 
     ShapeData.Shape[,,] map;
@@ -20,6 +22,9 @@ public class PlayPhase : MonoBehaviour
 
     void Start()
     {
+        objParent.gameObject.SetActive(false);
+        playPhaseUI.SetActive(false);
+
         mapSize = stageController.MapSize; // サイズ代入
 
         // 配列 要素数指定
@@ -76,6 +81,9 @@ public class PlayPhase : MonoBehaviour
         // 正答とプレイヤーの解答を取得する
         correctAnswer = stageController.CorrectAnswer;
         map = stageController.PlayerAnswer;
+
+        objParent.gameObject.SetActive(true);
+        playPhaseUI.SetActive(true);
 
         AnswerInstance();
     }

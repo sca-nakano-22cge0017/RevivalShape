@@ -12,6 +12,8 @@ public class CheckPhase : MonoBehaviour
 
     [SerializeField] Transform objParent;
 
+    [SerializeField] GameObject checkPhaseUI;
+
     Vector3 mapSize;
 
     ShapeData.Shape[,,] map;
@@ -59,5 +61,6 @@ public class CheckPhase : MonoBehaviour
     public void CheckPhaseEnd()
     {
         objParent.gameObject.SetActive(false);
+        checkPhaseUI.SetActive(false);
     }
 }
