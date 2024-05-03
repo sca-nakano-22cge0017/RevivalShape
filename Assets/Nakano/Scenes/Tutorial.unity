@@ -1168,11 +1168,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4889d850b2d44f343a949cc84ed4aacb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvDataAssetRef:
-    m_AssetGUID: 146d5afa7a466f04baca38dbc7c7a175
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
+  mapSizeDataLoadComlete: 0
+  stageDataLoadComlete: 0
   shapeData: {fileID: 1471772877}
 --- !u!4 &1471772880
 Transform:

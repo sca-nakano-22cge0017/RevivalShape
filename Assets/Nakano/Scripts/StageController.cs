@@ -37,20 +37,36 @@ public class StageController : MonoBehaviour
         set { playerAnswer = value; }
     }
 
-    // 一番最初にデータ取得
-    void Awake()
-    {
-        // マップサイズ取得
-        mapSize = stageDataLoader.LoadStageSize(stageName);
-
-        // 配列 要素数指定
-        correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-        playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-    }
+    bool mapSizeDataGot = false;
+    bool stageDataGot = false;
 
     void Update()
     {
+        // データのロードが完了していたら かつ データを変数として取得していなければ
+        if(stageDataLoader.mapSizeDataLoadComlete && !mapSizeDataGot)
+        {
+            // マップサイズ取得
+            mapSize = stageDataLoader.LoadStageSize(stageName);
 
+            // 配列 要素数指定
+            correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+            playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+            mapSizeDataGot = true;
+
+            // 配置データロード
+            stageDataLoader.StageDataGet(stageName);
+        }
+
+        // 正解の配置データを配列に入れる
+        if (stageDataLoader.stageDataLoadComlete && !stageDataGot)
+        {
+            correctAnswer = stageDataLoader.LoadStageMap(mapSize);
+
+            stageDataGot = true;
+
+            checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
+        }
     }
 
     /// <summary>

@@ -19,11 +19,20 @@ public class SelectPhase : MonoBehaviour
 
     ShapeData.Shape[,,] playerAnswer;
 
-    void Start()
+    private void Awake()
     {
         // ボタンのウィンドウは閉じておく
         //buttonParent.SetActive(false);
         selectPhaseUI.SetActive(false);
+    }
+
+    /// <summary>
+    /// 選択フェーズ移行時の処理
+    /// </summary>
+    public void SelectPhaseStart()
+    {
+        // UI表示
+        selectPhaseUI.SetActive(true);
 
         // マップサイズ取得
         mapSize = stageController.MapSize;
@@ -46,11 +55,6 @@ public class SelectPhase : MonoBehaviour
                 selectButtons[z, x] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
-    }
-
-    void Update()
-    {
-
     }
 
     /// <summary>
@@ -116,13 +120,6 @@ public class SelectPhase : MonoBehaviour
                 }
             }
         }
-    }
-
-    public void SelectPhaseStart()
-    {
-        // ウィンドウを開く
-        //buttonParent.SetActive(true);
-        selectPhaseUI.SetActive(true);
     }
 
     public void SelectPhaseEnd()
