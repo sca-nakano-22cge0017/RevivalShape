@@ -19,7 +19,10 @@ public class CheckPhase : MonoBehaviour
     ShapeData.Shape[,,] map;
     GameObject[,,] mapObj;
 
-    void Start()
+    /// <summary>
+    /// 確認フェーズ移行時の処理
+    /// </summary>
+    public void CheckPhaseStart()
     {
         stageName = stageController.StageName; // ステージ名取得
         mapSize = stageController.MapSize; // サイズ代入
@@ -28,10 +31,10 @@ public class CheckPhase : MonoBehaviour
         map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
-        // 配置データ取得
-        map = stageDataLoader.LoadStageMap(stageName);
-        stageController.CorrectAnswer = map; // 正答として保存
-        
+        // 正解の配置データを取得
+        map = stageController.CorrectAnswer;
+
+        // オブジェクト生成
         StageInstance();
     }
 

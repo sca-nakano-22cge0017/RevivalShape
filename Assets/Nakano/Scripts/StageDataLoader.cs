@@ -2,63 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// CSVファイルを読み込み、配置データに変換する
 /// </summary>
 public class StageDataLoader : MonoBehaviour
 {
+    // Addressable
+    string mapSizeDataFile = "MapSizeData";
     string mapSizeDataText;
+    string stageDataText;
+
+    [HideInInspector] public bool mapSizeDataLoadComlete = false;
+    [HideInInspector] public bool stageDataLoadComlete = false;
 
     [SerializeField] ShapeData shapeData;
 
-    string folderName = "/Nakano/StageData";
-    string mapSizeFile = "/MapSizeData.csv";
-
-    /// <summary>
-    /// ファイル・ディレクトリの存在確認
-    /// </summary>
-    /// <param name="fileName">ファイル名</param>
-    /// <param name="length">ランキングデータの配列数</param>
-    void FileCheck(string name)
+    private void Awake()
     {
-        string directoryName = Application.dataPath + folderName;
-        string fileName = name;
+        AsyncOperationHandle<TextAsset> m_TextHandle;
 
-        while (!Directory.Exists(directoryName)) //ディレクトリがなかったら
-        {
-            Directory.CreateDirectory(directoryName); //ディレクトリを作成
-        }
-
-        while (!File.Exists(fileName)) // ファイルがなかったら
-        {
-            FileStream fs = File.Create(fileName); // ファイルを作成
-            fs.Close(); // ファイルを閉じる
-        }
+        // マップサイズのデータを取得
+        Addressables.LoadAssetAsync<TextAsset>(mapSizeDataFile).Completed += handle => {
+            m_TextHandle = handle;
+            if (handle.Result == null)
+            {
+                Debug.Log("Load Error");
+                return;
+            }
+            mapSizeDataText = handle.Result.text;
+            mapSizeDataLoadComlete = true;
+        };
     }
 
     /// <summary>
     /// オブジェクトの配置データ取得
     /// </summary>
     /// <param name="stageName">プレイステージ</param>
-    /// <returns>三次元の配置データを返す</returns>
-    public ShapeData.Shape[,,] LoadStageMap(string stageName)
+    /// <returns>三次元配列の配置データを返す</returns>
+    public ShapeData.Shape[,,] LoadStageMap(Vector3 mapSize)
     {
-        string fileName = Application.dataPath + folderName + "/" + stageName + ".csv";
-        string dataStr = "";
-
-        FileCheck(fileName); // 存在確認
-
-        // マップのサイズを取得
-        Vector3 mapSize = LoadStageSize(stageName);
+        string dataStr = stageDataText;
 
         // データ配列
         ShapeData.Shape[,,] map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-
-        // 読み込み
-        StreamReader reader = new StreamReader(fileName);
-        dataStr = reader.ReadToEnd();
-        reader.Close();
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
@@ -93,6 +82,27 @@ public class StageDataLoader : MonoBehaviour
     }
 
     /// <summary>
+    /// ステージの配置データをロードする
+    /// </summary>
+    /// <param name="stageName">ステージ名</param>
+    public void StageDataGet(string stageName)
+    {
+        AsyncOperationHandle<TextAsset> m_TextHandle;
+
+        // マップサイズのデータを取得
+        Addressables.LoadAssetAsync<TextAsset>(stageName).Completed += handle => {
+            m_TextHandle = handle;
+            if (handle.Result == null)
+            {
+                Debug.Log("Load Error");
+                return;
+            }
+            stageDataText = handle.Result.text;
+            stageDataLoadComlete = true;
+        };
+    }
+
+    /// <summary>
     /// データ補完
     /// </summary>
     /// <param name="idealDataSize">MapSizeDataで指定したデータ数　mapSize</param>
@@ -118,15 +128,7 @@ public class StageDataLoader : MonoBehaviour
     {
         Vector3 mapSize = new Vector3(0, 0, 0);
 
-        string fileName  = Application.dataPath + folderName + mapSizeFile;
-        string dataStr = "";
-
-        FileCheck(fileName); // 存在確認
-
-        // 読み込み
-        StreamReader reader = new StreamReader(fileName);
-        dataStr = reader.ReadToEnd();
-        reader.Close();
+        string dataStr = mapSizeDataText;
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
