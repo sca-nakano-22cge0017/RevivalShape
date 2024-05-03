@@ -62,9 +62,9 @@ public class PlayPhase : MonoBehaviour
     {
         for (int z = 0; z < mapSize.z; z++)
         {
-            for (int x = 0; x < mapSize.x; x++)
+            for (int y = 0; y < mapSize.y; y++)
             {
-                for (int y = 0; y < mapSize.y; y++)
+                for (int x = 0; x < mapSize.x; x++)
                 {
                     if(map[x, y, z] == ShapeData.Shape.Empty) break;
 
