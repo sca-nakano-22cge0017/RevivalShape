@@ -10,6 +10,8 @@ public class StageController : MonoBehaviour
     [SerializeField] ShapeData shapeData;
     [SerializeField] StageDataLoader stageDataLoader;
 
+    [SerializeField] CameraRotate cameraRotate;
+
     [SerializeField] CheckPhase checkPhase;
     [SerializeField] SelectPhase selectPhase;
     [SerializeField] PlayPhase playPhase;
@@ -56,6 +58,8 @@ public class StageController : MonoBehaviour
 
             // 配置データロード
             stageDataLoader.StageDataGet(stageName);
+
+            cameraRotate.MapSizeInitialize();
         }
 
         // 正解の配置データを配列に入れる
