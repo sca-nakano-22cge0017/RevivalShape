@@ -14,6 +14,7 @@ public class SelectPhase : MonoBehaviour
 
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
     int[,] playerInputData; // 入力データ
+    const int dataMax = 10; // 1マス内の入力データ最大値
 
     Vector3 mapSize;
 
