@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayPhase : MonoBehaviour
 {
@@ -20,11 +22,32 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
 
+    // 一致率計算
+    int correctObjAmount = 0; // 正答のブロック数
+    int matchObjAmount = 0; // 正答と一致している解答ブロック数
+    int matchRate = 0; // 一致率
+
+    [SerializeField] Text matchRateText;
+
+    [SerializeField] GameObject clearWindow;
+    bool isClear = false;
+
     private void Awake()
     {
         // UI等を消しておく
         objParent.gameObject.SetActive(false);
         playPhaseUI.SetActive(false);
+        clearWindow.SetActive(false);
+
+        matchRateText.enabled = false;
+    }
+
+    private void Update()
+    {
+        if (isClear && Input.GetMouseButton(0))
+        {
+            SceneManager.LoadScene("SelectScene");
+        }
     }
 
     /// <summary>
@@ -42,6 +65,10 @@ public class PlayPhase : MonoBehaviour
         // 正答とプレイヤーの解答を取得する
         correctAnswer = stageController.CorrectAnswer;
         map = stageController.PlayerAnswer;
+
+        correctObjAmount = 0;
+        matchObjAmount = 0;
+        matchRate = 0;
 
         objParent.gameObject.SetActive(true);
         playPhaseUI.SetActive(true);
@@ -63,6 +90,12 @@ public class PlayPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+
+                    // 正答のブロック数をカウント
+                    correctObjAmount++;
+
+                    // 正答と一致している解答ブロック数をカウント
+                    if (correctAnswer[x, y, z] == map[x, y, z]) matchObjAmount++;
                 }
             }
         }
@@ -79,13 +112,35 @@ public class PlayPhase : MonoBehaviour
                 for (int x = 0; x < mapSize.x; x++)
                 {
                     // 空白マスなら落下演出を飛ばす
-                    if(map[x, y, z] == ShapeData.Shape.Empty) continue;
+                    if (map[x, y, z] == ShapeData.Shape.Empty) continue;
 
-                    mapObj[x, y, z].GetComponent<Rigidbody>().constraints = 
+                    mapObj[x, y, z].GetComponent<Rigidbody>().constraints =
                         RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
                     yield return new WaitForSeconds(0.5f);
                 }
             }
+        }
+
+        MatchRateCheck();
+    }
+
+    /// <summary>
+    /// プレイヤーの解答と正答の一致率を確認・表示
+    /// </summary>
+    void MatchRateCheck()
+    {
+        matchRate = (int)((float)matchObjAmount / (float)correctObjAmount * 100);
+        matchRateText.enabled = true;
+        matchRateText.text = matchRate.ToString() + "%";
+
+        if(matchRate >= 100)
+        {
+            clearWindow.SetActive(true);
+            isClear = true;
+        }
+        else
+        {
+            //! テキスト点滅演出
         }
     }
 }

@@ -16,11 +16,17 @@ public class CheckPhase : MonoBehaviour
     ShapeData.Shape[,,] map;
     GameObject[,,] mapObj;
 
+    private void Awake()
+    {
+        checkPhaseUI.SetActive(false);
+    }
+
     /// <summary>
     /// 確認フェーズ移行時の処理
     /// </summary>
     public void CheckPhaseStart()
     {
+        checkPhaseUI.SetActive(true);
         mapSize = stageController.MapSize; // サイズ代入
 
         // 配列 要素数指定
@@ -32,10 +38,6 @@ public class CheckPhase : MonoBehaviour
 
         // オブジェクト生成
         StageInstance();
-    }
-
-    void Update()
-    {
     }
 
     void StageInstance()
