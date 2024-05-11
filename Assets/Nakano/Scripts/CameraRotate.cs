@@ -8,7 +8,7 @@ using UnityEngine;
 public class CameraRotate : MonoBehaviour
 {
     [SerializeField] StageController stageController;
-    Camera camera;
+    [SerializeField] Camera camera;
     Vector3 mapSize;
 
     Vector3 target;
@@ -32,10 +32,11 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
     [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
 
+    bool canRotate = false;
+    public bool CanRotate { get { return canRotate; }  set { canRotate = value; } }
+
     void Start()
     {
-        camera = GetComponent<Camera>();
-
         wid = Screen.width;
         hei = Screen.height;
 
@@ -45,12 +46,12 @@ public class CameraRotate : MonoBehaviour
 
     void Update()
     {
+        if(!canRotate) return;
+
         if (Input.touchCount == 1)
         {
             Touch t1 = Input.GetTouch(0);
-            Debug.Log(t1.position);
 
-            //! 範囲外からスワイプされたときはどうするか
             if (t1.position.x <= dragRangeMin.x || t1.position.x > dragRangeMax.x ||
                 t1.position.y <= dragRangeMin.y || t1.position.y > dragRangeMax.y)
                 return; // 範囲外なら終了
@@ -88,9 +89,12 @@ public class CameraRotate : MonoBehaviour
             Touch t1 = Input.GetTouch(0);
             Touch t2 = Input.GetTouch(1);
 
-            //! 片指が範囲外だったときはどうするか
             if (t1.position.x <= dragRangeMin.x || t1.position.x > dragRangeMax.x ||
                 t1.position.y <= dragRangeMin.y || t1.position.y > dragRangeMax.y)
+                return; // 範囲外なら終了
+
+            if (t2.position.x <= dragRangeMin.x || t2.position.x > dragRangeMax.x ||
+                t2.position.y <= dragRangeMin.y || t2.position.y > dragRangeMax.y)
                 return; // 範囲外なら終了
 
             if (t2.phase == TouchPhase.Began)
@@ -108,7 +112,6 @@ public class CameraRotate : MonoBehaviour
                 sDist = nDist;
             }
         }
-        //! Debug用にスマホ上で拡縮速度等が変更できた方が良い？
 
         #if UNITY_EDITOR
         if(Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O))

@@ -19,11 +19,24 @@ public class SelectPhase : MonoBehaviour
 
     ShapeData.Shape[,,] playerAnswer;
 
+    // 消去モード
+    [SerializeField] GameObject eraserModeWindow;
+    bool isEraser = false;
+    public bool IsEraser { get { return isEraser; } }
+
     private void Awake()
     {
         // ボタンのウィンドウは閉じておく
         //buttonParent.SetActive(false);
         selectPhaseUI.SetActive(false);
+
+        eraserModeWindow.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (isEraser) eraserModeWindow.SetActive(true);
+        else eraserModeWindow.SetActive(false);
     }
 
     /// <summary>
@@ -120,6 +133,14 @@ public class SelectPhase : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 消去モード
+    /// </summary>
+    public void EraserMode()
+    {
+        isEraser = !isEraser;
     }
 
     public void SelectPhaseEnd()

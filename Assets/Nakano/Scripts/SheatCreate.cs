@@ -21,8 +21,13 @@ public class SheatCreate : MonoBehaviour
         {
             for (int z = 0; z < (int)mapSize.z; z++)
             {
-                //Instantiate(sheatPrefab, new Vector3(x, -0.5f, z))
+                Instantiate(sheatPrefab, new Vector3(-x, -0.5f, z), Quaternion.identity, checkPhaseParent);
             }
         }
+    }
+
+    public void PlayPhase()
+    {
+        checkPhaseParent.SetParent(playPhaseParent);
     }
 }
