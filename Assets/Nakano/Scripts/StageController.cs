@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class StageController : MonoBehaviour
 {
+    public enum PHASE { CHECK = 0, SELECT, PLAY, };
+    public PHASE phase = 0;
+
     [SerializeField, Header("ステージ名")] string stageName;
     public string StageName { get { return stageName; } }
 
@@ -11,6 +14,7 @@ public class StageController : MonoBehaviour
     [SerializeField] StageDataLoader stageDataLoader;
 
     [SerializeField] CameraRotate cameraRotate;
+    [SerializeField] SheatCreate sheatCreate;
 
     [SerializeField] CheckPhase checkPhase;
     [SerializeField] SelectPhase selectPhase;
@@ -69,8 +73,20 @@ public class StageController : MonoBehaviour
 
             stageDataGot = true;
 
-            checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
+            sheatCreate.Sheat(); // シート作成
+            ToCheckPhase();
         }
+    }
+
+    /// <summary>
+    /// 確認フェーズに移行
+    /// </summary>
+    public void ToCheckPhase()
+    {
+        phase = PHASE.CHECK;
+        checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
+
+        cameraRotate.CanRotate = true; // カメラの回転ができるようにする
     }
 
     /// <summary>
@@ -78,7 +94,11 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToSelectPhase()
     {
+        phase = PHASE.SELECT;
         checkPhase.CheckPhaseEnd();
+
+        cameraRotate.CanRotate = false;
+        cameraRotate.RotateReset();
 
         selectPhase.SelectPhaseStart();
     }
@@ -88,8 +108,10 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToPlayPhase()
     {
+        phase = PHASE.PLAY;
         selectPhase.SelectPhaseEnd();
 
+        sheatCreate.PlayPhase();
         StartCoroutine(PlayPhaseStart());
     }
 
