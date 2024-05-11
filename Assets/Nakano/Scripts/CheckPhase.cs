@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class CheckPhase : MonoBehaviour
 {
-    string stageName;
-
     [SerializeField] ShapeData shapeData;
-    [SerializeField] StageDataLoader stageDataLoader;
     [SerializeField] StageController stageController;
 
     [SerializeField] Transform objParent;
@@ -24,7 +21,6 @@ public class CheckPhase : MonoBehaviour
     /// </summary>
     public void CheckPhaseStart()
     {
-        stageName = stageController.StageName; // ステージ名取得
         mapSize = stageController.MapSize; // サイズ代入
 
         // 配列 要素数指定
