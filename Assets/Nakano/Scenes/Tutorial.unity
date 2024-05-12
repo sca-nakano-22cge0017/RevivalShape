@@ -2180,7 +2180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4889d850b2d44f343a949cc84ed4aacb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSizeDataLoadComlete: 0
   stageDataLoadComlete: 0
   shapeData: {fileID: 1471772877}
 --- !u!4 &1471772880

@@ -17,12 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 2c4572cfdc8292c45b59056ec7de41a2
   m_SerializeEntries:
-  - m_GUID: 146d5afa7a466f04baca38dbc7c7a175
-    m_Address: MapSizeData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - MapData
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0e8b7d95f2ca0864893ddda8f1c78992
     m_Address: StageDataSample
     m_ReadOnly: 0
