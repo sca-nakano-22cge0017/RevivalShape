@@ -20,7 +20,9 @@ public class StageController : MonoBehaviour
     [SerializeField] SelectPhase selectPhase;
     [SerializeField] PlayPhase playPhase;
 
-    Vector3 mapSize = new Vector3(4, 4, 4);
+    private int yDataMax = 10; //選択フェーズで1マス内に入力できる最大値
+
+     Vector3 mapSize = new Vector3(4, 4, 4);
     public Vector3 MapSize { get { return mapSize; } }
 
     ShapeData.Shape[,,] correctAnswer;
@@ -53,6 +55,7 @@ public class StageController : MonoBehaviour
         {
             // マップサイズ取得
             mapSize = stageDataLoader.LoadStageSize(stageName);
+            mapSize.y = yDataMax;
 
             // 配列 要素数指定
             correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
