@@ -8,6 +8,7 @@ public class PlayPhase : MonoBehaviour
 {
     [SerializeField] StageController stageController;
     [SerializeField] ShapeData shapeData;
+    [SerializeField] MissionCheck missionCheck;
 
     [SerializeField] Transform objParent;
 
@@ -21,16 +22,21 @@ public class PlayPhase : MonoBehaviour
     ShapeData.Shape[,,] correctAnswer; // 正答
 
     [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
+    [SerializeField, Header("オブジェクトを落とす間隔(sec)")] float fallInterval;
+    [SerializeField, Tooltip("オブジェクトが全て落下してから一致率表示までの時間(sec)")]
+    float fallToMatchdispTime;
 
     // 一致率計算
-    int correctObjAmount = 0; // 正答のブロック数
-    int matchObjAmount = 0; // 正答と一致している解答ブロック数
+    float matchRateTroutTotal = 0; // 1マスあたりの一致率の和
+    int hasBlockTrout = 0; // 1つ以上ブロックがあるマスの数
+    int c_hasBlockTrout = 0; // 正答の1つ以上ブロックがあるマスの数
     int matchRate = 0; // 一致率
 
     [SerializeField] Text matchRateText;
 
     [SerializeField] GameObject clearWindow;
     bool isClear = false;
+    bool isRetry = false;
 
     private void Awake()
     {
@@ -47,6 +53,12 @@ public class PlayPhase : MonoBehaviour
         if (isClear && Input.GetMouseButton(0))
         {
             SceneManager.LoadScene("SelectScene");
+        }
+
+        if (isRetry && Input.GetMouseButton(0))
+        {
+            // 確認フェーズに戻る
+            stageController.ToCheckPhase();
         }
     }
 
@@ -66,8 +78,10 @@ public class PlayPhase : MonoBehaviour
         correctAnswer = stageController.CorrectAnswer;
         map = stageController.PlayerAnswer;
 
-        correctObjAmount = 0;
-        matchObjAmount = 0;
+        // 一致率 初期化
+        matchRateTroutTotal = 0;
+        hasBlockTrout = 0;
+        c_hasBlockTrout = 0;
         matchRate = 0;
 
         objParent.gameObject.SetActive(true);
@@ -78,9 +92,9 @@ public class PlayPhase : MonoBehaviour
 
     void AnswerInstance()
     {
-        float matchRateTroutTotal = 0; // 1マスあたりの一致率の和
-        int hasBlockTrount = 0; // 1つ以上ブロックがあるマスの数
-        int c_hasBlockTrount = 0; // 正答の1つ以上ブロックがあるマスの数
+        matchRateTroutTotal = 0;
+        hasBlockTrout = 0;
+        c_hasBlockTrout = 0;
         matchRate = 0;
 
         for (int z = 0; z < mapSize.z; z++)
@@ -126,8 +140,8 @@ public class PlayPhase : MonoBehaviour
                     }
                 }
 
-                if(total > 0) hasBlockTrount++;
-                if(c_total > 0) c_hasBlockTrount++;
+                if(total > 0) hasBlockTrout++;
+                if(c_total > 0) c_hasBlockTrout++;
 
                 // 1マスあたりの一致率を計算
                 // 超過がある場合
@@ -151,9 +165,6 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        int hBT = hasBlockTrount > c_hasBlockTrount ? hasBlockTrount : c_hasBlockTrount;
-        matchRate = (int)(matchRateTroutTotal / (float)hBT * 100);
-
         StartCoroutine(Fall());
     }
 
@@ -170,11 +181,12 @@ public class PlayPhase : MonoBehaviour
 
                     mapObj[x, y, z].GetComponent<Rigidbody>().constraints =
                         RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
-                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitForSeconds(fallInterval);
                 }
             }
         }
 
+        yield return new WaitForSeconds(fallToMatchdispTime);
         MatchRateDisp();
     }
 
@@ -183,17 +195,39 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void MatchRateDisp()
     {
+        int hBT = hasBlockTrout > c_hasBlockTrout ? hasBlockTrout : c_hasBlockTrout;
+        matchRate = (int)(matchRateTroutTotal / (float)hBT * 100);
+
         matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
 
         if(matchRate >= 100)
         {
             clearWindow.SetActive(true);
+            missionCheck.Mission();
             isClear = true;
         }
         else
         {
-            //! テキスト点滅演出
+            StartCoroutine(MatchTextBlinking());
+            isRetry = true;
+        }
+    }
+
+    float unDispTime = 0.3f;
+    float dispTime = 0.5f;
+
+    /// <summary>
+    /// パーセンテージ点滅演出
+    /// </summary>
+    IEnumerator MatchTextBlinking()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            yield return new WaitForSeconds(dispTime);
+            matchRateText.enabled = false;
+            yield return new WaitForSeconds(unDispTime);
+            matchRateText.enabled = true;
         }
     }
 }
