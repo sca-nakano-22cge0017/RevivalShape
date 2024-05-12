@@ -11,29 +11,30 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class StageDataLoader : MonoBehaviour
 {
     // Addressable
-    string mapSizeDataFile = "MapSizeData";
-    string mapSizeDataText;
     string stageDataText;
 
-    [HideInInspector] public bool mapSizeDataLoadComlete = false;
     [HideInInspector] public bool stageDataLoadComlete = false;
 
     [SerializeField] ShapeData shapeData;
 
-    private void Awake()
+    /// <summary>
+    /// ステージの配置データをロードする
+    /// </summary>
+    /// <param name="stageName">ステージ名</param>
+    public void StageDataGet(string stageName)
     {
         AsyncOperationHandle<TextAsset> m_TextHandle;
 
         // マップサイズのデータを取得
-        Addressables.LoadAssetAsync<TextAsset>(mapSizeDataFile).Completed += handle => {
+        Addressables.LoadAssetAsync<TextAsset>(stageName).Completed += handle => {
             m_TextHandle = handle;
             if (handle.Result == null)
             {
                 Debug.Log("Load Error");
                 return;
             }
-            mapSizeDataText = handle.Result.text;
-            mapSizeDataLoadComlete = true;
+            stageDataText = handle.Result.text;
+            stageDataLoadComlete = true;
         };
     }
 
@@ -51,7 +52,7 @@ public class StageDataLoader : MonoBehaviour
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
-        for (int z = 0; z < mapSize.z; z++)
+        for (int z = 1; z <= mapSize.z; z++)
         {
             // スキップしたい文章（説明文や補足）に来たら終わりにする
             if (line[z].StartsWith("!")) break;
@@ -73,33 +74,12 @@ public class StageDataLoader : MonoBehaviour
                     // MapSizeDataで指定したHeightよりデータ数が少なかった場合は補完
                     string[] o = DataComplement((int)mapSize.y, obj.Length, obj, y);
 
-                    map[x, y, z] = shapeData.StringToShape(o[y]);
+                    map[x, y, z - 1] = shapeData.StringToShape(o[y]);
                 }
             }
         }
 
         return map;
-    }
-
-    /// <summary>
-    /// ステージの配置データをロードする
-    /// </summary>
-    /// <param name="stageName">ステージ名</param>
-    public void StageDataGet(string stageName)
-    {
-        AsyncOperationHandle<TextAsset> m_TextHandle;
-
-        // マップサイズのデータを取得
-        Addressables.LoadAssetAsync<TextAsset>(stageName).Completed += handle => {
-            m_TextHandle = handle;
-            if (handle.Result == null)
-            {
-                Debug.Log("Load Error");
-                return;
-            }
-            stageDataText = handle.Result.text;
-            stageDataLoadComlete = true;
-        };
     }
 
     /// <summary>
@@ -128,25 +108,14 @@ public class StageDataLoader : MonoBehaviour
     {
         Vector3 mapSize = new Vector3(0, 0, 0);
 
-        string dataStr = mapSizeDataText;
+        string dataStr = stageDataText;
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
-        for (int z = 0; z < line.Length; z++)
-        {
-            if(z == 0) continue; // スキップしたい文章（説明文や補足）に来たら / 1行目を飛ばす
-            if(line[z][0] == '!' || line[z][0] == '！') break;
-
-            var cell = line[z].Split(","); // コンマで区切る セルごとに分かれる
-
-            // ステージ名と同じになるまでやり直す 大文字小文字を区別しない
-            if(string.Compare(stageName, cell[0], true) != 0) continue;
-
-            // マップのサイズを代入
-            if (int.TryParse(cell[1], out int w)) mapSize.x = w;
-            if (int.TryParse(cell[2], out int d)) mapSize.z = d;
-            if (int.TryParse(cell[3], out int h)) mapSize.y = h;
-        }
+        string[] sizeText = line[0].Split(",");
+        if (int.TryParse(sizeText[1], out int w)) mapSize.x = w;
+        if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
+        if (int.TryParse(sizeText[3], out int h)) mapSize.y = h;
 
         return mapSize;
     }

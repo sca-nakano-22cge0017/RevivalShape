@@ -48,10 +48,15 @@ public class StageController : MonoBehaviour
     bool mapSizeDataGot = false;
     bool stageDataGot = false;
 
+    private void Awake()
+    {
+        stageDataLoader.StageDataGet(stageName);
+    }
+
     void Update()
     {
         // データのロードが完了していたら かつ データを変数として取得していなければ
-        if(stageDataLoader.mapSizeDataLoadComlete && !mapSizeDataGot)
+        if(stageDataLoader.stageDataLoadComlete && !mapSizeDataGot)
         {
             // マップサイズ取得
             mapSize = stageDataLoader.LoadStageSize(stageName);
