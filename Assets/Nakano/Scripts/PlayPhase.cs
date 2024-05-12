@@ -78,10 +78,23 @@ public class PlayPhase : MonoBehaviour
 
     void AnswerInstance()
     {
+        float matchRateTroutTotal = 0; // 1マスあたりの一致率の和
+        int hasBlockTrount = 0; // 1つ以上ブロックがあるマスの数
+        int c_hasBlockTrount = 0; // 正答の1つ以上ブロックがあるマスの数
+        matchRate = 0;
+
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int x = 0; x < mapSize.x; x++)
             {
+                float matchRateTrout = 0; // 1マス内の一致率
+
+                int total = 0; // 1マス内のブロックの総数
+                int c_total = 0; // 正解の1マス内のブロックの総数
+                int excess = 0; // 超過数
+                int lack = 0; // 不足数
+                int diff = 0; // 相違数
+
                 for (int y = 0; y < mapSize.y; y++)
                 {
                     Vector3 pos = new Vector3(-x, y + fallPos, z);
@@ -91,14 +104,55 @@ public class PlayPhase : MonoBehaviour
 
                     mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
 
-                    // 正答のブロック数をカウント
-                    correctObjAmount++;
+                    if(map[x, y, z] != ShapeData.Shape.Empty) total++;
+                    if(correctAnswer[x, y, z] != ShapeData.Shape.Empty) c_total++;
 
-                    // 正答と一致している解答ブロック数をカウント
-                    if (correctAnswer[x, y, z] == map[x, y, z]) matchObjAmount++;
+                    // 超過分 正答では何も置かれていない場所にオブジェクトが置かれた場合
+                    if(correctAnswer[x, y, z] == ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
+                    {
+                        excess++;
+                    }
+
+                    // 不足分 正答では何か置かれている場所にオブジェクトが何も置かれていなかった場合
+                    else if (correctAnswer[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] == ShapeData.Shape.Empty)
+                    {
+                        lack++;
+                    }
+
+                    // 相違分 形が違う場合
+                    else if(correctAnswer[x, y, z] != map[x, y, z] && correctAnswer[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
+                    {
+                        diff++;
+                    }
                 }
+
+                if(total > 0) hasBlockTrount++;
+                if(c_total > 0) c_hasBlockTrount++;
+
+                // 1マスあたりの一致率を計算
+                // 超過がある場合
+                if(excess > 0)
+                {
+                    matchRateTrout = 1 - ((total - (c_total - diff)) / total);
+                    // 1 - (( 1マス内の総ブロック数 ) - (( 正答の1マス内のブロック数 ) - 相違数 ) / 1マス内の総ブロック数 )
+                }
+                else
+                {
+                    if(c_total > 0)
+                        matchRateTrout = (c_total - lack - diff) / c_total;
+                    // (( 正答の1マス内のブロック数 ) - ( 不足分 ) - ( 相違分 )) / ( 正答の1マス内のブロック数 )
+
+                    // 何も置いてない場合は0
+                    if (c_total <= 0)
+                        matchRateTrout = 0;
+                }
+
+                matchRateTroutTotal += matchRateTrout;
             }
         }
+
+        int hBT = hasBlockTrount > c_hasBlockTrount ? hasBlockTrount : c_hasBlockTrount;
+        matchRate = (int)(matchRateTroutTotal / (float)hBT * 100);
 
         StartCoroutine(Fall());
     }
@@ -121,15 +175,14 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        MatchRateCheck();
+        MatchRateDisp();
     }
 
     /// <summary>
     /// プレイヤーの解答と正答の一致率を確認・表示
     /// </summary>
-    void MatchRateCheck()
+    void MatchRateDisp()
     {
-        matchRate = (int)((float)matchObjAmount / (float)correctObjAmount * 100);
         matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
 
