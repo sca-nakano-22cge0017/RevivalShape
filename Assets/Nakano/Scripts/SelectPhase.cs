@@ -12,6 +12,7 @@ public class SelectPhase : MonoBehaviour
 
     [SerializeField] GameObject selectPhaseUI;
 
+    bool buttonsCreated = false; // ボタン作成済みかどうか
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
     int[,] playerInputData; // 入力データ
 
@@ -60,6 +61,16 @@ public class SelectPhase : MonoBehaviour
 
         ShapeArrayInitialize();
 
+        ButtonsCreate();
+    }
+
+    /// <summary>
+    /// ボタンの生成
+    /// </summary>
+    void ButtonsCreate()
+    {
+        if (buttonsCreated) return;
+
         // マップの広さ分ボタンを生成
         for (int x = 0; x < (int)mapSize.x; x++)
         {
@@ -68,6 +79,8 @@ public class SelectPhase : MonoBehaviour
                 selectButtons[z, x] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
+
+        buttonsCreated = true;
     }
 
     /// <summary>

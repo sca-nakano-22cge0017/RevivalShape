@@ -16,6 +16,8 @@ public class CheckPhase : MonoBehaviour
     ShapeData.Shape[,,] map;
     GameObject[,,] mapObj;
 
+    bool sampleCreated = false;
+
     private void Awake()
     {
         checkPhaseUI.SetActive(false);
@@ -27,6 +29,15 @@ public class CheckPhase : MonoBehaviour
     public void CheckPhaseStart()
     {
         checkPhaseUI.SetActive(true);
+
+        
+
+        // オブジェクト生成
+        StageInstance();
+    }
+
+    void StageInstance()
+    {
         mapSize = stageController.MapSize; // サイズ代入
 
         // 配列 要素数指定
@@ -36,12 +47,6 @@ public class CheckPhase : MonoBehaviour
         // 正解の配置データを取得
         map = stageController.CorrectAnswer;
 
-        // オブジェクト生成
-        StageInstance();
-    }
-
-    void StageInstance()
-    {
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int x = 0; x < mapSize.x; x++)

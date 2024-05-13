@@ -59,6 +59,7 @@ public class PlayPhase : MonoBehaviour
         {
             // 確認フェーズに戻る
             stageController.ToCheckPhase();
+            PlayPhaseEnd();
         }
     }
 
@@ -229,5 +230,11 @@ public class PlayPhase : MonoBehaviour
             yield return new WaitForSeconds(unDispTime);
             matchRateText.enabled = true;
         }
+    }
+
+    public void PlayPhaseEnd()
+    {
+        // ウィンドウを閉じる
+        playPhaseUI.SetActive(false);
     }
 }
