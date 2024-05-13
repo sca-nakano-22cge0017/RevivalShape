@@ -39,9 +39,6 @@ public class CameraRotate : MonoBehaviour
     {
         wid = Screen.width;
         hei = Screen.height;
-
-        defaultPos = transform.position;
-        defaultRot = transform.rotation;
     }
 
     void Update()
@@ -146,5 +143,13 @@ public class CameraRotate : MonoBehaviour
 
         target = mapSize / 2;
         target.x *= -1;
+        target.y = 0;
+
+        // サンプルのサイズに応じてカメラ位置を調整
+        transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x * 3, mapSize.z + 2);
+        defaultPos = transform.position;
+        defaultRot = transform.rotation;
+
+        //! サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
     }
 }

@@ -8,6 +8,9 @@ public class SheatCreate : MonoBehaviour
     [SerializeField] Transform checkPhaseParent;
     [SerializeField] Transform playPhaseParent;
 
+    [SerializeField] GameObject frontMark;
+    [SerializeField] GameObject backMark;
+
     [SerializeField] StageController stageController;
 
     Vector3 mapSize;
@@ -24,6 +27,9 @@ public class SheatCreate : MonoBehaviour
                 Instantiate(sheatPrefab, new Vector3(-x, -0.5f, z), Quaternion.identity, checkPhaseParent);
             }
         }
+
+        frontMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, mapSize.z + 0.5f);
+        backMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, -1.5f);
     }
 
     public void PlayPhase()
