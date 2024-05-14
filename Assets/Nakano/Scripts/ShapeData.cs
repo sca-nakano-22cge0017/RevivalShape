@@ -70,4 +70,43 @@ public class ShapeData : MonoBehaviour
 
         return prefabs[objNum];
     }
+
+    /// <summary>
+    /// 三次配列内で使用している図形の種類を調べる
+    /// </summary>
+    /// <param name="checkArray">調べたい配列</param>
+    /// <returns>使用図形の種類を配列で返す</returns>
+    public Shape[] ShapeTypes(Shape[,,] checkArray)
+    {
+        Shape[] type = new Shape[System.Enum.GetValues(typeof(Shape)).Length];
+
+        for (int x = 0; x < checkArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < checkArray.GetLength(1); y++)
+            {
+                for (int z = 0; z < checkArray.GetLength(2); z++)
+                {
+                    for (int t = 0; t < type.Length; t++)
+                    {
+                        // Empty、確認済みの図形なら次のマスへ
+                        if (checkArray[x, y, z] == Shape.Empty || type[t] == checkArray[x, y, z])
+                            break;
+
+                        // 既に値が入っていたら次の要素へ
+                        if (type[t] != Shape.Empty)
+                            continue;
+
+                        // 未確認の図形なら配列に追加する
+                        if (checkArray[x, y, z] != Shape.Empty && type[t] == Shape.Empty)
+                        {
+                            type[t] = checkArray[x, y, z];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return type;
+    }
 }

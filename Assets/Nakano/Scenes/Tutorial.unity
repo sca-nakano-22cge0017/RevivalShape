@@ -1348,6 +1348,7 @@ MonoBehaviour:
   stageController: {fileID: 1471772881}
   shapeData: {fileID: 1471772877}
   missionCheck: {fileID: 798559331}
+  vibration: {fileID: 0}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
   fallPos: 20
@@ -1481,12 +1482,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageController: {fileID: 1471772881}
-  camera: {fileID: 883029808}
-  sensitivity: 5
+  _camera: {fileID: 883029808}
+  sensitivity: 10
   vMax: 80
   vMin: 10
   vDefault: 60
-  vSpeed: 0.05
+  vSpeed: 0.1
   dragRangeMin: {x: 0, y: 500}
   dragRangeMax: {x: 1080, y: 1880}
 --- !u!1 &900491404
@@ -1568,6 +1569,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 900491404}
   m_CullTransparentMesh: 1
+--- !u!1 &916804199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 916804200}
+  m_Layer: 0
+  m_Name: Marks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &916804200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 916804199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5417439283887372881}
+  - {fileID: 5417439282210709423}
+  m_Father: {fileID: 2050629755}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &931733939
 GameObject:
   m_ObjectHideFlags: 0
@@ -1597,9 +1631,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5417439283887372881}
-  - {fileID: 5417439282210709423}
   - {fileID: 2050629755}
+  - {fileID: 1312685051}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1026004855
@@ -1912,6 +1945,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1312685050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1312685051}
+  m_Layer: 0
+  m_Name: SampleObj
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1312685051
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312685050}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 931733940}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1352615790
 GameObject:
   m_ObjectHideFlags: 0
@@ -2037,7 +2101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeData: {fileID: 1471772877}
   stageController: {fileID: 1471772881}
-  objParent: {fileID: 931733940}
+  objParent: {fileID: 1312685051}
   checkPhaseUI: {fileID: 1212041573}
 --- !u!4 &1395020501
 Transform:
@@ -2233,8 +2297,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sheatPrefab: {fileID: 5078242686620595751, guid: 8b2d2f86b8b67f346b8992878c28d21c, type: 3}
-  checkPhaseParent: {fileID: 2050629755}
-  playPhaseParent: {fileID: 1894742054}
+  sheatParent: {fileID: 2050629755}
+  marks: {fileID: 916804200}
   frontMark: {fileID: 5078242685851999855}
   backMark: {fileID: 5078242686320769937}
   stageController: {fileID: 1471772881}
@@ -2642,7 +2706,7 @@ GameObject:
   - component: {fileID: 2050629755}
   m_Layer: 0
   m_Name: Sheat
-  m_TagString: Untagged
+  m_TagString: Sheat
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2659,7 +2723,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 916804200}
   m_Father: {fileID: 931733940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2061910041
@@ -3343,7 +3408,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 931733940}
+  m_Father: {fileID: 916804200}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &5417439283887372881
 Transform:
@@ -3358,7 +3423,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 931733940}
+  m_Father: {fileID: 916804200}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

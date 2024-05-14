@@ -8,7 +8,7 @@ using UnityEngine;
 public class CameraRotate : MonoBehaviour
 {
     [SerializeField] StageController stageController;
-    [SerializeField] Camera camera;
+    [SerializeField] Camera _camera;
     Vector3 mapSize;
 
     Vector3 target;
@@ -34,6 +34,8 @@ public class CameraRotate : MonoBehaviour
 
     bool canRotate = false;
     public bool CanRotate { get { return canRotate; }  set { canRotate = value; } }
+
+    Vector3 movedPos = new Vector3(0, 0, 0); // debug
 
     void Start()
     {
@@ -62,7 +64,7 @@ public class CameraRotate : MonoBehaviour
                 tx = (t1.position.x - sPos.x) / wid; //横移動量(-1<tx<1)
                 ty = (t1.position.y - sPos.y) / hei; //縦移動量(-1<ty<1)
 
-                // マウス移動量から求めた回転角度
+                // 移動量から求めた回転角度
                 float deltaAngleLR = tx * sensitivity;
                 float deltaAngleTB = -ty * sensitivity;
 
@@ -98,45 +100,78 @@ public class CameraRotate : MonoBehaviour
             {
                 sDist = Vector2.Distance(t1.position, t2.position);
 
-                vRatio = camera.fieldOfView;
+                vRatio = _camera.fieldOfView;
             }
             else if (t1.phase == TouchPhase.Moved || t2.phase == TouchPhase.Moved)
             {
                 nDist = Vector2.Distance(t1.position, t2.position);
                 if (sDist > nDist) vRatio += vSpeed * (1 - (vRatio - vMin) / (vMax - vMin)) * (sDist - nDist); // 縮小
                 if (sDist < nDist) vRatio -= vSpeed * ((vRatio - vMin) / (vMax - vMin)) * (nDist - sDist); // 拡大
-                camera.fieldOfView = vRatio;
+                _camera.fieldOfView = vRatio;
                 sDist = nDist;
             }
         }
 
-        #if UNITY_EDITOR
-        if(Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O))
+#if UNITY_EDITOR
+        if(Input.GetMouseButtonDown(0))
         {
-            vRatio = camera.fieldOfView;
+            movedPos = Input.mousePosition;
+        }
+        if (Input.GetMouseButton(0))
+        {
+            tx = (movedPos.x - Input.mousePosition.x) / wid;
+            ty = (movedPos.y - Input.mousePosition.y) / hei;
+
+            float deltaAngleLR = -tx * 5;
+            float deltaAngleTB = ty * 5;
+
+            var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up);
+            var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, transform.right);
+
+            var pos = transform.position;
+            pos -= target;
+            pos = angleAxisLR * angleAxisTB * pos;
+            pos += target;
+
+            if (pos.y > 0)
+            {
+                transform.position = pos;
+                transform.rotation = angleAxisLR * angleAxisTB * transform.rotation;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.O))
+        {
+            vRatio = _camera.fieldOfView;
         }
 
         if (Input.GetKey(KeyCode.I)) // 拡大
         {
             vRatio -= vSpeed * ((vRatio - vMin) / (vMax - vMin));
-            camera.fieldOfView = vRatio;
+            _camera.fieldOfView = vRatio;
         }
         if (Input.GetKey(KeyCode.O)) // 縮小
         {
             vRatio += vSpeed * (1 - (vRatio - vMin) / (vMax - vMin));
-            camera.fieldOfView = vRatio;
+            _camera.fieldOfView = vRatio;
         }
-        #endif
+#endif
     }
 
+    /// <summary>
+    /// カメラの位置・回転を初期状態に戻す
+    /// </summary>
     public void RotateReset()
     {
         transform.position = defaultPos;
         transform.rotation = defaultRot;
 
-        camera.fieldOfView = vDefault;
+        _camera.fieldOfView = vDefault;
     }
-
+    
+    /// <summary>
+    /// カメラの注視位置を設定
+    /// </summary>
     public void MapSizeInitialize()
     {
         mapSize = stageController.MapSize; // サイズ代入
@@ -146,7 +181,7 @@ public class CameraRotate : MonoBehaviour
         target.y = 0;
 
         // サンプルのサイズに応じてカメラ位置を調整
-        transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x * 3, mapSize.z + 2);
+        transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x + 10, mapSize.z + 2);
         defaultPos = transform.position;
         defaultRot = transform.rotation;
 

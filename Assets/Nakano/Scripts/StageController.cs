@@ -22,8 +22,20 @@ public class StageController : MonoBehaviour
 
     private int yDataMax = 10; //選択フェーズで1マス内に入力できる最大値
 
-     Vector3 mapSize = new Vector3(4, 4, 4);
+    Vector3 mapSize = new Vector3(4, 4, 4);
     public Vector3 MapSize { get { return mapSize; } }
+
+    int playerAnswerSizeY = 0;
+    public int PlayerAnswerSizeY { get { return playerAnswerSizeY; } }
+
+    private int phaseBackCount = 0;
+    /// <summary>
+    /// 確認フェーズに戻った回数
+    /// </summary>
+    public int PhaseBackCount { get { return phaseBackCount; } set { phaseBackCount = value; } }
+
+    ShapeData.Shape[] shapeType; // 使用図形の種類
+    private int shapeTypeAmount = 0; // 使用図形の種類数
 
     ShapeData.Shape[,,] correctAnswer;
     /// <summary>
@@ -45,6 +57,7 @@ public class StageController : MonoBehaviour
         set { playerAnswer = value; }
     }
 
+    // データ取得完了したかどうか
     bool mapSizeDataGot = false;
     bool stageDataGot = false;
 
@@ -59,19 +72,21 @@ public class StageController : MonoBehaviour
         if(stageDataLoader.stageDataLoadComlete && !mapSizeDataGot)
         {
             // マップサイズ取得
-            mapSize = stageDataLoader.LoadStageSize(stageName);
-            mapSize.y = yDataMax;
+            var mapData = stageDataLoader.LoadStageSize(stageName);
+            mapSize = mapData.size;
+            shapeTypeAmount = mapData.shapeAmount;
+            mapSize.y = yDataMax * shapeTypeAmount; // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
 
             // 配列 要素数指定
+            shapeType = new ShapeData.Shape[shapeTypeAmount];
             correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
             playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
-            mapSizeDataGot = true;
-
             // 配置データロード
             stageDataLoader.StageDataGet(stageName);
-
             cameraRotate.MapSizeInitialize();
+
+            mapSizeDataGot = true;
         }
 
         // 正解の配置データを配列に入れる
@@ -79,10 +94,12 @@ public class StageController : MonoBehaviour
         {
             correctAnswer = stageDataLoader.LoadStageMap(mapSize);
 
-            stageDataGot = true;
+            shapeType = shapeData.ShapeTypes(correctAnswer); // 使用している図形の種類を取得
 
             sheatCreate.Sheat(); // シート作成
-            ToCheckPhase();
+            ToCheckPhase(); // 確認フェーズに移行
+
+            stageDataGot = true;
         }
     }
 
@@ -92,9 +109,15 @@ public class StageController : MonoBehaviour
     public void ToCheckPhase()
     {
         phase = PHASE.CHECK;
-        checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
+
+        playPhase.PlayPhaseEnd();
+        selectPhase.SelectPhaseEnd();
 
         cameraRotate.CanRotate = true; // カメラの回転ができるようにする
+
+        sheatCreate.SheatDisp(true, true); // シートの表示設定
+
+        checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
     }
 
     /// <summary>
@@ -103,10 +126,14 @@ public class StageController : MonoBehaviour
     public void ToSelectPhase()
     {
         phase = PHASE.SELECT;
+
         checkPhase.CheckPhaseEnd();
+        playPhase.PlayPhaseEnd();
 
         cameraRotate.CanRotate = false;
         cameraRotate.RotateReset();
+
+        sheatCreate.SheatDisp(false, false);
 
         selectPhase.SelectPhaseStart();
     }
@@ -117,16 +144,12 @@ public class StageController : MonoBehaviour
     public void ToPlayPhase()
     {
         phase = PHASE.PLAY;
+
+        checkPhase.CheckPhaseEnd();
         selectPhase.SelectPhaseEnd();
 
-        sheatCreate.PlayPhase();
-        StartCoroutine(PlayPhaseStart());
-    }
-
-    IEnumerator PlayPhaseStart()
-    {
-        yield return new WaitForSeconds(1f);
-
+        sheatCreate.SheatDisp(true, false);
+        
         playPhase.PlayPhaseStart();
     }
 }
