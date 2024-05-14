@@ -16,6 +16,13 @@ public class SelectPhase : MonoBehaviour
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
     int[,] playerInputData; // 入力データ
 
+    //! 制作中
+    List<SelectPhaseButton[,]> _selectButtons; // 各ボタンのデータ
+    ShapeData.Shape selectShape; // 選択中の図形
+
+    bool arraysCreated = false; // 配列の要素数を指定済みかどうか
+    bool firstInput = true; // 一番最初の入力かどうか
+
     Vector3 mapSize;
 
     ShapeData.Shape[,,] playerAnswer;
@@ -27,10 +34,8 @@ public class SelectPhase : MonoBehaviour
 
     private void Awake()
     {
-        // ボタンのウィンドウは閉じておく
-        //buttonParent.SetActive(false);
+        // ウィンドウ非表示
         selectPhaseUI.SetActive(false);
-
         eraserModeWindow.SetActive(false);
     }
 
@@ -48,11 +53,42 @@ public class SelectPhase : MonoBehaviour
         // UI表示
         selectPhaseUI.SetActive(true);
 
+        ArraysCreate();
+        
+        ButtonsCreate();
+    }
+
+    /// <summary>
+    /// 選択フェーズ終了
+    /// </summary>
+    public void SelectPhaseEnd()
+    {
+        InputNumSave();
+
+        InputNumReset();
+
+        IntArrayToShapeArray();
+
+        // ウィンドウを閉じる
+        //buttonParent.SetActive(false);
+        selectPhaseUI.SetActive(false);
+
+        // プレイヤーの答えを保存
+        stageController.PlayerAnswer = playerAnswer;
+        firstInput = false;
+    }
+
+    /// <summary>
+    /// 配列要素数指定
+    /// </summary>
+    void ArraysCreate()
+    {
+        if(arraysCreated) return;
+
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
         // 配列　要素数指定
-        //! 最大値は全ステージ統一したりするかも？
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
@@ -61,7 +97,7 @@ public class SelectPhase : MonoBehaviour
 
         ShapeArrayInitialize();
 
-        ButtonsCreate();
+        arraysCreated = true;
     }
 
     /// <summary>
@@ -69,14 +105,14 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void ButtonsCreate()
     {
-        if (buttonsCreated) return;
+        if(buttonsCreated) return;
 
         // マップの広さ分ボタンを生成
-        for (int x = 0; x < (int)mapSize.x; x++)
+        for (int z = 0; z < (int)mapSize.z; z++)
         {
-            for (int z = 0; z < (int)mapSize.z; z++)
+            for (int x = 0; x < (int)mapSize.x; x++)
             {
-                selectButtons[z, x] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
+                selectButtons[x, z] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
 
@@ -103,10 +139,13 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void InputNumReset()
     {
+        if (!firstInput) return;
+
         for (int z = 0; z < (int)mapSize.z; z++)
         {
             for (int x = 0; x < (int)mapSize.x; x++)
             {
+                // 初回なら0を入れておく
                 selectButtons[x, z].InputNum = 0;
             }
         }
@@ -123,7 +162,6 @@ public class SelectPhase : MonoBehaviour
             {
                 for (int y = 0; y < (int)mapSize.y; y++)
                 {
-                    // とりあえず空白マスで埋める
                     playerAnswer[x, y, z] = ShapeData.Shape.Empty;
                 }
             }
@@ -149,26 +187,10 @@ public class SelectPhase : MonoBehaviour
     }
 
     /// <summary>
-    /// 消去モード
+    /// 消去モードと通常モードを切り替え
     /// </summary>
     public void EraserMode()
     {
         isEraser = !isEraser;
-    }
-
-    public void SelectPhaseEnd()
-    {
-        InputNumSave();
-
-        InputNumReset();
-
-        IntArrayToShapeArray();
-
-        // ウィンドウを閉じる
-        //buttonParent.SetActive(false);
-        selectPhaseUI.SetActive(false);
-
-        // プレイヤーの答えを保存
-        stageController.PlayerAnswer = playerAnswer;
     }
 }

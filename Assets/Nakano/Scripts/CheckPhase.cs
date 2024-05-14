@@ -21,6 +21,7 @@ public class CheckPhase : MonoBehaviour
     private void Awake()
     {
         checkPhaseUI.SetActive(false);
+        objParent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -29,15 +30,28 @@ public class CheckPhase : MonoBehaviour
     public void CheckPhaseStart()
     {
         checkPhaseUI.SetActive(true);
-
-        
+        objParent.gameObject.SetActive(true);
 
         // オブジェクト生成
-        StageInstance();
+        if (!sampleCreated) StageInstance();
     }
 
+    /// <summary>
+    /// 確認フェーズ終了
+    /// </summary>
+    public void CheckPhaseEnd()
+    {
+        checkPhaseUI.SetActive(false);
+        objParent.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// サンプル生成
+    /// </summary>
     void StageInstance()
     {
+        sampleCreated = true;
+
         mapSize = stageController.MapSize; // サイズ代入
 
         // 配列 要素数指定
@@ -59,14 +73,9 @@ public class CheckPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
                 }
             }
         }
-    }
-
-    public void CheckPhaseEnd()
-    {
-        objParent.gameObject.SetActive(false);
-        checkPhaseUI.SetActive(false);
     }
 }
