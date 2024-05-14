@@ -135,8 +135,7 @@ public class PlayPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
-
+                    
                     // 正答とプレイヤーの解答を比べる
                     if (map[x, y, z] != ShapeData.Shape.Empty) total++;
                     if(correctAnswer[x, y, z] != ShapeData.Shape.Empty) c_total++;
@@ -205,6 +204,7 @@ public class PlayPhase : MonoBehaviour
 
                     mapObj[x, y, z].GetComponent<Rigidbody>().constraints =
                         RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+                    StartCoroutine(VibrateOn(mapObj[x, y, z]));
                     yield return new WaitForSeconds(fallInterval);
                 }
             }
@@ -212,6 +212,12 @@ public class PlayPhase : MonoBehaviour
 
         yield return new WaitForSeconds(fallToMatchdispTime);
         MatchRateDisp();
+    }
+
+    IEnumerator VibrateOn(GameObject obj)
+    {
+        yield return new WaitForEndOfFrame();
+        obj.GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
     }
 
     /// <summary>
@@ -228,7 +234,8 @@ public class PlayPhase : MonoBehaviour
         {
             clearWindow.SetActive(true);
             missionCheck.Mission();
-            vibration.LongVibrate(2);
+
+            //vibration.PluralVibrate(2, 500);
             isClear = true;
         }
         else

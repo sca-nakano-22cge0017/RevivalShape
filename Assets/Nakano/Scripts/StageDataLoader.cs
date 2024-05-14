@@ -22,10 +22,9 @@ public class StageDataLoader : MonoBehaviour
     /// </summary>
     /// <param name="stageName">プレイステージ</param>
     /// <returns>サイズをVector3で、使用図形数をintで返す</returns>
-    public (Vector3 size, int shapeAmount) LoadStageSize(string stageName)
+    public Vector3 LoadStageSize(string stageName)
     {
         Vector3 mapSize = new Vector3(5, 5, 5);
-        int shapeAmount = 1;
 
         string dataStr = stageDataText;
 
@@ -35,9 +34,8 @@ public class StageDataLoader : MonoBehaviour
         if (int.TryParse(sizeText[0], out int w)) mapSize.x = w;
         if (int.TryParse(sizeText[1], out int h)) mapSize.y = h;
         if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
-        if (int.TryParse(sizeText[3], out int sa)) shapeAmount = sa;
 
-        return (mapSize, shapeAmount);
+        return mapSize;
     }
 
     /// <summary>

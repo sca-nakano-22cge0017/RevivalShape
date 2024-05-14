@@ -5,11 +5,13 @@ using UnityEngine;
 public class ShapeObjects : MonoBehaviour
 {
     bool isVibrate = false;
-    public bool IsVibrate { get; set; }
+    public bool IsVibrate { get{ return isVibrate; } set{ isVibrate = value; } }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isVibrate)
-            Vibration.Vibrate(3);
+        if (isVibrate)
+        {
+            //Vibration.Vibrate(3);
+        }
     }
 }

@@ -1348,7 +1348,7 @@ MonoBehaviour:
   stageController: {fileID: 1471772881}
   shapeData: {fileID: 1471772877}
   missionCheck: {fileID: 798559331}
-  vibration: {fileID: 0}
+  vibration: {fileID: 1730702728}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
   fallPos: 20
@@ -2456,6 +2456,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1668699965}
   m_CullTransparentMesh: 1
+--- !u!1 &1730702727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1730702729}
+  - component: {fileID: 1730702728}
+  m_Layer: 0
+  m_Name: Direction
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1730702728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730702727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e740fe508ce4264d836a6dda356565d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugText: {fileID: 0}
+--- !u!4 &1730702729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730702727}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.1762905, y: 15.959889, z: 5.638495}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1870841705
 GameObject:
   m_ObjectHideFlags: 0
@@ -3439,3 +3484,4 @@ SceneRoots:
   - {fileID: 1894742054}
   - {fileID: 2111849880}
   - {fileID: 2061910044}
+  - {fileID: 1730702729}
