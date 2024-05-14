@@ -1,26 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Vibration : MonoBehaviour
 {
     /// <summary>
-    /// ’·‚¢U“®
+    /// •¡”‰ñ‚ÌU“®
     /// </summary>
     /// <param name="cnt">U“®‰ñ”</param>
-    public void LongVibrate(int cnt)
+    /// <param name="milliseconds">U“®‚Ì’·‚³iƒ~ƒŠ•bj</param>
+    public void PluralVibrate(int cnt, long milliseconds)
     {
-        StartCoroutine(Vibrate(cnt));
+        Debug.Log("PluralVibrate");
+        StartCoroutine(_PluralVibrate(cnt, milliseconds));
     }
 
-    IEnumerator Vibrate(int cnt)
+    IEnumerator _PluralVibrate(int cnt, long milliseconds)
     {
+        Debug.Log("_PluralVibrate");
         for (int i = 0; i < cnt; i++)
         {
-            if (SystemInfo.supportsVibration)
-            {
-                Handheld.Vibrate();
-            }
+            Vibrate(milliseconds);
             yield return new WaitForSeconds(0.6f);
         }
     }
@@ -35,20 +36,19 @@ public class Vibration : MonoBehaviour
     public static AndroidJavaObject vibrator;
 #endif
 
+    /// <summary>
+    /// •b”w’è@U“®
+    /// </summary>
+    /// <param name="milliseconds">U“®‚Ì’·‚³(ƒ~ƒŠ•b)</param>
     public static void Vibrate(long milliseconds)
     {
-        Debug.Log("vibrate");
-        if (isAndroid())
-            vibrator.Call("vibrate", milliseconds);
-        else
-            Handheld.Vibrate();
-    }
-    private static bool isAndroid()
-    {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            return true;
-#else
-        return false;
+        Debug.Log("Vibrate");
+        vibrator.Call("vibrate", milliseconds);
 #endif
+        if (milliseconds >= 1000)
+        {
+            Handheld.Vibrate();
+        }
     }
 }

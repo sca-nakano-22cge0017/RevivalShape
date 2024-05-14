@@ -72,9 +72,8 @@ public class StageController : MonoBehaviour
         if(stageDataLoader.stageDataLoadComlete && !mapSizeDataGot)
         {
             // マップサイズ取得
-            var mapData = stageDataLoader.LoadStageSize(stageName);
-            mapSize = mapData.size;
-            shapeTypeAmount = mapData.shapeAmount;
+            mapSize = stageDataLoader.LoadStageSize(stageName);
+            shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
             mapSize.y = yDataMax * shapeTypeAmount; // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
 
             // 配列 要素数指定

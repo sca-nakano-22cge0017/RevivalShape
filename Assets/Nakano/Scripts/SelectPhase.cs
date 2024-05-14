@@ -16,7 +16,6 @@ public class SelectPhase : MonoBehaviour
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
     int[,] playerInputData; // 入力データ
 
-    //! 制作中
     List<SelectPhaseButton[,]> _selectButtons; // 各ボタンのデータ
     ShapeData.Shape selectShape; // 選択中の図形
 
