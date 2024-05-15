@@ -29,7 +29,7 @@ public class PhaseChager : MonoBehaviour
     }
     public void Oncheck()
     {
-        if (toggles[1].isOn)
+        if (toggles[1].isOn && sc.phase != StageController.PHASE.PLAY)
         {
             //sc.ToCheckPhase();
             Debug.Log("check");
