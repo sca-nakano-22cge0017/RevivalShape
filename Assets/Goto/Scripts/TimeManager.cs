@@ -34,7 +34,7 @@ public class TimeManager : MonoBehaviour
         oldSeconds = seconds;
 
         //　マウスの左ボタン押しで一時停止
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
         }
