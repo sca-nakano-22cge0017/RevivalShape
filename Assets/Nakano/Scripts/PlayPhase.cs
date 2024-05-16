@@ -216,7 +216,7 @@ public class PlayPhase : MonoBehaviour
 
     IEnumerator VibrateOn(GameObject obj)
     {
-        yield return new WaitForEndOfFrame();
+        yield return new WaitForSeconds(0.1f);
         obj.GetComponent<ShapeObjects>().IsVibrate = true; // êUìÆÉIÉì
     }
 
@@ -235,7 +235,7 @@ public class PlayPhase : MonoBehaviour
             clearWindow.SetActive(true);
             missionCheck.Mission();
 
-            //vibration.PluralVibrate(2, 500);
+            vibration.PluralVibrate(2, 500);
             isClear = true;
         }
         else

@@ -24,10 +24,7 @@ public class StageController : MonoBehaviour
 
     Vector3 mapSize = new Vector3(4, 4, 4);
     public Vector3 MapSize { get { return mapSize; } }
-
-    int playerAnswerSizeY = 0;
-    public int PlayerAnswerSizeY { get { return playerAnswerSizeY; } }
-
+    
     private int phaseBackCount = 0;
     /// <summary>
     /// 確認フェーズに戻った回数
@@ -36,6 +33,7 @@ public class StageController : MonoBehaviour
 
     ShapeData.Shape[] shapeType; // 使用図形の種類
     private int shapeTypeAmount = 0; // 使用図形の種類数
+    public int ShapeTypeAmount { get { return shapeTypeAmount; } }
 
     ShapeData.Shape[,,] correctAnswer;
     /// <summary>
@@ -94,6 +92,7 @@ public class StageController : MonoBehaviour
             correctAnswer = stageDataLoader.LoadStageMap(mapSize);
 
             shapeType = shapeData.ShapeTypes(correctAnswer); // 使用している図形の種類を取得
+            shapeTypeAmount = shapeData.ShapeTypesAmount(shapeType); // 使用している図形の種類数を取得
 
             sheatCreate.Sheat(); // シート作成
             ToCheckPhase(); // 確認フェーズに移行

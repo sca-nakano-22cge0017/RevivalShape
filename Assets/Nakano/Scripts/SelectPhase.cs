@@ -12,14 +12,13 @@ public class SelectPhase : MonoBehaviour
 
     [SerializeField] GameObject selectPhaseUI;
 
-    bool buttonsCreated = false; // ボタン作成済みかどうか
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
-    int[,] playerInputData; // 入力データ
 
-    List<SelectPhaseButton[,]> _selectButtons; // 各ボタンのデータ
-    ShapeData.Shape selectShape; // 選択中の図形
+    int[,,] _playerInputData; // 入力データ
+    int selectShapeNum = 1; // 選択中の図形
 
-    bool arraysCreated = false; // 配列の要素数を指定済みかどうか
+    private int shapeTypeAmount = 0; // 使用図形の種類数
+
     bool firstInput = true; // 一番最初の入力かどうか
 
     Vector3 mapSize;
@@ -52,9 +51,22 @@ public class SelectPhase : MonoBehaviour
         // UI表示
         selectPhaseUI.SetActive(true);
 
+        selectShapeNum = 1;
+
+        if (!firstInput)
+        {
+            // 解答初期化
+            ShapeArrayInitialize();
+            stageController.PlayerAnswer = playerAnswer;
+
+            InputDataToButton();
+            return;
+        }
+
         ArraysCreate();
-        
         ButtonsCreate();
+
+        firstInput = false;
     }
 
     /// <summary>
@@ -63,18 +75,13 @@ public class SelectPhase : MonoBehaviour
     public void SelectPhaseEnd()
     {
         InputNumSave();
-
-        InputNumReset();
-
         IntArrayToShapeArray();
 
         // ウィンドウを閉じる
-        //buttonParent.SetActive(false);
         selectPhaseUI.SetActive(false);
 
         // プレイヤーの答えを保存
         stageController.PlayerAnswer = playerAnswer;
-        firstInput = false;
     }
 
     /// <summary>
@@ -82,21 +89,21 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void ArraysCreate()
     {
-        if(arraysCreated) return;
-
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
+        shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
+
         // 配列　要素数指定
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
-        playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+        _playerInputData = new int[shapeTypeAmount, (int)mapSize.x, (int)mapSize.z];
+        InputNumDataInitialize();
 
         buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(mapSize.x * 200, mapSize.z * 200);
 
         ShapeArrayInitialize();
-
-        arraysCreated = true;
     }
 
     /// <summary>
@@ -104,8 +111,6 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void ButtonsCreate()
     {
-        if(buttonsCreated) return;
-
         // マップの広さ分ボタンを生成
         for (int z = 0; z < (int)mapSize.z; z++)
         {
@@ -114,8 +119,39 @@ public class SelectPhase : MonoBehaviour
                 selectButtons[x, z] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
+    }
 
-        buttonsCreated = true;
+    /// <summary>
+    /// 消去モードと通常モードを切り替え
+    /// </summary>
+    public void EraserMode()
+    {
+        isEraser = !isEraser;
+    }
+
+    /// <summary>
+    /// 選択中の図形を変更 ボタンで呼び出す
+    /// </summary>
+    /// <param name="shape">選択する図形の名前</param>
+    public void ShapeChange(string shapeName)
+    {
+        int n = selectShapeNum;
+        ShapeData.Shape shape = (ShapeData.Shape)n;
+
+        InputNumSave(); // 入力データ保存
+
+        // 列挙型を全検索
+        foreach (ShapeData.Shape value in ShapeData.Shape.GetValues(typeof(ShapeData.Shape)))
+        {
+            string name = ShapeData.Shape.GetName(typeof(ShapeData.Shape), value);
+
+            // 打ち込まれたstringと同じなら変更する
+            if(name.ToLower() == shapeName.ToLower())
+            {
+                selectShapeNum = (int)value;
+                InputDataToButton();
+            }
+        }
     }
 
     /// <summary>
@@ -128,24 +164,40 @@ public class SelectPhase : MonoBehaviour
             for (int x = 0; x < (int)mapSize.x; x++)
             {
                 // 入力した数をint型の配列に代入
-                playerInputData[z, x] = selectButtons[x, z].InputNum;
+                _playerInputData[selectShapeNum, z, x] = selectButtons[x, z].InputNum;
             }
         }
     }
 
     /// <summary>
-    /// ボタンに入力した数値を全て0に戻す
+    /// 入力データを初期化
     /// </summary>
-    void InputNumReset()
+    /// <param name="num">初期化する配列</param>
+    void InputNumDataInitialize()
     {
-        if (!firstInput) return;
+        for(int n = 0; n < shapeTypeAmount; n++)
+        {
+            for (int z = 0; z < (int)mapSize.z; z++)
+            {
+                for (int x = 0; x < (int)mapSize.x; x++)
+                {
+                    _playerInputData[n, x, z] = 0;
+                }
+            }
+        }
+    }
 
+    /// <summary>
+    /// ボタンの表示を変更
+    /// </summary>
+    /// <param name="isReset">値を0にするか</param>
+    void InputDataToButton()
+    {
         for (int z = 0; z < (int)mapSize.z; z++)
         {
             for (int x = 0; x < (int)mapSize.x; x++)
             {
-                // 初回なら0を入れておく
-                selectButtons[x, z].InputNum = 0;
+                selectButtons[x, z].InputNum = _playerInputData[selectShapeNum, z, x];
             }
         }
     }
@@ -172,24 +224,36 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void IntArrayToShapeArray()
     {
-        for (int z = 0; z < (int)mapSize.z; z++)
+        ShapeData.Shape shape;
+
+        for (int n = 0; n < shapeTypeAmount; n++)
         {
-            for (int x = 0; x < (int)mapSize.x; x++)
+            shape = (ShapeData.Shape) n;
+
+            for (int z = 0; z < (int)mapSize.z; z++)
             {
-                // playerInputDataにはY軸方向に積む数が入っている
-                for (int y = 0; y < playerInputData[z, x]; y++)
+                for (int x = 0; x < (int)mapSize.x; x++)
                 {
-                    playerAnswer[x, y, z] = ShapeData.Shape.Cube;
+                    int nextYPos = 0;
+
+                    // 空白マスを検索する 1段目から検索していき、空白マスがあったら次の図形をそこから上へ配置していく
+                    for (int y = 0; y < (int)mapSize.y; y++)
+                    {
+                        if (playerAnswer[x, y, z] != ShapeData.Shape.Empty) continue;
+                        else
+                        {
+                            nextYPos = y;
+                            break;
+                        }
+                    }
+
+                    // playerInputDataにはY軸方向に積む数が入っている
+                    for (int y = 0; y < _playerInputData[n, z, x]; y++)
+                    {
+                        playerAnswer[x, y + nextYPos, z] = shape;
+                    }
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 消去モードと通常モードを切り替え
-    /// </summary>
-    public void EraserMode()
-    {
-        isEraser = !isEraser;
     }
 }

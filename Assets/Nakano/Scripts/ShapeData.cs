@@ -109,4 +109,22 @@ public class ShapeData : MonoBehaviour
 
         return type;
     }
+
+    /// <summary>
+    /// 配列内の図形種類数を計算
+    /// </summary>
+    /// <param name="checkArray">調べる配列</param>
+    /// <returns>配列内の図形種類数</returns>
+    public int ShapeTypesAmount(Shape[] checkArray)
+    {
+        int num = 0;
+
+        foreach(var s in checkArray)
+        {
+            if(s != Shape.Empty)
+                num++;
+        }
+
+        return num;
+    }
 }
