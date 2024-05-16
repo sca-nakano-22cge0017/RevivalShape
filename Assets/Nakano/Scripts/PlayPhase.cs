@@ -235,7 +235,7 @@ public class PlayPhase : MonoBehaviour
             clearWindow.SetActive(true);
             missionCheck.Mission();
 
-            vibration.PluralVibrate(2, 500);
+            //vibration.PluralVibrate(2, 500);
             isClear = true;
         }
         else

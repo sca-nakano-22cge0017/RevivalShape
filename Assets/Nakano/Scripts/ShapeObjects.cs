@@ -11,8 +11,8 @@ public class ShapeObjects : MonoBehaviour
     {
         if (isVibrate)
         {
-            Vibration.Vibrate(3);
-            //Handheld.Vibrate();
+            //Vibration.Vibrate(3);
+            Handheld.Vibrate();
         }
     }
 }
