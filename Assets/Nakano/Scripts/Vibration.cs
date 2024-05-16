@@ -12,16 +12,15 @@ public class Vibration : MonoBehaviour
     /// <param name="milliseconds">U“®‚Ì’·‚³iƒ~ƒŠ•bj</param>
     public void PluralVibrate(int cnt, long milliseconds)
     {
-        Debug.Log("PluralVibrate");
         StartCoroutine(_PluralVibrate(cnt, milliseconds));
     }
 
     IEnumerator _PluralVibrate(int cnt, long milliseconds)
     {
-        Debug.Log("_PluralVibrate");
         for (int i = 0; i < cnt; i++)
         {
-            Vibrate(milliseconds);
+            //Vibrate(milliseconds);
+            Handheld.Vibrate();
             yield return new WaitForSeconds(0.6f);
         }
     }
