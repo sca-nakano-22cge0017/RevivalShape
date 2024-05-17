@@ -74,6 +74,9 @@ public class StageController : MonoBehaviour
 
     private void Awake()
     {
+        if(SelectButton.SelectStage != null)
+            stageName = SelectButton.SelectStage; // 選択ステージ名を取得
+
         stageDataLoader.StageDataGet(stageName);
     }
 
@@ -83,7 +86,7 @@ public class StageController : MonoBehaviour
         if(stageDataLoader.stageDataLoadComlete && !mapSizeDataGot)
         {
             // マップサイズ取得
-            mapSize = stageDataLoader.LoadStageSize(stageName);
+            mapSize = stageDataLoader.LoadStageSize();
             shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
             mapSize.y = yDataMax * shapeTypeAmount; // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
 
@@ -93,7 +96,6 @@ public class StageController : MonoBehaviour
             playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
             // 配置データロード
-            stageDataLoader.StageDataGet(stageName);
             cameraRotate.MapSizeInitialize();
 
             mapSizeDataGot = true;
