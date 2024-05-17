@@ -5,11 +5,21 @@ using UnityEngine.UI;
 
 public class PhaseChager : MonoBehaviour
 {
+    private Text timerText;
+    public TimeManager timeManager;
     [SerializeField] private Toggle[] toggles = null;
     private StageController sc;
 
+    [SerializeField]
+    private Toggle toggleButton1;
+    [SerializeField]
+    private Toggle toggleButton2;
+    [SerializeField]
+    private Toggle toggleButton3;
+
     void Start()
     {
+        timerText = GetComponentInChildren<Text>();
         sc = GetComponent<StageController>();
         OnSelect();
     }
@@ -24,15 +34,18 @@ public class PhaseChager : MonoBehaviour
         if (toggles[0].isOn)
         {
             //sc.ToSelectPhase();
-            Debug.Log("select");
+            Debug.Log("選択フェーズ");
+           // toggleButton3.interactable = false;
         }
     }
     public void Oncheck()
     {
-        if (toggles[1].isOn && sc.phase != StageController.PHASE.PLAY)
+        if (toggles[1].isOn)// && sc.phase != StageController.PHASE.PLAY)
         {
             //sc.ToCheckPhase();
-            Debug.Log("check");
+            Debug.Log("確認フェーズ");
+            //toggleButton3.interactable = false;
+
         }
     }
     public void OnPlay()
@@ -41,7 +54,12 @@ public class PhaseChager : MonoBehaviour
         if (toggles[2].isOn)
         {
             //sc.ToPlayPhase();
-            Debug.Log("play");
+            Debug.Log("実行フェーズ");
+            toggleButton1.interactable = false;
+            toggleButton2.interactable = false;
+            toggleButton3.interactable = true;
+           
+            Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
         }
     }
 }
