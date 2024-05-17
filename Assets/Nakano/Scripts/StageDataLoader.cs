@@ -18,27 +18,6 @@ public class StageDataLoader : MonoBehaviour
     [SerializeField] ShapeData shapeData;
     
     /// <summary>
-    /// ステージのマップサイズデータと使用図形数を取得する
-    /// </summary>
-    /// <param name="stageName">プレイステージ</param>
-    /// <returns>サイズをVector3で、使用図形数をintで返す</returns>
-    public Vector3 LoadStageSize(string stageName)
-    {
-        Vector3 mapSize = new Vector3(5, 5, 5);
-
-        string dataStr = stageDataText;
-
-        string[] line = dataStr.Split("\n"); // 改行で分割
-
-        string[] sizeText = line[0].Split(",");
-        if (int.TryParse(sizeText[0], out int w)) mapSize.x = w;
-        if (int.TryParse(sizeText[1], out int h)) mapSize.y = h;
-        if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
-
-        return mapSize;
-    }
-
-    /// <summary>
     /// ステージの配置データをロードする
     /// </summary>
     /// <param name="stageName">ステージ名</param>
@@ -57,6 +36,27 @@ public class StageDataLoader : MonoBehaviour
             stageDataText = handle.Result.text;
             stageDataLoadComlete = true;
         };
+    }
+
+    /// <summary>
+    /// ステージのマップサイズデータと使用図形数を取得する
+    /// </summary>
+    /// <param name="stageName">プレイステージ</param>
+    /// <returns>サイズをVector3で、使用図形数をintで返す</returns>
+    public Vector3 LoadStageSize()
+    {
+        Vector3 mapSize = new Vector3(5, 5, 5);
+
+        string dataStr = stageDataText;
+
+        string[] line = dataStr.Split("\n"); // 改行で分割
+
+        string[] sizeText = line[0].Split(",");
+        if (int.TryParse(sizeText[0], out int w)) mapSize.x = w;
+        if (int.TryParse(sizeText[1], out int h)) mapSize.y = h;
+        if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
+
+        return mapSize;
     }
 
     /// <summary>
