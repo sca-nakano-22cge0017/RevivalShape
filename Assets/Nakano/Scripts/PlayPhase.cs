@@ -35,8 +35,6 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] Text matchRateText;
 
     [SerializeField] GameObject clearWindow;
-    bool isClear = false;
-    bool isRetry = false;
 
     private void Awake()
     {
@@ -49,18 +47,6 @@ public class PlayPhase : MonoBehaviour
 
     private void Update()
     {
-        if (isClear && Input.GetMouseButton(0))
-        {
-            SceneManager.LoadScene("SelectScene");
-            isClear = false;
-        }
-
-        if (isRetry && Input.GetMouseButton(0))
-        {
-            // 確認フェーズに戻る
-            stageController.ToCheckPhase();
-            isRetry = false;
-        }
     }
 
     /// <summary>
@@ -236,12 +222,12 @@ public class PlayPhase : MonoBehaviour
             missionCheck.Mission();
 
             //vibration.PluralVibrate(2, 500);
-            isClear = true;
+            stageController.IsClear = true;
         }
         else
         {
             StartCoroutine(MatchTextBlinking());
-            isRetry = true;
+            stageController.IsRetry = true;
         }
     }
 

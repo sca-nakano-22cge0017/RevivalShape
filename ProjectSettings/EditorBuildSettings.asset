@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Nakano/Scenes/Tutorial.unity
+    path: Assets/Nakano/Scenes/MainScene.unity
     guid: 803cd07b172c70b4e8d84442677e96b4
   - enabled: 1
     path: Assets/Sasaki/Scenes/TitleScene.unity
