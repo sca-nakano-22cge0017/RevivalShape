@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class PhaseChager : MonoBehaviour
 {
     private Text timerText;
+    public StageController stageController;
     public TimeManager timeManager;
     [SerializeField] private Toggle[] toggles = null;
     private StageController sc;
@@ -58,7 +59,15 @@ public class PhaseChager : MonoBehaviour
             toggleButton1.interactable = false;
             toggleButton2.interactable = false;
             toggleButton3.interactable = true;
-           
+            if (stageController.IsClear)
+            {
+               
+            }
+            else
+            {
+                //sc.ToCheckPhase();
+            }
+
             Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
         }
     }
