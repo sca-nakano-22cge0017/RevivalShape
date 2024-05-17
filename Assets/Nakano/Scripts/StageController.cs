@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StageController : MonoBehaviour
 {
@@ -59,6 +60,18 @@ public class StageController : MonoBehaviour
     bool mapSizeDataGot = false;
     bool stageDataGot = false;
 
+    bool isClear = false;
+    /// <summary>
+    /// trueでステージクリア
+    /// </summary>
+    public bool IsClear { get { return isClear; } set{ isClear = value; } }
+
+    /// <summary>
+    /// trueのときリトライ
+    /// </summary>
+    bool isRetry = false;
+    public bool IsRetry { get { return isRetry; } set { isRetry = value; } }
+
     private void Awake()
     {
         stageDataLoader.StageDataGet(stageName);
@@ -98,6 +111,19 @@ public class StageController : MonoBehaviour
             ToCheckPhase(); // 確認フェーズに移行
 
             stageDataGot = true;
+        }
+
+        if (isClear && Input.GetMouseButton(0))
+        {
+            SceneManager.LoadScene("SelectScene");
+            isClear = false;
+        }
+
+        if (isRetry && Input.GetMouseButton(0))
+        {
+            // 確認フェーズに戻る
+            ToCheckPhase();
+            isRetry = false;
         }
     }
 
