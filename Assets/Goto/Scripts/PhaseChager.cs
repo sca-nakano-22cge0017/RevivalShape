@@ -36,7 +36,7 @@ public class PhaseChager : MonoBehaviour
         {
             //sc.ToSelectPhase();
             Debug.Log("選択フェーズ");
-           // toggleButton3.interactable = false;
+            toggleButton3.interactable = false;
         }
     }
     public void Oncheck()
@@ -45,7 +45,7 @@ public class PhaseChager : MonoBehaviour
         {
             //sc.ToCheckPhase();
             Debug.Log("確認フェーズ");
-            //toggleButton3.interactable = false;
+            toggleButton3.interactable = false;
 
         }
     }
@@ -59,16 +59,17 @@ public class PhaseChager : MonoBehaviour
             toggleButton1.interactable = false;
             toggleButton2.interactable = false;
             toggleButton3.interactable = true;
-            if (stageController.IsClear)
-            {
-               
-            }
-            else
-            {
-                //sc.ToCheckPhase();
-            }
-
-            Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
+            // if (stageController.IsClear)
+            // {
+            //    
+            // }
+            // else
+            //{
+            //timeManager.TimeStop();
+            //sc.ToCheckPhase();
+            //  }
+            timeManager.TimeStop();
+        
         }
     }
 }
