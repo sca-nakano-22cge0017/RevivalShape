@@ -33,6 +33,7 @@ public class StageController : MonoBehaviour
     public int PhaseBackCount { get { return phaseBackCount; } set { phaseBackCount = value; } }
 
     ShapeData.Shape[] shapeType; // 使用図形の種類
+    public ShapeData.Shape[] ShapeType { get { return shapeType; } }
     private int shapeTypeAmount = 0; // 使用図形の種類数
     public int ShapeTypeAmount { get { return shapeTypeAmount; } }
 
@@ -95,14 +96,13 @@ public class StageController : MonoBehaviour
             correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
             playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
-            // 配置データロード
-            cameraRotate.MapSizeInitialize();
+            cameraRotate.TargetSet();
 
             mapSizeDataGot = true;
         }
 
         // 正解の配置データを配列に入れる
-        if (stageDataLoader.stageDataLoadComlete && !stageDataGot)
+        if (stageDataLoader.stageDataLoadComlete && !stageDataGot && mapSizeDataGot)
         {
             correctAnswer = stageDataLoader.LoadStageMap(mapSize);
 

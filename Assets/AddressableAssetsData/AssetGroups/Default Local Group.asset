@@ -17,17 +17,20 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 2c4572cfdc8292c45b59056ec7de41a2
   m_SerializeEntries:
-  - m_GUID: 0e8b7d95f2ca0864893ddda8f1c78992
-    m_Address: StageDataSample
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - MapData
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 39916a6432a4fb746bd5450bfc34ac2e
-    m_Address: Tutorial
+    m_Address: 1
     m_ReadOnly: 0
-    m_SerializedLabels:
-    - MapData
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 844653d56fb22294c9fc54c489b6ce53
+    m_Address: Other
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 456b46cecd114cd4181290f938ff4175
+    m_Address: 2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ce0713ecbd5acf941bad6d24ced48e83, type: 2}

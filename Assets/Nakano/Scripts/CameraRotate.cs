@@ -43,6 +43,7 @@ public class CameraRotate : MonoBehaviour
         hei = Screen.height;
     }
 
+    //! 回転のラグなくす
     void Update()
     {
         if(!canRotate) return;
@@ -172,7 +173,7 @@ public class CameraRotate : MonoBehaviour
     /// <summary>
     /// カメラの注視位置を設定
     /// </summary>
-    public void MapSizeInitialize()
+    public void TargetSet()
     {
         mapSize = stageController.MapSize; // サイズ代入
 
