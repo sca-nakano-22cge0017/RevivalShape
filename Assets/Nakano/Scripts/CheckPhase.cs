@@ -33,7 +33,7 @@ public class CheckPhase : MonoBehaviour
         objParent.gameObject.SetActive(true);
 
         // オブジェクト生成
-        if (!sampleCreated) StageInstance();
+         StageInstance();
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class CheckPhase : MonoBehaviour
     /// </summary>
     void StageInstance()
     {
-        sampleCreated = true;
+        if (sampleCreated) return; // 生成済みなら再度生成しない
 
         mapSize = stageController.MapSize; // サイズ代入
 
@@ -77,5 +77,7 @@ public class CheckPhase : MonoBehaviour
                 }
             }
         }
+
+        sampleCreated = true;
     }
 }

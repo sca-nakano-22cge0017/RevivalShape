@@ -700,6 +700,9 @@ MonoBehaviour:
   buttonPrefab: {fileID: 8206769263333299867, guid: 31d5d84f1a9e285488766120f44486a0, type: 3}
   selectPhaseUI: {fileID: 1311459168}
   eraserModeWindow: {fileID: 767812027}
+  shapeChangeButtons:
+  - {fileID: 1527151162}
+  - {fileID: 943966223}
 --- !u!4 &271283360
 Transform:
   m_ObjectHideFlags: 0
@@ -2541,6 +2544,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageDataLoadComlete: 0
   shapeData: {fileID: 1471772877}
+  StageAmountPerFile: 10
+  otherStageDataFileName: Other
 --- !u!4 &1471772880
 Transform:
   m_ObjectHideFlags: 0

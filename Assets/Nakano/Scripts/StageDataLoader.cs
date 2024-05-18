@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using System;
 
 /// <summary>
 /// CSVファイルを読み込み、配置データに変換する
@@ -16,6 +16,11 @@ public class StageDataLoader : MonoBehaviour
     [HideInInspector] public bool stageDataLoadComlete = false;
 
     [SerializeField] ShapeData shapeData;
+    [SerializeField, Header("1ファイル内のステージ数 10ステージ分記述なら10")] int StageAmountPerFile;
+    [SerializeField, Header("TutorialやExtraの配置データが入っているファイル")] string otherStageDataFileName; 
+    string stageDataFileName;
+
+    private string selectStageName; // 選択ステージ名
     
     /// <summary>
     /// ステージの配置データをロードする
@@ -23,10 +28,14 @@ public class StageDataLoader : MonoBehaviour
     /// <param name="stageName">ステージ名</param>
     public void StageDataGet(string stageName)
     {
+        selectStageName = stageName;
+
+        LoadFileSelect(stageName);
+
         AsyncOperationHandle<TextAsset> m_TextHandle;
 
         // マップサイズのデータを取得
-        Addressables.LoadAssetAsync<TextAsset>(stageName).Completed += handle => {
+        Addressables.LoadAssetAsync<TextAsset>(stageDataFileName).Completed += handle => {
             m_TextHandle = handle;
             if (handle.Result == null)
             {
@@ -51,10 +60,20 @@ public class StageDataLoader : MonoBehaviour
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
-        string[] sizeText = line[0].Split(",");
-        if (int.TryParse(sizeText[0], out int w)) mapSize.x = w;
-        if (int.TryParse(sizeText[1], out int h)) mapSize.y = h;
-        if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
+        for(int l = 0; l < line.Length; l++)
+        {
+            if (l + 1 > line.Length) break;
+
+            string[] name = line[l].Split(",");
+            if (name[0].ToLower() != selectStageName.ToLower()) continue;
+
+            string[] sizeText = line[l+1].Split(","); // ステージ名の次の行にサイズ情報
+            
+            if (int.TryParse(sizeText[0], out int w)) mapSize.x = w;
+            if (int.TryParse(sizeText[1], out int h)) mapSize.y = h;
+            if (int.TryParse(sizeText[2], out int d)) mapSize.z = d;
+            break;
+        }
 
         return mapSize;
     }
@@ -73,10 +92,22 @@ public class StageDataLoader : MonoBehaviour
 
         string[] line = dataStr.Split("\n"); // 改行で分割
 
-        for (int z = 1; z <= mapSize.z; z++)
+        int mapDataBegin = 0; // 指定ステージの配置データの一番最初のデータの位置
+
+        for (int l = 0; l < line.Length; l++)
         {
-            // スキップしたい文章（説明文や補足）に来たら終わりにする
-            if (line[z].StartsWith("!")) break;
+            string[] name = line[l].Split(",");
+            if (name[0].ToLower() != selectStageName.ToLower()) continue;
+
+            mapDataBegin = l + 2;
+
+            break;
+        }
+
+        for (int z = mapDataBegin; z < mapSize.z + mapDataBegin; z++)
+        {
+            // スキップしたい文章（説明文や補足）に来たら飛ばす
+            if (line[z].StartsWith("!")) continue;
 
             // MapSizeDataで指定したDepthよりデータ数が少なかった場合は補完
             string[] l = DataComplement((int)mapSize.z, line.Length, line, z);
@@ -95,7 +126,7 @@ public class StageDataLoader : MonoBehaviour
                     // MapSizeDataで指定したHeightよりデータ数が少なかった場合は補完
                     string[] o = DataComplement((int)mapSize.y, obj.Length, obj, y);
 
-                    map[x, y, z - 1] = shapeData.StringToShape(o[y]);
+                    map[x, y, z - mapDataBegin] = shapeData.StringToShape(o[y]);
                 }
             }
         }
@@ -118,5 +149,38 @@ public class StageDataLoader : MonoBehaviour
         string[] s = new string[n];
         s[dataNum] = actualDataSize <= dataNum ? s[dataNum] = "" : data[dataNum];
         return s;
+    }
+
+    /// <summary>
+    /// ステージ名に応じて読み込むファイルを変える
+    /// </summary>
+    /// <param name="stageName">ステージ名</param>
+    void LoadFileSelect(string stageName)
+    {
+        if(stageName.Contains("Stage"))
+        {
+            stageName = stageName.Replace("Stage", "");
+
+            if (int.TryParse(stageName, out int n))
+            {
+                // ステージの番号に応じてファイル名取得
+                stageDataFileName = ((n - 1) / StageAmountPerFile + 1).ToString();
+
+                return;
+            }
+
+            else
+            {
+                stageDataFileName = otherStageDataFileName;
+                return;
+            }
+        }
+
+        else
+        {
+            // ステージ名が番号じゃない場合（TutorialやExtraStageの場合）は指定ファイルを読み込み
+            stageDataFileName = otherStageDataFileName;
+            return;
+        }
     }
 }

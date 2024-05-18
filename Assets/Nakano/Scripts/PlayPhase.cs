@@ -45,10 +45,6 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
     }
 
-    private void Update()
-    {
-    }
-
     /// <summary>
     /// 実行フェーズ移行時の処理
     /// </summary>

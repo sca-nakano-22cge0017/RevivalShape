@@ -17,6 +17,7 @@ public class SelectPhase : MonoBehaviour
     int[,,] _playerInputData; // 入力データ
     int selectShapeNum = 1; // 選択中の図形
 
+    ShapeData.Shape[] shapeType; // 使用図形の種類
     private int shapeTypeAmount = 0; // 使用図形の種類数
 
     bool firstInput = true; // 一番最初の入力かどうか
@@ -30,11 +31,20 @@ public class SelectPhase : MonoBehaviour
     bool isEraser = false;
     public bool IsEraser { get { return isEraser; } }
 
+    // 図形変更
+    [SerializeField] GameObject[] shapeChangeButtons;
+
     private void Awake()
     {
         // ウィンドウ非表示
         selectPhaseUI.SetActive(false);
         eraserModeWindow.SetActive(false);
+
+        // 図形変更ボタンの非表示
+        for (int b = 0; b < shapeChangeButtons.Length; b++)
+        {
+            shapeChangeButtons[b].SetActive(false);
+        }
     }
 
     private void Update()
@@ -50,6 +60,9 @@ public class SelectPhase : MonoBehaviour
     {
         // UI表示
         selectPhaseUI.SetActive(true);
+
+        // 図形変更ボタン　使う図形のボタンのみ表示する
+        ShapeChangeButtonsSet();
 
         selectShapeNum = 1;
 
@@ -150,6 +163,33 @@ public class SelectPhase : MonoBehaviour
             {
                 selectShapeNum = (int)value;
                 InputDataToButton();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 図形変更ボタンの表示・非表示
+    /// 使わない図形は非表示にする
+    /// </summary>
+    void ShapeChangeButtonsSet()
+    {
+        shapeType = stageController.ShapeType; // 使用図形を取得
+
+        for(int b = 0; b < shapeChangeButtons.Length; b++)
+        {
+            string buttonsName = shapeChangeButtons[b].name;
+            buttonsName.ToLower();
+
+            for (int st = 0; st < shapeType.Length; st++)
+            {
+                string needShapeName = ShapeData.Shape.GetName(typeof(ShapeData.Shape), shapeType[st]);
+                needShapeName.ToLower();
+                
+                if (buttonsName == needShapeName)
+                {
+                    shapeChangeButtons[b].SetActive(true);
+                    break;
+                }
             }
         }
     }
