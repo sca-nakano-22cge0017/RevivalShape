@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -29,11 +27,14 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("Field of Viewの初期値")] float vDefault;
     [SerializeField, Header("基本の拡縮速度")] float vSpeed;
 
+    [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")] 
+    float dragAjust = 10;
+
     [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
     [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
 
     bool canRotate = false;
-    public bool CanRotate { get { return canRotate; }  set { canRotate = value; } }
+    public bool CanRotate { get { return canRotate; } set { canRotate = value; } }
 
     Vector3 movedPos = new Vector3(0, 0, 0); // debug
 
@@ -43,10 +44,9 @@ public class CameraRotate : MonoBehaviour
         hei = Screen.height;
     }
 
-    //! 回転のラグなくす
     void Update()
     {
-        if(!canRotate) return;
+        if (!canRotate) return;
 
         if (Input.touchCount == 1)
         {
@@ -62,29 +62,38 @@ public class CameraRotate : MonoBehaviour
             }
             else if (t1.phase == TouchPhase.Moved)
             {
-                tx = (t1.position.x - sPos.x) / wid; //横移動量(-1<tx<1)
-                ty = (t1.position.y - sPos.y) / hei; //縦移動量(-1<ty<1)
+                // スワイプ量
+                tx = t1.position.x - sPos.x;
+                ty = t1.position.y - sPos.y;
 
-                // 移動量から求めた回転角度
-                float deltaAngleLR = tx * sensitivity;
-                float deltaAngleTB = -ty * sensitivity;
+                // 移動量から回転角度を求める
+                if (Mathf.Abs(tx) < dragAjust) tx = 0;
+                float deltaAngleLR = tx / wid * sensitivity;
 
-                var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up);
-                var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, transform.right);
+                if (Mathf.Abs(ty) < dragAjust) ty = 0;
+                float deltaAngleTB = -ty / hei * sensitivity;
+
+                // カメラから見て上・右向きのベクトルを回転軸として回転させる
+                var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up); // 左右方向
+                var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, transform.right); // 上下方向
 
                 var pos = transform.position;
                 pos -= target;
-                pos = angleAxisLR * angleAxisTB * pos;
-                pos += target;
+                pos = angleAxisLR * angleAxisTB * pos; // 回転移動
+                pos += target; // 平行移動
 
-                if(pos.y > 0)
+                if (pos.y >= 0)
                 {
                     transform.position = pos;
                     transform.rotation = angleAxisLR * angleAxisTB * transform.rotation;
                 }
+
+                //! Y座標が一定以下になったら0にする
+
+                sPos = t1.position;
             }
         }
-        else if(Input.touchCount == 2)
+        else if (Input.touchCount == 2)
         {
             Touch t1 = Input.GetTouch(0);
             Touch t2 = Input.GetTouch(1);
@@ -112,9 +121,9 @@ public class CameraRotate : MonoBehaviour
                 sDist = nDist;
             }
         }
-
-#if UNITY_EDITOR
-        if(Input.GetMouseButtonDown(0))
+        
+#if false // PC上で動かす場合
+        if (Input.GetMouseButtonDown(0))
         {
             movedPos = Input.mousePosition;
         }
@@ -169,7 +178,7 @@ public class CameraRotate : MonoBehaviour
 
         _camera.fieldOfView = vDefault;
     }
-    
+
     /// <summary>
     /// カメラの注視位置を設定
     /// </summary>
