@@ -27,9 +27,16 @@ public class SelectPhase : MonoBehaviour
     ShapeData.Shape[,,] playerAnswer;
 
     // 消去モード
-    [SerializeField] GameObject eraserModeWindow;
+    [SerializeField] GameObject eraserMode;
     bool isEraser = false;
     public bool IsEraser { get { return isEraser; } }
+
+    // 確認モード
+    [SerializeField] GameObject checkModeWindow;
+    [SerializeField] Image[] steps;
+    [SerializeField] Sprite[] shapeIcon;
+    bool isCheck = false;
+    public bool IsCheck { get { return isCheck; } }
 
     // 図形変更
     [SerializeField] GameObject[] shapeChangeButtons;
@@ -38,7 +45,8 @@ public class SelectPhase : MonoBehaviour
     {
         // ウィンドウ非表示
         selectPhaseUI.SetActive(false);
-        eraserModeWindow.SetActive(false);
+        eraserMode.SetActive(false);
+        checkModeWindow.SetActive(false);
 
         // 図形変更ボタンの非表示
         for (int b = 0; b < shapeChangeButtons.Length; b++)
@@ -49,8 +57,6 @@ public class SelectPhase : MonoBehaviour
 
     private void Update()
     {
-        if (isEraser) eraserModeWindow.SetActive(true);
-        else eraserModeWindow.SetActive(false);
     }
 
     /// <summary>
@@ -137,9 +143,56 @@ public class SelectPhase : MonoBehaviour
     /// <summary>
     /// 消去モードと通常モードを切り替え
     /// </summary>
-    public void EraserMode()
+    public void EraserModeChange()
     {
+        if (isCheck) return; // 確認モードなら無効
         isEraser = !isEraser;
+
+        if (isEraser) eraserMode.SetActive(true);
+        else eraserMode.SetActive(false);
+    }
+
+    /// <summary>
+    /// 確認モードと通常モードを切り替え
+    /// </summary>
+    public void CheckModeChange()
+    {
+        if (isEraser) return; // 消去モードなら無効
+        isCheck = !isCheck;
+
+        if (!isCheck) checkModeWindow.SetActive(false);
+    }
+
+    public void CheckWindowDisp()
+    {
+        checkModeWindow.SetActive(true);
+
+        InputNumSave();
+        IntArrayToShapeArray();
+
+        Vector2 pos = new Vector2(0, 0); // 確認するマス
+        bool isSearchEnd = false;
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                if(selectButtons[x, z].isCheck)
+                {
+                    pos = new Vector2(x, z);
+                    isSearchEnd = true;
+                    break;
+                }
+            }
+
+            if(isSearchEnd) break;
+        }
+
+        for(int i = 0; i < steps.Length; i++)
+        {
+            var shape = (int)playerAnswer[(int)pos.x, i, (int)pos.y]; // 配置されている図形を取得
+            Sprite s = shapeIcon[shape]; // 画像取得
+            steps[i].sprite = s; // 画像変更
+        }
     }
 
     /// <summary>

@@ -5,6 +5,15 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System;
 
+// TutorialやExtraStageなどの「Stage + 数字」で構成されていないステージ名の場合は、
+// ステージ名と配置データがあるファイル名を個別に設定する
+[System.Serializable]
+public class StageFile
+{
+    public string stageName;
+    public string fileName;
+}
+
 /// <summary>
 /// CSVファイルを読み込み、配置データに変換する
 /// </summary>
@@ -17,8 +26,14 @@ public class StageDataLoader : MonoBehaviour
 
     [SerializeField] ShapeData shapeData;
     [SerializeField, Header("1ファイル内のステージ数 10ステージ分記述なら10")] int StageAmountPerFile;
-    [SerializeField, Header("TutorialやExtraの配置データが入っているファイル")] string otherStageDataFileName; 
-    string stageDataFileName;
+    [SerializeField, Header("ステージ毎のファイル名の指定"),
+        Tooltip("TutorialやExtraStageなどの「Stage + 数字」で名前が構成されていないステージのデータがどのファイルにあるかを指定する")] StageFile[] fileSelect;
+    int fileNum;
+    string fileName;
+    string fileNameFormat1 = "Assets/Nakano/StageData/StageData";
+    string fileNameFormat2 = ".csv";
+
+    bool isNumberStage = true; // 「Stage + 数字」で名前が構成されるステージか
 
     private string selectStageName; // 選択ステージ名
     
@@ -35,7 +50,7 @@ public class StageDataLoader : MonoBehaviour
         AsyncOperationHandle<TextAsset> m_TextHandle;
 
         // マップサイズのデータを取得
-        Addressables.LoadAssetAsync<TextAsset>(stageDataFileName).Completed += handle => {
+        Addressables.LoadAssetAsync<TextAsset>(fileName).Completed += handle => {
             m_TextHandle = handle;
             if (handle.Result == null)
             {
@@ -159,27 +174,32 @@ public class StageDataLoader : MonoBehaviour
     {
         if(stageName.Contains("Stage"))
         {
-            stageName = stageName.Replace("Stage", "");
+            string _stageName = stageName.Replace("Stage", "");
 
-            if (int.TryParse(stageName, out int n))
+            if (int.TryParse(_stageName, out int n))
             {
                 // ステージの番号に応じてファイル名取得
-                stageDataFileName = ((n - 1) / StageAmountPerFile + 1).ToString();
+                fileNum = ((n - 1) / StageAmountPerFile + 1);
+                fileName = fileNameFormat1 + fileNum.ToString() + fileNameFormat2;
 
                 return;
             }
 
-            else
-            {
-                stageDataFileName = otherStageDataFileName;
-                return;
-            }
+            else isNumberStage = false;
         }
+        else isNumberStage = false;
 
-        else
+        // ステージ名が番号じゃない場合（TutorialやExtraStageの場合）は指定ファイルを読み込み
+        if (!isNumberStage)
         {
-            // ステージ名が番号じゃない場合（TutorialやExtraStageの場合）は指定ファイルを読み込み
-            stageDataFileName = otherStageDataFileName;
+            for (int i = 0; i < fileSelect.Length; i++)
+            {
+                if (fileSelect[i].stageName.ToLower() == stageName.ToLower())
+                {
+                    fileName = "Assets/Nakano/StageData/" + fileSelect[i].fileName;
+                }
+            }
+
             return;
         }
     }
