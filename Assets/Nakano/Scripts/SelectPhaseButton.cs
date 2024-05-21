@@ -28,7 +28,11 @@ public class SelectPhaseButton : MonoBehaviour
     float tapStartTime = 0;
 
     // 消去モード
-    bool isEraser = false; //消去モードかどうか
+    bool isEraserMode = false; // 消去モードかどうか
+
+    // 確認モード
+    bool isCheckMode = false; // 確認モードかどうか
+    public bool isCheck{ get; set; } = false; // 確認するマスのボタンか
     
     private void Start()
     {
@@ -42,10 +46,11 @@ public class SelectPhaseButton : MonoBehaviour
     {
         thisText.text = inputNum.ToString(); // 表示変更
 
-        isEraser = selectPhase.IsEraser;
+        isEraserMode = selectPhase.IsEraser;
+        isCheckMode = selectPhase.IsCheck;
 
         // 長押し
-        if(isCountForLongTap)
+        if (isCountForLongTap)
         {
             tapStartTime += Time.deltaTime;
 
@@ -64,13 +69,15 @@ public class SelectPhaseButton : MonoBehaviour
             {
                 tapStartTime = 0;
 
-                if(!isEraser) inputNum++;
+                if(!isEraserMode) inputNum++;
                 else inputNum--;
             }
         }
 
         if (inputNum > input_max) inputNum = input_max;
         if (inputNum <= 0) inputNum = 0;
+
+        if(!isCheckMode) isCheck = false;
     }
 
     /// <summary>
@@ -78,7 +85,15 @@ public class SelectPhaseButton : MonoBehaviour
     /// </summary>
     public void CountUp()
     {
-        if (!isEraser) inputNum++;
+        // 確認モードのときに押されたらボタンに応じたマスに配置された図形を表示する
+        if (isCheckMode)
+        {
+            isCheck = true;
+            selectPhase.CheckWindowDisp();
+            return;
+        }
+
+        if (!isEraserMode) inputNum++;
         else inputNum--;
 
         isCountForLongTap = true;
