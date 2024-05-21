@@ -38,6 +38,8 @@ public class SelectPhase : MonoBehaviour
     bool isCheck = false;
     public bool IsCheck { get { return isCheck; } }
 
+    [SerializeField] GameObject modeBG;
+
     // 図形変更
     [SerializeField] GameObject[] shapeChangeButtons;
 
@@ -47,6 +49,7 @@ public class SelectPhase : MonoBehaviour
         selectPhaseUI.SetActive(false);
         eraserMode.SetActive(false);
         checkModeWindow.SetActive(false);
+        modeBG.SetActive(false);
 
         // 図形変更ボタンの非表示
         for (int b = 0; b < shapeChangeButtons.Length; b++)
@@ -57,6 +60,8 @@ public class SelectPhase : MonoBehaviour
 
     private void Update()
     {
+        if(isEraser || isCheck) modeBG.SetActive(true);
+        else modeBG.SetActive(false);
     }
 
     /// <summary>
@@ -166,6 +171,13 @@ public class SelectPhase : MonoBehaviour
     public void CheckWindowDisp()
     {
         checkModeWindow.SetActive(true);
+
+        // 画像初期化
+        for (int i = 0; i < steps.Length; i++)
+        {
+            Sprite s = shapeIcon[0]; // 画像取得
+            steps[i].sprite = s; // 画像変更
+        }
 
         InputNumSave();
         IntArrayToShapeArray();
@@ -317,6 +329,9 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void IntArrayToShapeArray()
     {
+        // 一度初期化する
+        ShapeArrayInitialize();
+
         ShapeData.Shape shape;
 
         for (int n = 0; n < shapeTypeAmount; n++)
