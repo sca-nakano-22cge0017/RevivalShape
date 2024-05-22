@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 確認フェーズ　カメラ回転
+/// 確認フェーズ　カメラ制御
 /// </summary>
 public class CameraRotate : MonoBehaviour
 {
@@ -9,20 +9,22 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] Camera _camera;
     Vector3 mapSize;
 
+    // 注視位置
     Vector3 target;
 
-    // 回転
-    [SerializeField, Header("ドラッグの感度")] float sensitivity;
-    Vector2 sPos;   //タッチした座標
-    float wid, hei;  //スクリーンサイズ
-    float tx, ty;
-
+    // 初期位置
     Vector3 defaultPos;
     Quaternion defaultRot;
 
+    // 回転
+    [SerializeField, Header("ドラッグの感度")] float sensitivity;
+    Vector2 sPos;    //タッチした座標
+    float wid, hei;  //スクリーンサイズ
+    float tx, ty;
+
     // 拡縮
-    float sDist = 0.0f, nDist = 0.0f; //距離変数
-    float vRatio = 1.0f; //現在倍率
+    float sDist = 0.0f, nDist = 0.0f;  //距離変数
+    float vRatio = 1.0f;               //現在倍率
     [SerializeField, Header("Field of Viewの最大・最低値")] float vMax, vMin;
     [SerializeField, Header("Field of Viewの初期値")] float vDefault;
     [SerializeField, Header("基本の拡縮速度")] float vSpeed;
@@ -33,8 +35,11 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
     [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
 
-    bool canRotate = false;
-    public bool CanRotate { get { return canRotate; } set { canRotate = value; } }
+    /// <summary>
+    /// カメラを動かすかどうか
+    /// falseのときは動かない
+    /// </summary>
+    public bool CanRotate { get; set; } = false;
 
     Vector3 movedPos = new Vector3(0, 0, 0); // debug
 
@@ -46,8 +51,9 @@ public class CameraRotate : MonoBehaviour
 
     void Update()
     {
-        if (!canRotate) return;
+        if (!CanRotate) return;
 
+        // 回転
         if (Input.touchCount == 1)
         {
             Touch t1 = Input.GetTouch(0);
@@ -67,6 +73,7 @@ public class CameraRotate : MonoBehaviour
                 ty = t1.position.y - sPos.y;
 
                 // 移動量から回転角度を求める
+                // dragAjustより移動量が小さかったら0にし、水平/垂直の移動にする
                 if (Mathf.Abs(tx) < dragAjust) tx = 0;
                 float deltaAngleLR = tx / wid * sensitivity;
 
@@ -80,19 +87,22 @@ public class CameraRotate : MonoBehaviour
                 var pos = transform.position;
                 pos -= target;
                 pos = angleAxisLR * angleAxisTB * pos; // 回転移動
-                pos += target; // 平行移動
+                pos += target;                          // 平行移動
 
+                // カメラがサンプルの下に回り込まないように調整
                 if (pos.y >= 0)
                 {
                     transform.position = pos;
                     transform.rotation = angleAxisLR * angleAxisTB * transform.rotation;
                 }
 
-                //! Y座標が一定以下になったら0にする
-
+                //! Todo Y座標が一定以下になったら0にする
+                
                 sPos = t1.position;
             }
         }
+
+        // 拡縮
         else if (Input.touchCount == 2)
         {
             Touch t1 = Input.GetTouch(0);
@@ -108,6 +118,7 @@ public class CameraRotate : MonoBehaviour
 
             if (t2.phase == TouchPhase.Began)
             {
+                // タップした二点間の距離を取得
                 sDist = Vector2.Distance(t1.position, t2.position);
 
                 vRatio = _camera.fieldOfView;
@@ -115,8 +126,12 @@ public class CameraRotate : MonoBehaviour
             else if (t1.phase == TouchPhase.Moved || t2.phase == TouchPhase.Moved)
             {
                 nDist = Vector2.Distance(t1.position, t2.position);
-                if (sDist > nDist) vRatio += vSpeed * (1 - (vRatio - vMin) / (vMax - vMin)) * (sDist - nDist); // 縮小
-                if (sDist < nDist) vRatio -= vSpeed * ((vRatio - vMin) / (vMax - vMin)) * (nDist - sDist); // 拡大
+
+                // 縮小
+                if (sDist > nDist) vRatio += vSpeed * (1 - (vRatio - vMin) / (vMax - vMin)) * (sDist - nDist);
+                // 拡大
+                if (sDist < nDist) vRatio -= vSpeed * ((vRatio - vMin) / (vMax - vMin)) * (nDist - sDist);
+
                 _camera.fieldOfView = vRatio;
                 sDist = nDist;
             }
@@ -184,8 +199,10 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void TargetSet()
     {
-        mapSize = stageController.MapSize; // サイズ代入
+        // サイズ代入
+        mapSize = stageController.MapSize;
 
+        // 注視位置設定
         target = mapSize / 2;
         target.x *= -1;
         target.y = 0;
@@ -195,6 +212,6 @@ public class CameraRotate : MonoBehaviour
         defaultPos = transform.position;
         defaultRot = transform.rotation;
 
-        //! サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
+        //! Todo サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
     }
 }

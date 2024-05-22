@@ -1,28 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 選択フェーズで使用するボタン
+/// </summary>
 public class SelectPhaseButton : MonoBehaviour
 {
     SelectPhase selectPhase;
 
-    int inputNum = 0;
-
     /// <summary>
     /// 各ボタンに入力された数
     /// </summary>
-    public int InputNum
-    {
-        get { return inputNum; }
-        set { inputNum = value; }
-    }
+    public int InputNum { get; set; } = 0;
 
     Text thisText;
 
-    const int input_max = 10; // 入力できる最大値
+    // 入力できる最大値
+    const int input_max = 10;
 
     // 長押し
     bool isCountForLongTap = false; // ロングタップ用のカウントを開始するフラグ
-    bool isLongTap = false; // 長押し中かどうか
+    bool isLongTap = false;         // 長押し中かどうか
     [SerializeField, Header("長押し中 数値が1上がるまでの時間")] float interval = 0.5f;
     [SerializeField, Header("長押し成立までの時間")] float longTapTime = 2.0f;
     float tapStartTime = 0;
@@ -32,7 +30,8 @@ public class SelectPhaseButton : MonoBehaviour
 
     // 確認モード
     bool isCheckMode = false; // 確認モードかどうか
-    public bool isCheck{ get; set; } = false; // 確認するマスのボタンか
+
+    public bool IsCheck{ get; set; } = false; // 確認するマスのボタンか
     
     private void Start()
     {
@@ -44,16 +43,19 @@ public class SelectPhaseButton : MonoBehaviour
 
     private void Update()
     {
-        thisText.text = inputNum.ToString(); // 表示変更
+        // 表示変更
+        thisText.text = InputNum.ToString();
 
         isEraserMode = selectPhase.IsEraser;
         isCheckMode = selectPhase.IsCheck;
 
-        // 長押し
+        // 長押しか確認開始
         if (isCountForLongTap)
         {
+            // カウント開始
             tapStartTime += Time.deltaTime;
 
+            // 一定時間経過したら長押しとして処理
             if(tapStartTime >= longTapTime)
             {
                 isLongTap = true;
@@ -62,22 +64,26 @@ public class SelectPhaseButton : MonoBehaviour
             }
         }
 
+        // 長押しなら
         if (isLongTap)
         {
             tapStartTime += Time.deltaTime;
+
+            // 一定時間経過毎に増減処理
             if(interval <= tapStartTime)
             {
                 tapStartTime = 0;
 
-                if(!isEraserMode) inputNum++;
-                else inputNum--;
+                if(!isEraserMode) InputNum++;
+                else InputNum--;
             }
         }
 
-        if (inputNum > input_max) inputNum = input_max;
-        if (inputNum <= 0) inputNum = 0;
+        // 最低値/最高値を超えないようにする
+        if (InputNum > input_max) InputNum = input_max;
+        if (InputNum <= 0) InputNum = 0;
 
-        if(!isCheckMode) isCheck = false;
+        if(!isCheckMode) IsCheck = false;
     }
 
     /// <summary>
@@ -88,13 +94,13 @@ public class SelectPhaseButton : MonoBehaviour
         // 確認モードのときに押されたらボタンに応じたマスに配置された図形を表示する
         if (isCheckMode)
         {
-            isCheck = true;
+            IsCheck = true;
             selectPhase.CheckWindowDisp();
             return;
         }
 
-        if (!isEraserMode) inputNum++;
-        else inputNum--;
+        if (!isEraserMode) InputNum++;
+        else InputNum--;
 
         isCountForLongTap = true;
         tapStartTime = 0;
