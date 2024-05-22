@@ -53,7 +53,7 @@ AudioMixerController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: NewAudioMixer
+  m_Name: SoundAudio
   m_OutputGroup: {fileID: 0}
   m_MasterGroup: {fileID: 24300002}
   m_Snapshots:
@@ -64,9 +64,11 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: aad1f8b6a935a99469ca5ea295edbc3a
-    name: BGMRaram
+    name: BGM
+  - guid: 1a93036a53450de44bcbb93441c1b64e
+    name: Master
   - guid: 99f36e98e4524224e85052704f468674
-    name: SERaram
+    name: SE
   m_AudioMixerGroupViews:
   - guids:
     - 2aa37a9c33fbb5c438c2979bb6469cde

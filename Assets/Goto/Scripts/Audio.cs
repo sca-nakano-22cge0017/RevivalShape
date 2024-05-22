@@ -10,6 +10,8 @@ public class Audio : MonoBehaviour
     //それぞれのスライダーを入れるとこです。。
     [SerializeField] Slider BGMSlider;
     [SerializeField] Slider SESlider;
+    [SerializeField]
+    Slider MasterSlider;
 
     private void Start()
     {
@@ -21,6 +23,9 @@ public class Audio : MonoBehaviour
         //SE
         audioMixer.GetFloat("SE", out float seVolume);
         SESlider.value = seVolume;
+
+        audioMixer.GetFloat("Master", out float masterVolume);
+        MasterSlider.value = masterVolume;
     }
     public void SetBGM(float volume)
     {
@@ -30,5 +35,9 @@ public class Audio : MonoBehaviour
     public void SetSE(float volume)
     {
         audioMixer.SetFloat("SE", volume);
+    }
+    public void SetMaster(float volume)
+    {
+        audioMixer.SetFloat("Master", volume);
     }
 }
