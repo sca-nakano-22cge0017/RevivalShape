@@ -30,6 +30,7 @@ public class SelectPhaseButton : MonoBehaviour
 
     // 確認モード
     bool isCheckMode = false; // 確認モードかどうか
+    [SerializeField] Image flame; // 確認カメラモード時の発光
 
     public bool IsCheck{ get; set; } = false; // 確認するマスのボタンか
     
@@ -39,6 +40,8 @@ public class SelectPhaseButton : MonoBehaviour
         thisText = transform.GetChild(0).gameObject.GetComponent<Text>();
 
         selectPhase = FindObjectOfType<SelectPhase>();
+
+        flame.enabled = false;
     }
 
     private void Update()
@@ -83,7 +86,19 @@ public class SelectPhaseButton : MonoBehaviour
         if (InputNum > input_max) InputNum = input_max;
         if (InputNum <= 0) InputNum = 0;
 
-        if(!isCheckMode) IsCheck = false;
+        if (!isCheckMode)
+        {
+            IsCheck = false;
+            flame.enabled = false;
+        }
+
+        if (IsCheck)
+        {
+            var rt = GetComponent<RectTransform>();
+            flame.GetComponent<RectTransform>().sizeDelta = rt.sizeDelta;
+            flame.enabled = true;
+        }
+        else flame.enabled = false;
     }
 
     /// <summary>

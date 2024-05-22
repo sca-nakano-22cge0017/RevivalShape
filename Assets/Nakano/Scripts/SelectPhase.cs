@@ -13,6 +13,8 @@ public class SelectPhase : MonoBehaviour
     [SerializeField] GameObject buttonParent;
     [SerializeField] GameObject buttonPrefab;
 
+    [SerializeField, Header("ボタン表示範囲")] Vector2 buttonRange;
+
     [SerializeField] GameObject selectPhaseUI;
 
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
@@ -30,14 +32,21 @@ public class SelectPhase : MonoBehaviour
     ShapeData.Shape[,,] playerAnswer; // プレイヤーの解答
 
     // 消去モード
-    [SerializeField] GameObject eraserMode;
+    [SerializeField] GameObject eraserModeWindow;
     public bool IsEraser { get; private set; } = false;
 
     // 確認モード
     [SerializeField] GameObject checkModeWindow;
-    [SerializeField] Image[] steps;
+    [SerializeField] GameObject stepsParent;
+    [SerializeField] GameObject stepsPrefab;
+    Image[] steps;
     [SerializeField] Sprite[] shapeIcon;
     public bool IsCheck { get; set; } = false;
+    Vector2 checkPos = new Vector2(0, 0); // 確認するマス
+    int stepsAmount = 5;
+
+    // 確認カメラモードのウィンドウを消去できるか
+    bool canCheckWindowUnDisp = false;
 
     // 各モード時の黒背景
     [SerializeField] GameObject modeBG;
@@ -49,7 +58,7 @@ public class SelectPhase : MonoBehaviour
     {
         // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
-        eraserMode.SetActive(false);
+        eraserModeWindow.SetActive(false);
         checkModeWindow.SetActive(false);
         modeBG.SetActive(false);
 
@@ -65,6 +74,15 @@ public class SelectPhase : MonoBehaviour
         // モード時は背景暗く
         if(IsEraser || IsCheck) modeBG.SetActive(true);
         else modeBG.SetActive(false);
+
+        // 画面タップで確認カメラモードのウィンドウを閉じる
+        if(canCheckWindowUnDisp && Input.GetMouseButton(0))
+        {
+            checkModeWindow.SetActive(false);
+            canCheckWindowUnDisp = false;
+
+            selectButtons[(int)checkPos.x, (int)checkPos.y].IsCheck = false;
+        }
     }
 
     /// <summary>
@@ -89,8 +107,11 @@ public class SelectPhase : MonoBehaviour
             return;
         }
 
+        // マップサイズ取得
+        mapSize = stageController.MapSize;
+
         ArraysCreate();
-        ButtonsCreate();
+        UISetting();
 
         firstInput = false;
     }
@@ -115,26 +136,26 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void ArraysCreate()
     {
-        // マップサイズ取得
-        mapSize = stageController.MapSize;
-
         // 配列　要素数指定
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         playerInputData = new int[shapeTypeAmount, (int)mapSize.x, (int)mapSize.z];
-
-        // 親オブジェクトのサイズ調整
-        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(mapSize.x * 200, mapSize.z * 200);
+        //steps = new Image[(int)mapSize.y];
+        steps = new Image[stepsAmount];
 
         InputNumDataInitialize();
         ShapeArrayInitialize();
     }
 
     /// <summary>
-    /// ボタンの生成
+    /// UIのサイズなどを設定
     /// </summary>
-    void ButtonsCreate()
+    void UISetting()
     {
+        // ボタンの親オブジェクトのサイズ調整
+        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
+        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
+
         // マップの広さ分ボタンを生成
         for (int z = 0; z < (int)mapSize.z; z++)
         {
@@ -143,6 +164,18 @@ public class SelectPhase : MonoBehaviour
                 selectButtons[x, z] = Instantiate(buttonPrefab, buttonParent.transform).GetComponent<SelectPhaseButton>();
             }
         }
+
+        // 確認カメラモードのウィンドウ生成
+        for (int y = 0; y < /*(int)mapSize.y*/ stepsAmount; y++)
+        {
+            steps[y] = Instantiate(stepsPrefab, stepsParent.transform).GetComponent<Image>();
+
+            float size = 200 * (1 - 1 / /*mapSize.y*/ stepsAmount);
+            steps[y].GetComponent<RectTransform>().sizeDelta = new Vector2(size, size);
+
+            // 作ったらHierarchyの一番上に設定する → 下から順に生成する
+            steps[y].transform.SetAsFirstSibling();
+        }
     }
 
     /// <summary>
@@ -150,12 +183,13 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     public void EraserModeChange()
     {
-        if (IsCheck) return; // 確認モードなら無効
+        // 確認モードなら無効
+        if (IsCheck) return;
 
         IsEraser = !IsEraser;
 
-        if (IsEraser) eraserMode.SetActive(true);
-        else eraserMode.SetActive(false);
+        if (IsEraser) eraserModeWindow.SetActive(true);
+        else eraserModeWindow.SetActive(false);
     }
 
     /// <summary>
@@ -163,11 +197,10 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     public void CheckModeChange()
     {
-        if (IsEraser) return; // 消去モードなら無効
+        // 消去モード、ウィンドウ表示中なら無効
+        if (IsEraser || checkModeWindow.activeSelf) return;
 
         IsCheck = !IsCheck;
-
-        if (!IsCheck) checkModeWindow.SetActive(false);
     }
 
     /// <summary>
@@ -188,7 +221,7 @@ public class SelectPhase : MonoBehaviour
         InputNumSave();
         IntArrayToShapeArray();
 
-        Vector2 pos = new Vector2(0, 0); // 確認するマス
+        checkPos = new Vector2(0, 0); // 確認するマス
         bool isSearchEnd = false;
 
         // 確認するマスがどれかを調べる
@@ -199,7 +232,7 @@ public class SelectPhase : MonoBehaviour
                 // 確認するマスが見つかったらfor文を抜ける
                 if(selectButtons[x, z].IsCheck)
                 {
-                    pos = new Vector2(x, z);
+                    checkPos = new Vector2(x, z);
                     isSearchEnd = true;
                     break;
                 }
@@ -211,11 +244,22 @@ public class SelectPhase : MonoBehaviour
         for(int i = 0; i < steps.Length; i++)
         {
             // 配置されている図形を取得
-            var shape = (int)playerAnswer[(int)pos.x, i, (int)pos.y];
+            var shape = (int)playerAnswer[(int)checkPos.x, i, (int)checkPos.y];
 
             Sprite s = shapeIcon[shape];  // 画像取得
             steps[i].sprite = s;          // 画像変更
         }
+
+        StartCoroutine(CheckWindowUnDisp());
+    }
+
+    /// <summary>
+    /// ウィンドウの表示と非表示が一瞬で行われるので表示後一定時間待ってから、非表示にできるようにする
+    /// </summary>
+    IEnumerator CheckWindowUnDisp()
+    {
+        yield return new WaitForSeconds(0.1f);
+        canCheckWindowUnDisp = true;
     }
 
     /// <summary>
