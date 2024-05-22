@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// メインゲーム制御
+/// </summary>
 public class StageController : MonoBehaviour
 {
+    // フェーズ
     public enum PHASE { CHECK = 0, SELECT, PLAY, };
     public PHASE phase = 0;
 
@@ -21,116 +25,119 @@ public class StageController : MonoBehaviour
     [SerializeField] SelectPhase selectPhase;
     [SerializeField] PlayPhase playPhase;
 
-    private int yDataMax = 10; //選択フェーズで1マス内に入力できる最大値
+    //選択フェーズで1マス内に入力できる最大値
+    private int yDataMax = 10;
 
-    Vector3 mapSize = new Vector3(4, 4, 4);
-    public Vector3 MapSize { get { return mapSize; } }
-    
-    private int phaseBackCount = 0;
+    public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
+
+    // データ取得完了したかどうか
+    bool dataGot = false;
+
     /// <summary>
     /// 確認フェーズに戻った回数
     /// </summary>
-    public int PhaseBackCount { get { return phaseBackCount; } set { phaseBackCount = value; } }
+    public int PhaseBackCount { get; set; } = 0;
 
-    ShapeData.Shape[] shapeType; // 使用図形の種類
-    public ShapeData.Shape[] ShapeType { get { return shapeType; } }
-    private int shapeTypeAmount = 0; // 使用図形の種類数
-    public int ShapeTypeAmount { get { return shapeTypeAmount; } }
+    /// <summary>
+    /// 使用図形の種類一覧
+    /// </summary>
+    public ShapeData.Shape[] ShapeType { get; private set; }
 
-    ShapeData.Shape[,,] correctAnswer;
+    /// <summary>
+    /// 使用図形の種類数
+    /// </summary>
+    public int ShapeTypeAmount { get; private set; } = 0;
+
     /// <summary>
     /// 正しい答え
     /// </summary>
-    public ShapeData.Shape[,,] CorrectAnswer
-    {
-        get { return correctAnswer; }
-        set { correctAnswer = value; }
-    }
+    public ShapeData.Shape[,,] CorrectAnswer { get; set; }
 
-    ShapeData.Shape[,,] playerAnswer;
     /// <summary>
     /// プレイヤーの答え
     /// </summary>
-    public ShapeData.Shape[,,] PlayerAnswer
-    {
-        get { return playerAnswer; }
-        set { playerAnswer = value; }
-    }
+    public ShapeData.Shape[,,] PlayerAnswer { get; set; }
 
-    // データ取得完了したかどうか
-    bool mapSizeDataGot = false;
-    bool stageDataGot = false;
-
-    bool isClear = false;
     /// <summary>
     /// trueでステージクリア
     /// </summary>
-    public bool IsClear { get { return isClear; } set{ isClear = value; } }
+    public bool IsClear { get; set; } = false;
 
     /// <summary>
     /// trueのときリトライ
     /// </summary>
-    bool isRetry = false;
-    public bool IsRetry { get { return isRetry; } set { isRetry = value; } }
+    public bool IsRetry { get; set; } = false;
 
     private void Awake()
     {
         if(SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
-        stageDataLoader.StageDataGet(stageName);
+        stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
     }
 
     void Update()
     {
-        // データのロードが完了していたら かつ データを変数として取得していなければ
-        if(stageDataLoader.stageDataLoadComlete && !mapSizeDataGot)
+        // ロードが終わっていなければ次の処理に進ませない
+        if (!stageDataLoader.stageDataLoadComlete) return;
+
+        // データを変数として取得していなければ
+        if(!dataGot)
         {
+            dataGot = true;
+
             // マップサイズ取得
-            mapSize = stageDataLoader.LoadStageSize();
-            shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
-            mapSize.y = yDataMax * shapeTypeAmount; // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
+            MapSize = stageDataLoader.LoadStageSize();
+            
+            // ゲームに登場する図形の種類数を取得
+            ShapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
+
+            // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
+            MapSize = new Vector3(MapSize.x, yDataMax * ShapeTypeAmount, MapSize.z);
 
             // 配列 要素数指定
-            shapeType = new ShapeData.Shape[shapeTypeAmount];
-            correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-            playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+            ShapeType = new ShapeData.Shape[ShapeTypeAmount];
+            CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+            PlayerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
 
             cameraRotate.TargetSet();
 
-            mapSizeDataGot = true;
+            // 正答取得
+            CorrectAnswer = stageDataLoader.LoadStageMap(MapSize);
+
+            // 使用している図形の種類を取得
+            ShapeType = shapeData.ShapeTypes(CorrectAnswer);
+
+            // 使用している図形の種類数を取得
+            ShapeTypeAmount = shapeData.ShapeTypesAmount(ShapeType);
+
+            // シート作成
+            sheatCreate.Sheat();
+
+            // 確認フェーズに移行
+            ToCheckPhase();
         }
 
-        // 正解の配置データを配列に入れる
-        if (stageDataLoader.stageDataLoadComlete && !stageDataGot && mapSizeDataGot)
+        // クリア時の遷移処理
+        if (IsClear && Input.GetMouseButton(0))
         {
-            correctAnswer = stageDataLoader.LoadStageMap(mapSize);
-
-            shapeType = shapeData.ShapeTypes(correctAnswer); // 使用している図形の種類を取得
-            shapeTypeAmount = shapeData.ShapeTypesAmount(shapeType); // 使用している図形の種類数を取得
-
-            sheatCreate.Sheat(); // シート作成
-            ToCheckPhase(); // 確認フェーズに移行
-
-            stageDataGot = true;
-        }
-
-        if (isClear && Input.GetMouseButton(0))
-        {
+            // ステージ選択画面に戻る
             SceneManager.LoadScene("SelectScene");
-            isClear = false;
+            IsClear = false;
         }
 
-        if (isRetry && Input.GetMouseButton(0))
+        // 再挑戦時の処理
+        if (IsRetry && Input.GetMouseButton(0))
         {
             // 確認フェーズに戻る
             ToCheckPhase();
-            isRetry = false;
+            IsRetry = false;
         }
     }
 
     /// <summary>
     /// 確認フェーズに移行
+    /// フェーズを管理するenum型変数の変更、他フェーズ用のUI非表示等
     /// </summary>
     public void ToCheckPhase()
     {
@@ -139,15 +146,19 @@ public class StageController : MonoBehaviour
         playPhase.PlayPhaseEnd();
         selectPhase.SelectPhaseEnd();
 
-        cameraRotate.CanRotate = true; // カメラの回転ができるようにする
+        // カメラの回転ができるようにする
+        cameraRotate.CanRotate = true;
 
-        sheatCreate.SheatDisp(true, true); // シートの表示設定
+        // シートの表示設定
+        sheatCreate.SheatDisp(true, true);
 
-        checkPhase.CheckPhaseStart(); // 確認フェーズに移行する
+        // 確認フェーズ開始処理
+        checkPhase.CheckPhaseStart();
     }
 
     /// <summary>
     /// 選択フェーズに移行
+    /// フェーズを管理するenum型変数の変更、他フェーズ用のUI非表示等
     /// </summary>
     public void ToSelectPhase()
     {
@@ -156,16 +167,20 @@ public class StageController : MonoBehaviour
         checkPhase.CheckPhaseEnd();
         playPhase.PlayPhaseEnd();
 
+        // カメラ
         cameraRotate.CanRotate = false;
         cameraRotate.RotateReset();
 
+        // シート
         sheatCreate.SheatDisp(false, false);
 
+        // 選択フェーズ開始処理
         selectPhase.SelectPhaseStart();
     }
 
     /// <summary>
     /// 実行フェーズに移行
+    /// フェーズを管理するenum型変数の変更、他フェーズ用のUI非表示等
     /// </summary>
     public void ToPlayPhase()
     {
@@ -174,8 +189,10 @@ public class StageController : MonoBehaviour
         checkPhase.CheckPhaseEnd();
         selectPhase.SelectPhaseEnd();
 
+        // シート
         sheatCreate.SheatDisp(true, false);
-        
+
+        // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();
     }
 }

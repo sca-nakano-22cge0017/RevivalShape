@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// シート作成
+/// </summary>
 public class SheatCreate : MonoBehaviour
 {
     [SerializeField] GameObject sheatPrefab;
@@ -17,11 +20,15 @@ public class SheatCreate : MonoBehaviour
 
     bool isCreated = false;
 
+    /// <summary>
+    /// シート作成
+    /// </summary>
     public void Sheat()
     {
         if(isCreated) return;
 
-        mapSize = stageController.MapSize; // サイズ代入
+        // サイズ代入
+        mapSize = stageController.MapSize;
 
         // マップの広さ分シートをを生成
         for (int x = 0; x < (int)mapSize.x; x++)

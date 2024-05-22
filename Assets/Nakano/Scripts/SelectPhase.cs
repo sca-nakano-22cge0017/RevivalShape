@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 選択フェーズ
+/// </summary>
 public class SelectPhase : MonoBehaviour
 {
     [SerializeField] StageController stageController;
@@ -14,30 +17,29 @@ public class SelectPhase : MonoBehaviour
 
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
 
-    int[,,] _playerInputData; // 入力データ
-    int selectShapeNum = 1; // 選択中の図形
+    int[,,] playerInputData; // 入力データ [図形の種類, X座標, Z座標]
+    int selectShapeNum = 1;  // 選択中の図形
 
-    ShapeData.Shape[] shapeType; // 使用図形の種類
+    ShapeData.Shape[] shapeType;     // 使用図形の種類
     private int shapeTypeAmount = 0; // 使用図形の種類数
 
     bool firstInput = true; // 一番最初の入力かどうか
 
     Vector3 mapSize;
 
-    ShapeData.Shape[,,] playerAnswer;
+    ShapeData.Shape[,,] playerAnswer; // プレイヤーの解答
 
     // 消去モード
     [SerializeField] GameObject eraserMode;
-    bool isEraser = false;
-    public bool IsEraser { get { return isEraser; } }
+    public bool IsEraser { get; private set; } = false;
 
     // 確認モード
     [SerializeField] GameObject checkModeWindow;
     [SerializeField] Image[] steps;
     [SerializeField] Sprite[] shapeIcon;
-    bool isCheck = false;
-    public bool IsCheck { get { return isCheck; } }
+    public bool IsCheck { get; set; } = false;
 
+    // 各モード時の黒背景
     [SerializeField] GameObject modeBG;
 
     // 図形変更
@@ -45,7 +47,7 @@ public class SelectPhase : MonoBehaviour
 
     private void Awake()
     {
-        // ウィンドウ非表示
+        // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
         eraserMode.SetActive(false);
         checkModeWindow.SetActive(false);
@@ -60,7 +62,8 @@ public class SelectPhase : MonoBehaviour
 
     private void Update()
     {
-        if(isEraser || isCheck) modeBG.SetActive(true);
+        // モード時は背景暗く
+        if(IsEraser || IsCheck) modeBG.SetActive(true);
         else modeBG.SetActive(false);
     }
 
@@ -75,8 +78,7 @@ public class SelectPhase : MonoBehaviour
         // 図形変更ボタン　使う図形のボタンのみ表示する
         ShapeChangeButtonsSet();
 
-        selectShapeNum = 1;
-
+        // 初回でないとき
         if (!firstInput)
         {
             // 解答初期化
@@ -116,17 +118,15 @@ public class SelectPhase : MonoBehaviour
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
-        shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
-
         // 配列　要素数指定
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        playerInputData = new int[shapeTypeAmount, (int)mapSize.x, (int)mapSize.z];
 
-        _playerInputData = new int[shapeTypeAmount, (int)mapSize.x, (int)mapSize.z];
-        InputNumDataInitialize();
-
+        // 親オブジェクトのサイズ調整
         buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(mapSize.x * 200, mapSize.z * 200);
 
+        InputNumDataInitialize();
         ShapeArrayInitialize();
     }
 
@@ -150,10 +150,11 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     public void EraserModeChange()
     {
-        if (isCheck) return; // 確認モードなら無効
-        isEraser = !isEraser;
+        if (IsCheck) return; // 確認モードなら無効
 
-        if (isEraser) eraserMode.SetActive(true);
+        IsEraser = !IsEraser;
+
+        if (IsEraser) eraserMode.SetActive(true);
         else eraserMode.SetActive(false);
     }
 
@@ -162,14 +163,19 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     public void CheckModeChange()
     {
-        if (isEraser) return; // 消去モードなら無効
-        isCheck = !isCheck;
+        if (IsEraser) return; // 消去モードなら無効
 
-        if (!isCheck) checkModeWindow.SetActive(false);
+        IsCheck = !IsCheck;
+
+        if (!IsCheck) checkModeWindow.SetActive(false);
     }
 
+    /// <summary>
+    /// 確認カメラモード 指定したマスの図形を表示する
+    /// </summary>
     public void CheckWindowDisp()
     {
+        // ウィンドウ表示
         checkModeWindow.SetActive(true);
 
         // 画像初期化
@@ -184,11 +190,14 @@ public class SelectPhase : MonoBehaviour
 
         Vector2 pos = new Vector2(0, 0); // 確認するマス
         bool isSearchEnd = false;
+
+        // 確認するマスがどれかを調べる
         for (int z = 0; z < (int)mapSize.z; z++)
         {
             for (int x = 0; x < (int)mapSize.x; x++)
             {
-                if(selectButtons[x, z].isCheck)
+                // 確認するマスが見つかったらfor文を抜ける
+                if(selectButtons[x, z].IsCheck)
                 {
                     pos = new Vector2(x, z);
                     isSearchEnd = true;
@@ -201,9 +210,11 @@ public class SelectPhase : MonoBehaviour
 
         for(int i = 0; i < steps.Length; i++)
         {
-            var shape = (int)playerAnswer[(int)pos.x, i, (int)pos.y]; // 配置されている図形を取得
-            Sprite s = shapeIcon[shape]; // 画像取得
-            steps[i].sprite = s; // 画像変更
+            // 配置されている図形を取得
+            var shape = (int)playerAnswer[(int)pos.x, i, (int)pos.y];
+
+            Sprite s = shapeIcon[shape];  // 画像取得
+            steps[i].sprite = s;          // 画像変更
         }
     }
 
@@ -213,9 +224,6 @@ public class SelectPhase : MonoBehaviour
     /// <param name="shape">選択する図形の名前</param>
     public void ShapeChange(string shapeName)
     {
-        int n = selectShapeNum;
-        ShapeData.Shape shape = (ShapeData.Shape)n;
-
         InputNumSave(); // 入力データ保存
 
         // 列挙型を全検索
@@ -223,7 +231,7 @@ public class SelectPhase : MonoBehaviour
         {
             string name = ShapeData.Shape.GetName(typeof(ShapeData.Shape), value);
 
-            // 打ち込まれたstringと同じなら変更する
+            // 名前が打ち込まれたstringと同じなら、選択している図形を変更する
             if(name.ToLower() == shapeName.ToLower())
             {
                 selectShapeNum = (int)value;
@@ -238,10 +246,17 @@ public class SelectPhase : MonoBehaviour
     /// </summary>
     void ShapeChangeButtonsSet()
     {
-        shapeType = stageController.ShapeType; // 使用図形を取得
+        // 使用している図形の種類数を取得
+        shapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
 
-        for(int b = 0; b < shapeChangeButtons.Length; b++)
+        // 使用図形を取得
+        shapeType = stageController.ShapeType;
+
+        bool firstShape = true; // 一番最初に配置する図形
+
+        for (int b = 0; b < shapeChangeButtons.Length; b++)
         {
+            // ボタンの名前を取得
             string buttonsName = shapeChangeButtons[b].name;
             buttonsName.ToLower();
 
@@ -250,9 +265,19 @@ public class SelectPhase : MonoBehaviour
                 string needShapeName = ShapeData.Shape.GetName(typeof(ShapeData.Shape), shapeType[st]);
                 needShapeName.ToLower();
                 
+                // ボタンの名前と使用している図形の種類が被っているものがあれば
                 if (buttonsName == needShapeName)
                 {
+                    // ボタンを表示
                     shapeChangeButtons[b].SetActive(true);
+
+                    if(firstShape)
+                    {
+                        // 初期状態で選択している図形を設定
+                        selectShapeNum = (int)shapeType[st];
+                        firstShape = false;
+                    }
+
                     break;
                 }
             }
@@ -269,7 +294,7 @@ public class SelectPhase : MonoBehaviour
             for (int x = 0; x < (int)mapSize.x; x++)
             {
                 // 入力した数をint型の配列に代入
-                _playerInputData[selectShapeNum, z, x] = selectButtons[x, z].InputNum;
+                playerInputData[selectShapeNum, z, x] = selectButtons[x, z].InputNum;
             }
         }
     }
@@ -286,7 +311,7 @@ public class SelectPhase : MonoBehaviour
             {
                 for (int x = 0; x < (int)mapSize.x; x++)
                 {
-                    _playerInputData[n, x, z] = 0;
+                    playerInputData[n, x, z] = 0;
                 }
             }
         }
@@ -302,7 +327,8 @@ public class SelectPhase : MonoBehaviour
         {
             for (int x = 0; x < (int)mapSize.x; x++)
             {
-                selectButtons[x, z].InputNum = _playerInputData[selectShapeNum, z, x];
+                // 入力されていた値をボタンに反映する
+                selectButtons[x, z].InputNum = playerInputData[selectShapeNum, z, x];
             }
         }
     }
@@ -318,6 +344,7 @@ public class SelectPhase : MonoBehaviour
             {
                 for (int y = 0; y < (int)mapSize.y; y++)
                 {
+                    // 空を入れておく
                     playerAnswer[x, y, z] = ShapeData.Shape.Empty;
                 }
             }
@@ -342,6 +369,7 @@ public class SelectPhase : MonoBehaviour
             {
                 for (int x = 0; x < (int)mapSize.x; x++)
                 {
+                    // 次にオブジェクトを配置する位置
                     int nextYPos = 0;
 
                     // 空白マスを検索する 1段目から検索していき、空白マスがあったら次の図形をそこから上へ配置していく
@@ -356,7 +384,7 @@ public class SelectPhase : MonoBehaviour
                     }
 
                     // playerInputDataにはY軸方向に積む数が入っている
-                    for (int y = 0; y < _playerInputData[n, z, x]; y++)
+                    for (int y = 0; y < playerInputData[n, z, x]; y++)
                     {
                         playerAnswer[x, y + nextYPos, z] = shape;
                     }

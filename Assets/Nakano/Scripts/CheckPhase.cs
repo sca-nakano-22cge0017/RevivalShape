@@ -2,20 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 確認フェーズ
+/// </summary>
 public class CheckPhase : MonoBehaviour
 {
     [SerializeField] ShapeData shapeData;
     [SerializeField] StageController stageController;
 
+    // サンプルの親オブジェクト
     [SerializeField] Transform objParent;
 
     [SerializeField] GameObject checkPhaseUI;
 
     Vector3 mapSize;
 
-    ShapeData.Shape[,,] map;
-    GameObject[,,] mapObj;
+    ShapeData.Shape[,,] map; // 配置データ
+    GameObject[,,] mapObj;   // サンプルのGameObject型配列
 
+    // サンプル生成済みかどうか
     bool sampleCreated = false;
 
     private void Awake()
@@ -26,6 +31,7 @@ public class CheckPhase : MonoBehaviour
 
     /// <summary>
     /// 確認フェーズ移行時の処理
+    /// UI表示、サンプル生成
     /// </summary>
     public void CheckPhaseStart()
     {
@@ -38,6 +44,7 @@ public class CheckPhase : MonoBehaviour
 
     /// <summary>
     /// 確認フェーズ終了
+    /// UI非表示
     /// </summary>
     public void CheckPhaseEnd()
     {
@@ -50,9 +57,11 @@ public class CheckPhase : MonoBehaviour
     /// </summary>
     void StageInstance()
     {
-        if (sampleCreated) return; // 生成済みなら再度生成しない
+        // 生成済みなら再度生成しない
+        if (sampleCreated) return;
 
-        mapSize = stageController.MapSize; // サイズ代入
+        // サイズ代入
+        mapSize = stageController.MapSize;
 
         // 配列 要素数指定
         map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
@@ -61,6 +70,7 @@ public class CheckPhase : MonoBehaviour
         // 正解の配置データを取得
         map = stageController.CorrectAnswer;
 
+        // 生成
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int x = 0; x < mapSize.x; x++)

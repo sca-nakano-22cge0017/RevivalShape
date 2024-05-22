@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 図形
+/// </summary>
 public class ShapeData : MonoBehaviour
 {
     [SerializeField] GameObject[] prefabs;
@@ -72,10 +75,10 @@ public class ShapeData : MonoBehaviour
     }
 
     /// <summary>
-    /// 三次配列内で使用している図形の種類を調べる
+    /// 三次配列内に出てくる図形の種類を調べる
     /// </summary>
     /// <param name="checkArray">調べたい配列</param>
-    /// <returns>使用図形の種類を配列で返す</returns>
+    /// <returns>使用図形の種類を配列で返す Emptyは飛ばす</returns>
     public Shape[] ShapeTypes(Shape[,,] checkArray)
     {
         Shape[] type = new Shape[System.Enum.GetValues(typeof(Shape)).Length];

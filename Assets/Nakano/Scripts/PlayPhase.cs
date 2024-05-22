@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 実行フェーズ
+/// </summary>
 public class PlayPhase : MonoBehaviour
 {
     [SerializeField] StageController stageController;
@@ -11,14 +14,15 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] MissionCheck missionCheck;
     [SerializeField] Vibration vibration;
 
+    // 親オブジェクト
     [SerializeField] Transform objParent;
 
     [SerializeField] GameObject playPhaseUI;
 
     Vector3 mapSize;
 
-    ShapeData.Shape[,,] map;
-    GameObject[,,] mapObj;
+    ShapeData.Shape[,,] map; // 配置データ
+    GameObject[,,] mapObj;   // GameObject型配列
 
     ShapeData.Shape[,,] correctAnswer; // 正答
 
@@ -52,7 +56,8 @@ public class PlayPhase : MonoBehaviour
     {
         playPhaseUI.SetActive(true);
 
-        mapSize = stageController.MapSize; // サイズ代入
+        // サイズ代入
+        mapSize = stageController.MapSize;
 
         // 配列 要素数指定
         map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
@@ -88,6 +93,9 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
     }
 
+    /// <summary>
+    /// 解答のモデルを生成、一致率の計算
+    /// </summary>
     void AnswerInstance()
     {
         matchRateTroutTotal = 0;
@@ -106,7 +114,7 @@ public class PlayPhase : MonoBehaviour
                 float lack = 0; // 不足数
                 float diff = 0; // 相違数
 
-                bool hasAnything = false; // 正答/プレイヤーの解答のどちらかで何か置かれているマスか
+                bool hasAnything = false; // 正答/プレイヤーの解答のどちらかで、何か置かれているマスならtrue
 
                 for (int y = 0; y < mapSize.y; y++)
                 {
@@ -173,6 +181,9 @@ public class PlayPhase : MonoBehaviour
         StartCoroutine(Fall());
     }
 
+    /// <summary>
+    /// 落下
+    /// </summary>
     IEnumerator Fall()
     {
         for (int z = 0; z < mapSize.z; z++)
@@ -186,6 +197,7 @@ public class PlayPhase : MonoBehaviour
 
                     mapObj[x, y, z].GetComponent<Rigidbody>().constraints =
                         RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+
                     StartCoroutine(VibrateOn(mapObj[x, y, z]));
                     yield return new WaitForSeconds(fallInterval);
                 }
@@ -196,6 +208,11 @@ public class PlayPhase : MonoBehaviour
         MatchRateDisp();
     }
 
+    /// <summary>
+    /// 振動オン
+    /// </summary>
+    /// <param name="obj">振動をオンにしたいオブジェクト</param>
+    /// <returns></returns>
     IEnumerator VibrateOn(GameObject obj)
     {
         yield return new WaitForSeconds(0.1f);
@@ -207,11 +224,13 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void MatchRateDisp()
     {
+        // 一致率算出
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
 
         matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
 
+        // 100%でクリア
         if(matchRate >= 100)
         {
             clearWindow.SetActive(true);
