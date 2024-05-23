@@ -13,10 +13,17 @@ public class SelectPhaseButton : MonoBehaviour
     /// </summary>
     public int InputNum { get; set; } = 0;
 
+    /// <summary>
+    /// ボタンの位置
+    /// </summary>
+    public Vector2 Position { get; set; } = new Vector2(0, 0);
+
     Text thisText;
 
-    // 入力できる最大値
-    const int input_max = 10;
+    /// <summary>
+    /// 入力できる最大値
+    /// </summary>
+    public int Input_max { get; set; } = 10;
 
     // 長押し
     bool isCountForLongTap = false; // ロングタップ用のカウントを開始するフラグ
@@ -82,10 +89,6 @@ public class SelectPhaseButton : MonoBehaviour
             }
         }
 
-        // 最低値/最高値を超えないようにする
-        if (InputNum > input_max) InputNum = input_max;
-        if (InputNum <= 0) InputNum = 0;
-
         if (!isCheckMode)
         {
             IsCheck = false;
@@ -114,8 +117,16 @@ public class SelectPhaseButton : MonoBehaviour
             return;
         }
 
-        if (!isEraserMode) InputNum++;
-        else InputNum--;
+        if (!isEraserMode && InputNum < Input_max)
+        {
+            InputNum++;
+            selectPhase.ShapeInput(Position);  // 図形追加
+        }
+        else if (isEraserMode && InputNum > 0)
+        {
+            InputNum--;
+            selectPhase.ShapeDelete(Position); // 図形消去
+        }
 
         isCountForLongTap = true;
         tapStartTime = 0;

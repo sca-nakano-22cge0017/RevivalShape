@@ -26,6 +26,7 @@ public class PlayPhase : MonoBehaviour
 
     ShapeData.Shape[,,] correctAnswer; // 正答
 
+    [SerializeField, Header("落下速度")] float fallSpeed; 
     [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
     [SerializeField, Header("オブジェクトを落とす間隔(sec)")] float fallInterval;
     [SerializeField, Tooltip("オブジェクトが全て落下してから一致率表示までの時間(sec)")]
@@ -195,8 +196,9 @@ public class PlayPhase : MonoBehaviour
                     // 空白マスなら落下演出を飛ばす
                     if (map[x, y, z] == ShapeData.Shape.Empty) continue;
 
-                    mapObj[x, y, z].GetComponent<Rigidbody>().constraints =
-                        RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+                    mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
+                    mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
+                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
 
                     StartCoroutine(VibrateOn(mapObj[x, y, z]));
                     yield return new WaitForSeconds(fallInterval);
