@@ -331,6 +331,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4481208}
   m_CullTransparentMesh: 1
+--- !u!1 &63718809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 63718810}
+  m_Layer: 5
+  m_Name: ModeChange
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &63718810
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63718809}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 767812028}
+  - {fileID: 1256252179}
+  - {fileID: 792910316}
+  m_Father: {fileID: 1311459169}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &123579503
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,7 +738,8 @@ MonoBehaviour:
   buttonPrefab: {fileID: 8206769263333299867, guid: 31d5d84f1a9e285488766120f44486a0, type: 3}
   buttonRange: {x: 800, y: 800}
   selectPhaseUI: {fileID: 1311459168}
-  eraserModeWindow: {fileID: 902922084}
+  eraserModeButton: {fileID: 1256252178}
+  checkModeButton: {fileID: 792910315}
   checkModeWindow: {fileID: 1277052528}
   stepsParent: {fileID: 710288731}
   stepsPrefab: {fileID: 8422475021457934984, guid: 70964fa05cfefb546bd1a68304ee5b98, type: 3}
@@ -739,7 +778,7 @@ GameObject:
   - component: {fileID: 302409736}
   - component: {fileID: 302409735}
   m_Layer: 5
-  m_Name: BG_Black
+  m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1562,7 +1601,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1311459169}
+  m_Father: {fileID: 63718810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1620,7 +1659,7 @@ GameObject:
   - component: {fileID: 792910318}
   - component: {fileID: 792910317}
   m_Layer: 5
-  m_Name: ShapeCheck
+  m_Name: Check
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1633,13 +1672,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 792910315}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1400021977}
-  m_Father: {fileID: 1311459169}
+  m_Father: {fileID: 63718810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1791,6 +1830,7 @@ MonoBehaviour:
   vibration: {fileID: 1730702728}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
+  fallSpeed: 10
   fallPos: 20
   fallInterval: 0.3
   fallToMatchdispTime: 2
@@ -2347,13 +2387,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256252178}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 333144246}
-  m_Father: {fileID: 1311459169}
+  m_Father: {fileID: 63718810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2469,7 +2509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1277052529
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2582,12 +2622,10 @@ RectTransform:
   - {fileID: 2032440615}
   - {fileID: 1527151163}
   - {fileID: 943966224}
-  - {fileID: 767812028}
   - {fileID: 533072847}
   - {fileID: 1409667267}
+  - {fileID: 63718810}
   - {fileID: 1279963039}
-  - {fileID: 1256252179}
-  - {fileID: 792910316}
   - {fileID: 902922085}
   - {fileID: 1277052529}
   m_Father: {fileID: 2111849880}
@@ -3013,7 +3051,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Stage1
+  stageName: Stage2
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   cameraRotate: {fileID: 883029810}

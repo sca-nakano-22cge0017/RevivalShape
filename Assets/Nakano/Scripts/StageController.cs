@@ -25,9 +25,6 @@ public class StageController : MonoBehaviour
     [SerializeField] SelectPhase selectPhase;
     [SerializeField] PlayPhase playPhase;
 
-    //選択フェーズで1マス内に入力できる最大値
-    private int yDataMax = 10;
-
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
     // データ取得完了したかどうか
@@ -93,7 +90,7 @@ public class StageController : MonoBehaviour
             ShapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
 
             // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
-            MapSize = new Vector3(MapSize.x, yDataMax * ShapeTypeAmount, MapSize.z);
+            // MapSize = new Vector3(MapSize.x, yDataMax * ShapeTypeAmount, MapSize.z);
 
             // 配列 要素数指定
             ShapeType = new ShapeData.Shape[ShapeTypeAmount];
