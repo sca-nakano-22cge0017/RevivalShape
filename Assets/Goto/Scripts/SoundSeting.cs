@@ -5,21 +5,25 @@ using UnityEngine.UI;
 
 public class SoundSetting : MonoBehaviour
 {
+   
     [SerializeField]
     Slider vSlider;
 
+ 
     // Start is called before the first frame update
     void Start()
     {
+       
         vSlider = GetComponent<Slider>();
 
-        float maxValue = 200f;
-        float minValue = 0f;
-        float nowValue = 100f;
+        float maxSound = 200f;
+        float minSound = 0f;
+        float nowSound = 100f;
 
-        vSlider.minValue = minValue;
-        vSlider.maxValue = maxValue;
-        vSlider.value = nowValue;
+        vSlider.minValue = minSound;
+        vSlider.maxValue = maxSound;
+        vSlider.value = nowSound;
+       
       
         
     }
