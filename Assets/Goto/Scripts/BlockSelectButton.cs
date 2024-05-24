@@ -7,28 +7,35 @@ public class BlockSelectButton : MonoBehaviour
 {
     [SerializeField]
     private GameObject onPanel;
-    [SerializeField]
-    private GameObject offPanel;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private GameObject[] offPanels = null;
 
-    // Update is called once per frame
-    void Update()
+    // Start is called before the first frame update
+    public void StartOpen()
     {
-        
+        onPanel.SetActive(true);
+        offPanels[0].SetActive(false);
+        offPanels[1].SetActive(false);
+        offPanels[2].SetActive(false);
+
+    }
+    public void PanelClose()
+    {
+        onPanel.SetActive(false);
+        offPanels[1].SetActive(true);
+        offPanels[2].SetActive(false);
     }
     public void OnBlookSelect()
     {
         onPanel.SetActive(false);
-        offPanel.SetActive(true);
+        offPanels[0].SetActive(false);
+        offPanels[1].SetActive(false);
+        offPanels[2].SetActive(true);
+
     }
     public void OffBlookSelect()
     {
         onPanel.SetActive(true);
-        offPanel.SetActive(false);
-        
+        offPanels[2].SetActive(false);
+
     }
 }
