@@ -2,30 +2,51 @@ using UnityEngine.Audio;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class Audio : MonoBehaviour
 {
-    //Audioミキサーを入れるとこです
+  
     [SerializeField] AudioMixer audioMixer;
+    [SerializeField] SoundPush soundPush;
 
-    //それぞれのスライダーを入れるとこです。。
+ 
     [SerializeField] Slider BGMSlider;
     [SerializeField] Slider SESlider;
-    [SerializeField]
-    Slider MasterSlider;
+    [SerializeField] Slider MasterSlider;
+    
 
     private void Start()
     {
-        //ミキサーのvolumeにスライダーのvolumeを入れてます。
-
-        //BGM
         audioMixer.GetFloat("BGM", out float bgmVolume);
         BGMSlider.value = bgmVolume;
-        //SE
+        
         audioMixer.GetFloat("SE", out float seVolume);
         SESlider.value = seVolume;
 
         audioMixer.GetFloat("Master", out float masterVolume);
         MasterSlider.value = masterVolume;
+
+        float masterMaxSound = 20f;
+        float masternowSound = 5f;
+
+
+        float maxSound = 20f;
+        float minSound = -80f;
+        float nowSound = 5f;
+
+        MasterSlider.maxValue = masterMaxSound;
+        MasterSlider.minValue = minSound;
+        MasterSlider.value = masternowSound;
+
+        BGMSlider.maxValue = maxSound;
+        BGMSlider.minValue = minSound;
+        BGMSlider.value = nowSound;
+
+        SESlider.maxValue = maxSound;
+        SESlider.minValue = minSound;
+        SESlider.value = nowSound;
+
+        //soundPush.SoundSliderOnValueChange();
     }
     public void SetBGM(float volume)
     {
@@ -40,4 +61,5 @@ public class Audio : MonoBehaviour
     {
         audioMixer.SetFloat("Master", volume);
     }
+  
 }
