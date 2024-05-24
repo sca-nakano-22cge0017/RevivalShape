@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class TimeManager : MonoBehaviour
 {
     [SerializeField]
-    private Text testTime;
     private Text timerText;
     private int minute;
     private float seconds;
@@ -38,7 +37,6 @@ public class TimeManager : MonoBehaviour
         if ((int)seconds != (int)oldSeconds)
         {
             timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
-            testTime.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
         }
 
         oldSeconds = seconds;

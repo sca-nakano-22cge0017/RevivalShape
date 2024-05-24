@@ -6,31 +6,22 @@ using UnityEngine.UI;
 
 public class SoundPush : MonoBehaviour
 {
-   
+    [SerializeField]
     private AudioSource audioSource;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    
-        audioSource = GetComponent<AudioSource>();
-        
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     //public void OnPlaySound()
     //{
-      //  audioSource.PlayOneShot(clip);
+    //  audioSource.PlayOneShot(clip);
     //}
-    public void SoundSliderOnValueChange(float newSliderValue)
+    //public void SoundSliderOnValueChange(float newSliderValue)
+    //{
+    //    // 音楽の音量をスライドバーの値に変更
+    //    audioSource.volume = Mathf.Clamp01(newSliderValue / 20f); // 0 から 1 の範囲に正規化
+    //}
+    public void SetVolume(float sliderValue)
     {
-        // 音楽の音量をスライドバーの値に変更
-        audioSource.volume = newSliderValue;
+        // スライダーの値を0から1の範囲に正規化（20dBを1、-80dBを0とする）
+        float normalizedVolume = Mathf.InverseLerp(-80f, 20f, sliderValue);
+        audioSource.volume = Mathf.Clamp(normalizedVolume, 0f, 1f); // 0から1の範囲に収める
     }
 }
