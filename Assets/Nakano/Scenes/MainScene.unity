@@ -2041,12 +2041,13 @@ MonoBehaviour:
   sampleCheck: {fileID: 0}
   stageController: {fileID: 1471772881}
   _camera: {fileID: 883029808}
+  adjustAngle: 5
   sensitivity: 100
   vMax: 80
   vMin: 10
   vDefault: 60
   vSpeed: 0.1
-  dragAjust: 20
+  dragAjust: 30
   dragRangeMin: {x: 0, y: 500}
   dragRangeMax: {x: 1080, y: 1880}
 --- !u!1 &900491404
