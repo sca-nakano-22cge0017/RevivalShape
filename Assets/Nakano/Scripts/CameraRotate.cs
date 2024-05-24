@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class CameraRotate : MonoBehaviour
 {
-    [SerializeField, Header("デバッグ用")] SampleCheck sampleCheck; 
+    [SerializeField, Header("デバッグ用")] SampleCheck sampleCheck;
 
     [SerializeField] StageController stageController;
     [SerializeField] Camera _camera;
@@ -17,6 +17,9 @@ public class CameraRotate : MonoBehaviour
     // 初期位置
     Vector3 defaultPos;
     Quaternion defaultRot;
+
+    [SerializeField, Header("ajustAngle度毎に補正ポイントを置く")] float adjustAngle;
+    Vector3[] point; // カメラ位置の補正 一定距離まで近付いたらこの座標に移動させる
 
     // 回転
     [SerializeField, Header("ドラッグの感度")] float sensitivity;
@@ -31,7 +34,7 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("Field of Viewの初期値")] float vDefault;
     [SerializeField, Header("基本の拡縮速度")] float vSpeed;
 
-    [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")] 
+    [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")]
     float dragAjust = 10;
 
     [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
@@ -45,13 +48,12 @@ public class CameraRotate : MonoBehaviour
 
     Vector3 movedPos = new Vector3(0, 0, 0); // debug
 
-    float rotX = 0;
-    float rotY = 0;
-
-    void Start()
+    void Awake()
     {
         wid = Screen.width;
         hei = Screen.height;
+
+        point = new Vector3[(int)(360 / adjustAngle)];
     }
 
     void Update()
@@ -78,7 +80,7 @@ public class CameraRotate : MonoBehaviour
                 ty = t1.position.y - sPos.y;
 
                 // 移動量から回転角度を求める
-                // dragAjustより移動量が小さかったら0にし、水平/垂直の移動にする
+                // dragAjustより移動量の絶対値が小さかったら0にし、水平/垂直の移動にする
                 if (Mathf.Abs(tx) < dragAjust) tx = 0;
                 float deltaAngleLR = tx / wid * sensitivity;
 
@@ -94,14 +96,14 @@ public class CameraRotate : MonoBehaviour
                 pos = angleAxisLR * angleAxisTB * pos; // 回転移動
                 pos += target;                          // 平行移動
 
-                // カメラがサンプルの下に回り込まないように調整
-                if (pos.y >= 0)
-                {
-                    transform.position = pos;
-                    transform.rotation = angleAxisLR * angleAxisTB * transform.rotation;
-                }
+                transform.position = pos;
+                transform.LookAt(target, transform.up);
 
-                //! Todo Y座標が一定以下になったら0にする
+                // カメラがサンプルの下に回り込まないように調整
+                if (pos.y <= 0.005f)
+                {
+                    CameraPosAdjust();
+                }
 
                 sPos = t1.position;
             }
@@ -141,7 +143,7 @@ public class CameraRotate : MonoBehaviour
                 sDist = nDist;
             }
         }
-        
+
 #if false // PC上で動かす場合
         if (Input.GetMouseButtonDown(0))
         {
@@ -189,6 +191,27 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
+    /// カメラ位置を補正する
+    /// </summary>
+    void CameraPosAdjust()
+    {
+        Vector3 nearPos = new Vector3(100, 100, 100);
+
+        var pos = transform.position;
+        
+        foreach(var p in point)
+        {
+            var nearDiff = (pos - nearPos).magnitude;
+            var diff = (pos - p).magnitude;
+
+            if(nearDiff > diff) nearPos = p;
+        }
+
+        transform.position = nearPos;
+        transform.LookAt(target, transform.up);
+    }
+
+    /// <summary>
     /// カメラの位置・回転を初期状態に戻す
     /// </summary>
     public void RotateReset()
@@ -197,9 +220,6 @@ public class CameraRotate : MonoBehaviour
         transform.rotation = defaultRot;
 
         _camera.fieldOfView = vDefault;
-
-        rotX = transform.rotation.x;
-        rotY = transform.rotation.y;
     }
 
     /// <summary>
@@ -208,15 +228,16 @@ public class CameraRotate : MonoBehaviour
     public void TargetSet()
     {
         // サイズ代入
-        if(stageController)
+        if (stageController)
             mapSize = stageController.MapSize;
-        else if(sampleCheck)
+        else if (sampleCheck)
             mapSize = sampleCheck.MapSize;
 
         // 注視位置設定
         target = mapSize / 2;
         target.x *= -1;
         target.y = 0;
+        target += new Vector3(0.5f, 0, -0.5f);
 
         // サンプルのサイズに応じてカメラ位置を調整
         transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x + 10, mapSize.z + 2);
@@ -225,7 +246,13 @@ public class CameraRotate : MonoBehaviour
 
         //! Todo サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
 
-        rotX = transform.rotation.x;
-        rotY = transform.rotation.y;
+        // 補正ポイントの生成
+        float r = (target - defaultPos).magnitude;
+        Vector3 firstPos = new Vector3(r, 0, 0);
+        
+        for (int i = 0; i < point.Length; i++)
+        {
+            point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;
+        }
     }
 }
