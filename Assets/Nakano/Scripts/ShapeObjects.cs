@@ -31,7 +31,7 @@ public class ShapeObjects : MonoBehaviour
         vibration = GameObject.FindObjectOfType<Vibration>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if(!IsFall) return;
 
