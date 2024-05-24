@@ -312,7 +312,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 8807721753031513946}
           m_TargetAssemblyTypeName: SelectPhaseButton, Assembly-CSharp
-          m_MethodName: CountUp
+          m_MethodName: PointerDown
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -328,7 +328,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 8807721753031513946}
           m_TargetAssemblyTypeName: SelectPhaseButton, Assembly-CSharp
-          m_MethodName: CountEnd
+          m_MethodName: PointerUp
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -344,7 +344,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 8807721753031513946}
           m_TargetAssemblyTypeName: SelectPhaseButton, Assembly-CSharp
-          m_MethodName: CountEnd
+          m_MethodName: PointerExit
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -360,7 +360,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 8807721753031513946}
           m_TargetAssemblyTypeName: SelectPhaseButton, Assembly-CSharp
-          m_MethodName: CountUp
+          m_MethodName: PointerEnter
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

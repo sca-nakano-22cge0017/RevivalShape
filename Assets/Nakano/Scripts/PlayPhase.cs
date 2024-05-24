@@ -12,7 +12,7 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] StageController stageController;
     [SerializeField] ShapeData shapeData;
     [SerializeField] MissionCheck missionCheck;
-    [SerializeField] Vibration vibration;
+    Vibration vibration;
 
     // 親オブジェクト
     [SerializeField] Transform objParent;
@@ -25,6 +25,9 @@ public class PlayPhase : MonoBehaviour
     GameObject[,,] mapObj;   // GameObject型配列
 
     ShapeData.Shape[,,] correctAnswer; // 正答
+
+    [SerializeField, Header("落下時の振動の長さ(秒)")] float fallVibrateTime;
+    [SerializeField, Header("クリア時の振動の長さ(秒)")] float clearVibrateTime;
 
     [SerializeField, Header("落下速度")] float fallSpeed; 
     [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
@@ -48,6 +51,8 @@ public class PlayPhase : MonoBehaviour
         clearWindow.SetActive(false);
 
         matchRateText.enabled = false;
+
+        vibration = GameObject.FindObjectOfType<Vibration>();
     }
 
     /// <summary>
@@ -218,6 +223,7 @@ public class PlayPhase : MonoBehaviour
     IEnumerator VibrateOn(GameObject obj)
     {
         yield return new WaitForSeconds(0.1f);
+        obj.GetComponent<ShapeObjects>().VibrateTime = fallVibrateTime;
         obj.GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
     }
 
@@ -238,7 +244,7 @@ public class PlayPhase : MonoBehaviour
             clearWindow.SetActive(true);
             missionCheck.Mission();
 
-            //vibration.PluralVibrate(2, 500);
+            vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
             stageController.IsClear = true;
         }
         else

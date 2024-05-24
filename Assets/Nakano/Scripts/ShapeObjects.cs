@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class ShapeObjects : MonoBehaviour
 {
+    Vibration vibration;
+
     bool isVibrate = false;
     public bool IsVibrate { get{ return isVibrate; } set{ isVibrate = value; } }
+
+    public float VibrateTime { get; set; } = 0.3f;
 
     /// <summary>
     /// —Ž‰º‘¬“x
@@ -22,21 +26,25 @@ public class ShapeObjects : MonoBehaviour
     /// </summary>
     public int TargetHeight { get; set; } = 0;
 
+    private void Awake()
+    {
+        vibration = GameObject.FindObjectOfType<Vibration>();
+    }
+
     private void Update()
     {
-        if(IsFall)
+        if(!IsFall) return;
+
+        if (transform.position.y > TargetHeight)
         {
-            if(transform.position.y > TargetHeight)
-            {
-                transform.Translate(Vector3.down * FallSpeed * Time.deltaTime);
-            }
-            else
-            {
-                var pos = transform.position;
-                pos.y = TargetHeight;
-                transform.position = pos;
-                IsFall = false;
-            }
+            transform.Translate(Vector3.down * FallSpeed * Time.deltaTime);
+        }
+        else
+        {
+            var pos = transform.position;
+            pos.y = TargetHeight;
+            transform.position = pos;
+            IsFall = false;
         }
     }
 
@@ -44,8 +52,7 @@ public class ShapeObjects : MonoBehaviour
     {
         if (isVibrate)
         {
-            //Vibration.Vibrate(3);
-            Handheld.Vibrate();
+            vibration.PluralVibrate(1, (long)(VibrateTime * 1000));
         }
     }
 }

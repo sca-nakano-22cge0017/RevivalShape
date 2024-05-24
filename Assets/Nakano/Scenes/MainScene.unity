@@ -704,6 +704,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 249960460}
   m_CullTransparentMesh: 1
+--- !u!1 &254838727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 254838728}
+  - component: {fileID: 254838730}
+  - component: {fileID: 254838729}
+  m_Layer: 5
+  m_Name: BG_Clear
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &254838728
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 254838727}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1277052529}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 50}
+  m_SizeDelta: {x: 1080, y: 1400}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &254838729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 254838727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &254838730
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 254838727}
+  m_CullTransparentMesh: 1
 --- !u!1 &271283358
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,6 +823,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   - {fileID: 21300000, guid: 2a6f6b362198c8240b0d3917929b68cc, type: 3}
   modeBG: {fileID: 767812027}
+  clearBG: {fileID: 302409733}
   shapeChangeButtons:
   - {fileID: 1527151162}
   - {fileID: 943966223}
@@ -778,7 +854,7 @@ GameObject:
   - component: {fileID: 302409736}
   - component: {fileID: 302409735}
   m_Layer: 5
-  m_Name: BG
+  m_Name: BG_Clear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -796,7 +872,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1277052529}
+  m_Father: {fileID: 1311459169}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1827,9 +1903,10 @@ MonoBehaviour:
   stageController: {fileID: 1471772881}
   shapeData: {fileID: 1471772877}
   missionCheck: {fileID: 798559331}
-  vibration: {fileID: 1730702728}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
+  fallVibrateTime: 0.1
+  clearVibrateTime: 0.3
   fallSpeed: 10
   fallPos: 20
   fallInterval: 0.3
@@ -2522,7 +2599,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 302409734}
+  - {fileID: 254838728}
   - {fileID: 710288732}
   m_Father: {fileID: 1311459169}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2625,6 +2702,7 @@ RectTransform:
   - {fileID: 533072847}
   - {fileID: 1409667267}
   - {fileID: 63718810}
+  - {fileID: 302409734}
   - {fileID: 1279963039}
   - {fileID: 902922085}
   - {fileID: 1277052529}
@@ -3403,7 +3481,7 @@ Transform:
   m_GameObject: {fileID: 1730702727}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.1762905, y: 15.959889, z: 5.638495}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -46,8 +46,13 @@ public class SelectPhase : MonoBehaviour
     // 確認カメラモードのウィンドウを消去できるか
     bool canCheckWindowUnDisp = false;
 
+    // スワイプして数字を上昇させられるか
+    public bool CanSwipInput { get; set; } = false;
+
     // 各モード時の黒背景
     [SerializeField] GameObject modeBG;
+
+    [SerializeField] GameObject clearBG;
 
     // 図形変更
     [SerializeField] GameObject[] shapeChangeButtons;
@@ -58,6 +63,7 @@ public class SelectPhase : MonoBehaviour
         selectPhaseUI.SetActive(false);
         checkModeWindow.SetActive(false);
         modeBG.SetActive(false);
+        clearBG.SetActive(false);
 
         // 図形変更ボタンの非表示
         for (int b = 0; b < shapeChangeButtons.Length; b++)
@@ -172,9 +178,10 @@ public class SelectPhase : MonoBehaviour
         {
             // モード時は背景暗く
             modeBG.SetActive(true);
+            clearBG.SetActive(true);
 
             // ボタンの外を押したらモード終了
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 Vector2 mPos = Input.mousePosition;
                 float minX = Screen.width / 2 - buttonRange.x / 2;
@@ -189,7 +196,11 @@ public class SelectPhase : MonoBehaviour
                 }
             }
         }
-        else modeBG.SetActive(false);
+        else
+        {
+            modeBG.SetActive(false);
+            clearBG.SetActive(false);
+        }
 
         // ボタンのレイヤー位置調整
         if (IsEraser)
@@ -204,7 +215,7 @@ public class SelectPhase : MonoBehaviour
         }
 
         // 画面タップで確認カメラモードのウィンドウを閉じる
-        if (canCheckWindowUnDisp && Input.GetMouseButton(0))
+        if (canCheckWindowUnDisp && Input.GetMouseButtonDown(0))
         {
             checkModeWindow.SetActive(false);
             canCheckWindowUnDisp = false;
