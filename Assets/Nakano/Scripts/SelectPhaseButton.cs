@@ -40,7 +40,7 @@ public class SelectPhaseButton : MonoBehaviour
     [SerializeField] Image flame; // 確認カメラモード時の発光
 
     public bool IsCheck{ get; set; } = false; // 確認するマスのボタンか
-    
+
     private void Start()
     {
         // ボタンの子オブジェクトのTextを取得
@@ -84,8 +84,8 @@ public class SelectPhaseButton : MonoBehaviour
             {
                 tapStartTime = 0;
 
-                if(!isEraserMode) InputNum++;
-                else InputNum--;
+                if(!isEraserMode && InputNum < Input_max) InputNum++;
+                else if (isEraserMode && InputNum > 0) InputNum--;
             }
         }
 
@@ -104,10 +104,32 @@ public class SelectPhaseButton : MonoBehaviour
         else flame.enabled = false;
     }
 
+    public void PointerDown()
+    {
+        CountUp();
+        if(!isCheckMode) selectPhase.CanSwipInput = true;
+    }
+
+    public void PointerEnter()
+    {
+        if(selectPhase.CanSwipInput) CountUp();
+    }
+
+    public void PointerUp()
+    {
+        CountEnd();
+        selectPhase.CanSwipInput = false;
+    }
+
+    public void PointerExit()
+    {
+        CountEnd();
+    }
+
     /// <summary>
     /// ボタンを押したらカウントを増やす
     /// </summary>
-    public void CountUp()
+    void CountUp()
     {
         // 確認モードのときに押されたらボタンに応じたマスに配置された図形を表示する
         if (isCheckMode)
@@ -128,6 +150,8 @@ public class SelectPhaseButton : MonoBehaviour
             selectPhase.ShapeDelete(Position); // 図形消去
         }
 
+        if(selectPhase.CanSwipInput) return;
+
         isCountForLongTap = true;
         tapStartTime = 0;
     }
@@ -135,7 +159,7 @@ public class SelectPhaseButton : MonoBehaviour
     /// <summary>
     /// ボタンから手を離した時の処理
     /// </summary>
-    public void CountEnd()
+    void CountEnd()
     {
         isLongTap = false;
         isCountForLongTap = false;

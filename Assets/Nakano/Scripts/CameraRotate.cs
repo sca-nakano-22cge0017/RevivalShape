@@ -45,6 +45,9 @@ public class CameraRotate : MonoBehaviour
 
     Vector3 movedPos = new Vector3(0, 0, 0); // debug
 
+    float rotX = 0;
+    float rotY = 0;
+
     void Start()
     {
         wid = Screen.width;
@@ -99,7 +102,7 @@ public class CameraRotate : MonoBehaviour
                 }
 
                 //! Todo Y座標が一定以下になったら0にする
-                
+
                 sPos = t1.position;
             }
         }
@@ -194,6 +197,9 @@ public class CameraRotate : MonoBehaviour
         transform.rotation = defaultRot;
 
         _camera.fieldOfView = vDefault;
+
+        rotX = transform.rotation.x;
+        rotY = transform.rotation.y;
     }
 
     /// <summary>
@@ -218,5 +224,8 @@ public class CameraRotate : MonoBehaviour
         defaultRot = transform.rotation;
 
         //! Todo サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
+
+        rotX = transform.rotation.x;
+        rotY = transform.rotation.y;
     }
 }
