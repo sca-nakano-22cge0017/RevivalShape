@@ -121,7 +121,7 @@ public class StageController : MonoBehaviour
         // クリア時の遷移処理
         if (IsClear && Input.GetMouseButton(0))
         {
-            if (TapOrDragRange(Input.mousePosition)) return;
+            if (!TapOrDragRange(Input.mousePosition)) return;
 
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
@@ -132,7 +132,7 @@ public class StageController : MonoBehaviour
         // 再挑戦時の処理
         if (IsRetry && Input.GetMouseButton(0))
         {
-            if(TapOrDragRange(Input.mousePosition)) return;
+            if(!TapOrDragRange(Input.mousePosition)) return;
 
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)

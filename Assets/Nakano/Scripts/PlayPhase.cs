@@ -74,8 +74,11 @@ public class PlayPhase : MonoBehaviour
 
     private void Update()
     {
-        Skip();
-        FastForward();
+        if (isFalling)
+        {
+            Skip();
+            FastForward();
+        }
     }
 
     /// <summary>
@@ -83,13 +86,11 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void Skip()
     {
-        if (!isFalling) return;
-
         // 1回目のタップ
         if (Input.GetMouseButtonDown(0) && skipTapCount == 0)
         {
             // 範囲外は無効
-            if (stageController.TapOrDragRange(Input.mousePosition)) return;
+            if (!stageController.TapOrDragRange(Input.mousePosition)) return;
 
             skipTapCount++;
             canJudgement = true;
@@ -97,18 +98,18 @@ public class PlayPhase : MonoBehaviour
 
         if (canJudgement) skipTime += Time.deltaTime;
 
-        if (skipTime <= 0.5f && skipTime >= 0.01f)
+        if (skipTime <= 0.2f && skipTime >= 0.05f)
         {
             // 2回目のタップ
             if (Input.GetMouseButtonDown(0))
             {
                 // 範囲外は無効
-                if (stageController.TapOrDragRange(Input.mousePosition)) return;
+                if (!stageController.TapOrDragRange(Input.mousePosition)) return;
 
                 skipTapCount++;
             }
         }
-        else if (skipTime > 0.5f)
+        else if (skipTime > 0.2f)
         {
             canJudgement = false;
             skipTapCount = 0;
@@ -118,6 +119,7 @@ public class PlayPhase : MonoBehaviour
         if (skipTapCount >= 2)
         {
             isSkip = true;
+            IsFastForward = false;
             canJudgement = false;
             skipTime = 0f;
         }
@@ -129,12 +131,10 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void FastForward()
     {
-        if (!isFalling) return;
-
         if (Input.GetMouseButtonDown(0) && !IsFastForward)
         {
             // 範囲外は無効
-            if(stageController.TapOrDragRange(Input.mousePosition)) return;
+            if(!stageController.TapOrDragRange(Input.mousePosition)) return;
 
             countStart = true;
             longTapTime = 0;
@@ -148,12 +148,13 @@ public class PlayPhase : MonoBehaviour
         if (longTapTime >= 0.5f)
         {
             IsFastForward = true;
+            isSkip = false;
         }
 
         if (Input.GetMouseButtonUp(0) && (IsFastForward || countStart))
         {
             // 範囲外は無効
-            if (stageController.TapOrDragRange(Input.mousePosition)) return;
+            if (!stageController.TapOrDragRange(Input.mousePosition)) return;
 
             longTapTime = 0;
             IsFastForward = false;
@@ -331,11 +332,12 @@ public class PlayPhase : MonoBehaviour
         }
 
         isFalling = false;
-        isSkip = false;
-        IsFastForward = false;
-
+        
         yield return new WaitForSeconds(fallToMatchdispTime);
         MatchRateDisp();
+
+        isSkip = false;
+        IsFastForward = false;
     }
 
     /// <summary>
