@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ShapeObjects : MonoBehaviour
 {
+    PlayPhase playPhase;
     Vibration vibration;
 
     bool isVibrate = false;
@@ -26,18 +27,32 @@ public class ShapeObjects : MonoBehaviour
     /// </summary>
     public int TargetHeight { get; set; } = 0;
 
+    float fastForwardRatio = 1;
+
     private void Awake()
     {
         vibration = GameObject.FindObjectOfType<Vibration>();
+        playPhase = GameObject.FindObjectOfType<PlayPhase>();
+    }
+
+    private void Update()
+    {
+        // óéâ∫ë¨ìxéÊìæ
+        if(playPhase.IsFastForward)
+        {
+            fastForwardRatio = playPhase.FastForwardRatio;
+        }
+        else fastForwardRatio = 1;
     }
 
     private void FixedUpdate()
     {
-        if(!IsFall) return;
+        if (!IsFall) return;
 
+        // óéâ∫èàóù
         if (transform.position.y > TargetHeight)
         {
-            transform.Translate(Vector3.down * FallSpeed * Time.deltaTime);
+            transform.Translate(Vector3.down * FallSpeed * fastForwardRatio * Time.deltaTime);
         }
         else
         {
@@ -50,6 +65,7 @@ public class ShapeObjects : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        // è’ìÀéûÇ…êUìÆ
         if (isVibrate)
         {
             vibration.PluralVibrate(1, (long)(VibrateTime * 1000));

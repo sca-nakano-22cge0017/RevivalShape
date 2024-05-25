@@ -65,6 +65,9 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get; set; } = false;
 
+    [Header("スワイプの範囲 最小")] public Vector2 dragRangeMin;
+    [Header("スワイプの範囲 最大")] public Vector2 dragRangeMax;
+
     private void Awake()
     {
         if(SelectButton.SelectStage != null)
@@ -118,16 +121,28 @@ public class StageController : MonoBehaviour
         // クリア時の遷移処理
         if (IsClear && Input.GetMouseButton(0))
         {
+            // 範囲外は無効
+            var p = Input.mousePosition;
+            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                return;
+
             // ステージ選択画面に戻る
-            SceneManager.LoadScene("SelectScene");
+            if(!playPhase.IsDebug)
+                SceneManager.LoadScene("SelectScene");
             IsClear = false;
         }
 
         // 再挑戦時の処理
         if (IsRetry && Input.GetMouseButton(0))
         {
+            // 範囲外は無効
+            var p = Input.mousePosition;
+            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                return;
+
             // 確認フェーズに戻る
-            ToCheckPhase();
+            if (!playPhase.IsDebug)
+                ToCheckPhase();
             IsRetry = false;
         }
     }
