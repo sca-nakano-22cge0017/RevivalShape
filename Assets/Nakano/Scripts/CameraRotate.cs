@@ -63,14 +63,14 @@ public class CameraRotate : MonoBehaviour
             if (t1.phase == TouchPhase.Began)
             {
                 // 範囲外は無効
-                if (stageController.TapOrDragRange(t1.position)) return;
+                if (!stageController.TapOrDragRange(t1.position)) return;
 
                 sPos = t1.position;
             }
             else if (t1.phase == TouchPhase.Moved)
             {
                 // 範囲外からスワイプしたとき用の調整
-                if (stageController.TapOrDragRange(t1.position))
+                if (!stageController.TapOrDragRange(t1.position))
                 {
                     sPos = t1.position;
                 }
@@ -116,8 +116,8 @@ public class CameraRotate : MonoBehaviour
             Touch t2 = Input.GetTouch(1);
 
             // 範囲外は無効
-            if (stageController.TapOrDragRange(t1.position)) return;
-            if (stageController.TapOrDragRange(t2.position)) return;
+            if (!stageController.TapOrDragRange(t1.position)) return;
+            if (!stageController.TapOrDragRange(t2.position)) return;
 
             if (t2.phase == TouchPhase.Began)
             {
