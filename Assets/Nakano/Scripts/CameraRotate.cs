@@ -184,7 +184,6 @@ public class CameraRotate : MonoBehaviour
 
         _camera.fieldOfView = vDefault;
 
-        // ’‹’n“_İ’è
         transform.LookAt(target, transform.up);
     }
 
