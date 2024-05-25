@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 実行フェーズ
@@ -26,10 +24,24 @@ public class PlayPhase : MonoBehaviour
 
     ShapeData.Shape[,,] correctAnswer; // 正答
 
+    bool isFalling = false;
+
+    // 落下スキップ
+    bool isSkip = false;
+    int skipTapCount = 0;
+    float skipTime = 0f;
+    bool canJudgement = false;
+
+    // 早送り
+    public bool IsFastForward { get; private set; } = false;
+    float longTapTime = 0;
+    bool countStart = false;
+    [field: SerializeField, Header("早送りの倍率")] public float FastForwardRatio { get; private set; }
+
     [SerializeField, Header("落下時の振動の長さ(秒)")] float fallVibrateTime;
     [SerializeField, Header("クリア時の振動の長さ(秒)")] float clearVibrateTime;
 
-    [SerializeField, Header("落下速度")] float fallSpeed; 
+    [SerializeField, Header("落下速度")] float fallSpeed;
     [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
     [SerializeField, Header("オブジェクトを落とす間隔(sec)")] float fallInterval;
     [SerializeField, Tooltip("オブジェクトが全て落下してから一致率表示までの時間(sec)")]
@@ -44,6 +56,14 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField] GameObject clearWindow;
 
+    Vector2 dragRangeMin; // スワイプの範囲 最小
+    Vector2 dragRangeMax; // スワイプの範囲 最大
+
+    /// <summary>
+    /// 確認中か
+    /// </summary>
+    public bool IsDebug { get; private set; } = false;
+
     private void Awake()
     {
         // UI等を消しておく
@@ -53,6 +73,83 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
+    }
+
+    private void Update()
+    {
+        Skip();
+        FastForward();
+    }
+
+    /// <summary>
+    /// 落下演出スキップ
+    /// </summary>
+    void Skip()
+    {
+        if (!isFalling) return;
+
+        // 1回目のタップ
+        if (Input.GetMouseButtonDown(0) && skipTapCount == 0)
+        {
+            skipTapCount++;
+            canJudgement = true;
+        }
+
+        if (canJudgement) skipTime += Time.deltaTime;
+
+        if (skipTime <= 0.5f && skipTime >= 0.01f)
+        {
+            // 2回目のタップ
+            if (Input.GetMouseButtonDown(0))
+            {
+                skipTapCount++;
+            }
+        }
+        else if (skipTime > 0.5f)
+        {
+            canJudgement = false;
+            skipTapCount = 0;
+            skipTime = 0f;
+        }
+
+        if (skipTapCount >= 2)
+        {
+            isSkip = true;
+            canJudgement = false;
+            skipTime = 0f;
+        }
+        else isSkip = false;
+    }
+
+    /// <summary>
+    /// 落下演出早送り
+    /// </summary>
+    void FastForward()
+    {
+        if (!isFalling) return;
+
+        if (Input.GetMouseButtonDown(0) && !IsFastForward)
+        {
+            countStart = true;
+            longTapTime = 0;
+        }
+
+        if (countStart)
+        {
+            longTapTime += Time.deltaTime;
+        }
+
+        if (longTapTime >= 0.5f)
+        {
+            IsFastForward = true;
+        }
+
+        if (Input.GetMouseButtonUp(0) && (IsFastForward || countStart))
+        {
+            longTapTime = 0;
+            IsFastForward = false;
+            countStart = false;
+        }
     }
 
     /// <summary>
@@ -80,6 +177,15 @@ public class PlayPhase : MonoBehaviour
         matchRate = 0;
 
         AnswerInstance();
+
+        isSkip = false;
+        skipTapCount = 0;
+        skipTime = 0f;
+        canJudgement = false;
+
+        IsFastForward = false;
+        longTapTime = 0;
+        countStart = false;
     }
 
     /// <summary>
@@ -131,13 +237,13 @@ public class PlayPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
-                    
+
                     // 正答とプレイヤーの解答を比べる
                     if (map[x, y, z] != ShapeData.Shape.Empty) total++;
-                    if(correctAnswer[x, y, z] != ShapeData.Shape.Empty) c_total++;
+                    if (correctAnswer[x, y, z] != ShapeData.Shape.Empty) c_total++;
 
                     // 超過分 正答では何も置かれていない場所にオブジェクトが置かれた場合
-                    if(correctAnswer[x, y, z] == ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
+                    if (correctAnswer[x, y, z] == ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
                     {
                         excess++;
                     }
@@ -161,19 +267,19 @@ public class PlayPhase : MonoBehaviour
                     }
                 }
 
-                if(hasAnything) hasBlockTrout++;
+                if (hasAnything) hasBlockTrout++;
 
                 // 1マスあたりの一致率を計算
-                if(excess > 0) // 超過がある場合
+                if (excess > 0) // 超過がある場合
                 {
                     matchRateTrout = (float)(1 - ((total - (c_total - diff)) / total));
                     // 1 - (( 1マス内の総ブロック数 ) - (( 正答の1マス内のブロック数 ) - 相違数 ) / 1マス内の総ブロック数 )
                 }
                 else
                 {
-                    if(c_total > 0)
+                    if (c_total > 0)
                         matchRateTrout = ((c_total - lack - diff) / c_total);
-                        // (( 正答の1マス内のブロック数 ) - ( 不足分 ) - ( 相違分 )) / ( 正答の1マス内のブロック数 )
+                    // (( 正答の1マス内のブロック数 ) - ( 不足分 ) - ( 相違分 )) / ( 正答の1マス内のブロック数 )
 
                     // 何も置いてない場合は0
                     if (c_total <= 0)
@@ -192,6 +298,8 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     IEnumerator Fall()
     {
+        isFalling = true;
+
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int y = 0; y < mapSize.y; y++)
@@ -206,10 +314,16 @@ public class PlayPhase : MonoBehaviour
                     mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
 
                     StartCoroutine(VibrateOn(mapObj[x, y, z]));
-                    yield return new WaitForSeconds(fallInterval);
+
+                    if (!isSkip)
+                        yield return new WaitForSeconds(fallInterval);
                 }
             }
         }
+
+        isFalling = false;
+        isSkip = false;
+        IsFastForward = false;
 
         yield return new WaitForSeconds(fallToMatchdispTime);
         MatchRateDisp();
@@ -239,17 +353,19 @@ public class PlayPhase : MonoBehaviour
         matchRateText.text = matchRate.ToString() + "%";
 
         // 100%でクリア
-        if(matchRate >= 100)
+        if (matchRate >= 100)
         {
             clearWindow.SetActive(true);
             missionCheck.Mission();
 
             vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
+
             stageController.IsClear = true;
         }
         else
         {
             StartCoroutine(MatchTextBlinking());
+
             stageController.IsRetry = true;
         }
     }
@@ -269,5 +385,16 @@ public class PlayPhase : MonoBehaviour
             yield return new WaitForSeconds(unDispTime);
             matchRateText.enabled = true;
         }
+    }
+
+    /// <summary>
+    /// デバッグ用　実行フェーズを再度行う
+    /// </summary>
+    public void DebugPlayRetry()
+    {
+        IsDebug = true;
+
+        PlayPhaseEnd();
+        stageController.ToPlayPhase();
     }
 }
