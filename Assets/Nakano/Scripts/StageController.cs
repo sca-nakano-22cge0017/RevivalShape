@@ -121,13 +121,10 @@ public class StageController : MonoBehaviour
         // クリア時の遷移処理
         if (IsClear && Input.GetMouseButton(0))
         {
-            // 範囲外は無効
-            var p = Input.mousePosition;
-            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                return;
+            if (TapOrDragRange(Input.mousePosition)) return;
 
             // ステージ選択画面に戻る
-            if(!playPhase.IsDebug)
+            if (!playPhase.IsDebug)
                 SceneManager.LoadScene("SelectScene");
             IsClear = false;
         }
@@ -135,10 +132,7 @@ public class StageController : MonoBehaviour
         // 再挑戦時の処理
         if (IsRetry && Input.GetMouseButton(0))
         {
-            // 範囲外は無効
-            var p = Input.mousePosition;
-            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                return;
+            if(TapOrDragRange(Input.mousePosition)) return;
 
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
@@ -206,5 +200,22 @@ public class StageController : MonoBehaviour
 
         // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();
+    }
+
+    /// <summary>
+    /// タップ/ドラッグできるかを判定する　範囲外ならfalse
+    /// </summary>
+    /// <param name="_pos">タップ位置</param>
+    /// <returns></returns>
+    public bool TapOrDragRange(Vector3 _pos)
+    {
+        bool canTap = false;
+
+        var p = _pos;
+        if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+            canTap = false;
+        else canTap = true;
+
+        return canTap;
     }
 }
