@@ -37,9 +37,6 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")]
     float dragAjust = 10;
 
-    Vector2 dragRangeMin;
-    Vector2 dragRangeMax;
-
     /// <summary>
     /// カメラを動かすかどうか
     /// falseのときは動かない
@@ -52,9 +49,6 @@ public class CameraRotate : MonoBehaviour
         hei = Screen.height;
 
         point = new Vector3[(int)(360 / adjustAngle)];
-
-        dragRangeMin = stageController.dragRangeMin;
-        dragRangeMax = stageController.dragRangeMax;
     }
 
     void Update()
@@ -68,17 +62,15 @@ public class CameraRotate : MonoBehaviour
 
             if (t1.phase == TouchPhase.Began)
             {
-                if (t1.position.x <= dragRangeMin.x || t1.position.x > dragRangeMax.x ||
-                t1.position.y <= dragRangeMin.y || t1.position.y > dragRangeMax.y)
-                    return; // 範囲外なら終了
+                // 範囲外は無効
+                if (stageController.TapOrDragRange(t1.position)) return;
 
                 sPos = t1.position;
             }
             else if (t1.phase == TouchPhase.Moved)
             {
                 // 範囲外からスワイプしたとき用の調整
-                if (t1.position.x <= dragRangeMin.x || t1.position.x > dragRangeMax.x ||
-                t1.position.y <= dragRangeMin.y || t1.position.y > dragRangeMax.y)
+                if (stageController.TapOrDragRange(t1.position))
                 {
                     sPos = t1.position;
                 }
@@ -123,13 +115,9 @@ public class CameraRotate : MonoBehaviour
             Touch t1 = Input.GetTouch(0);
             Touch t2 = Input.GetTouch(1);
 
-            if (t1.position.x <= dragRangeMin.x || t1.position.x > dragRangeMax.x ||
-                t1.position.y <= dragRangeMin.y || t1.position.y > dragRangeMax.y)
-                return; // 範囲外なら終了
-
-            if (t2.position.x <= dragRangeMin.x || t2.position.x > dragRangeMax.x ||
-                t2.position.y <= dragRangeMin.y || t2.position.y > dragRangeMax.y)
-                return; // 範囲外なら終了
+            // 範囲外は無効
+            if (stageController.TapOrDragRange(t1.position)) return;
+            if (stageController.TapOrDragRange(t2.position)) return;
 
             if (t2.phase == TouchPhase.Began)
             {

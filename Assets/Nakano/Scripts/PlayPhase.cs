@@ -56,9 +56,6 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField] GameObject clearWindow;
 
-    Vector2 dragRangeMin; // スワイプの範囲 最小
-    Vector2 dragRangeMax; // スワイプの範囲 最大
-
     /// <summary>
     /// 確認中か
     /// </summary>
@@ -73,9 +70,6 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
-
-        dragRangeMin = stageController.dragRangeMin;
-        dragRangeMax = stageController.dragRangeMax;
     }
 
     private void Update()
@@ -95,9 +89,7 @@ public class PlayPhase : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && skipTapCount == 0)
         {
             // 範囲外は無効
-            var p = Input.mousePosition;
-            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                return;
+            if (stageController.TapOrDragRange(Input.mousePosition)) return;
 
             skipTapCount++;
             canJudgement = true;
@@ -111,9 +103,7 @@ public class PlayPhase : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 // 範囲外は無効
-                var p = Input.mousePosition;
-                if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                    return;
+                if (stageController.TapOrDragRange(Input.mousePosition)) return;
 
                 skipTapCount++;
             }
@@ -144,9 +134,7 @@ public class PlayPhase : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !IsFastForward)
         {
             // 範囲外は無効
-            var p = Input.mousePosition;
-            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                return;
+            if(stageController.TapOrDragRange(Input.mousePosition)) return;
 
             countStart = true;
             longTapTime = 0;
@@ -165,9 +153,7 @@ public class PlayPhase : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && (IsFastForward || countStart))
         {
             // 範囲外は無効
-            var p = Input.mousePosition;
-            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-                return;
+            if (stageController.TapOrDragRange(Input.mousePosition)) return;
 
             longTapTime = 0;
             IsFastForward = false;
