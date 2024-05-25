@@ -11,14 +11,14 @@ public class SettingButton : MonoBehaviour
     public void MenuOnPush()
     {
         Panels[2].SetActive(true);
-        Panels[0].SetActive(false);
+      
         Time.timeScale = 0;
     }
 
     public void MenuOffPush()
     {
         Panels[2].SetActive(false);
-        Panels[0].SetActive(true);
+       
         Time.timeScale = 1;
     }
     public void MenuSoundOn()
