@@ -73,6 +73,9 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
+
+        dragRangeMin = stageController.dragRangeMin;
+        dragRangeMax = stageController.dragRangeMax;
     }
 
     private void Update()
@@ -91,6 +94,11 @@ public class PlayPhase : MonoBehaviour
         // 1回目のタップ
         if (Input.GetMouseButtonDown(0) && skipTapCount == 0)
         {
+            // 範囲外は無効
+            var p = Input.mousePosition;
+            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                return;
+
             skipTapCount++;
             canJudgement = true;
         }
@@ -102,6 +110,11 @@ public class PlayPhase : MonoBehaviour
             // 2回目のタップ
             if (Input.GetMouseButtonDown(0))
             {
+                // 範囲外は無効
+                var p = Input.mousePosition;
+                if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                    return;
+
                 skipTapCount++;
             }
         }
@@ -130,6 +143,11 @@ public class PlayPhase : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && !IsFastForward)
         {
+            // 範囲外は無効
+            var p = Input.mousePosition;
+            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                return;
+
             countStart = true;
             longTapTime = 0;
         }
@@ -146,6 +164,11 @@ public class PlayPhase : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0) && (IsFastForward || countStart))
         {
+            // 範囲外は無効
+            var p = Input.mousePosition;
+            if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+                return;
+
             longTapTime = 0;
             IsFastForward = false;
             countStart = false;
