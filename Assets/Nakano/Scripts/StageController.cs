@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 /// <summary>
 /// メインゲーム制御
@@ -65,8 +66,12 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get; set; } = false;
 
-    [Header("スワイプの範囲 最小")] public Vector2 dragRangeMin;
-    [Header("スワイプの範囲 最大")] public Vector2 dragRangeMax;
+    [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
+    [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
+
+    // タップ/スワイプ可能範囲を描画
+    [SerializeField] Texture _texture;
+    [SerializeField] bool isDragRangeDraw = false;
 
     private void Awake()
     {
@@ -74,6 +79,11 @@ public class StageController : MonoBehaviour
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
+
+        var texture = new Texture2D(1, 1);
+        texture.SetPixel(0, 0, Color.red);
+        texture.Apply();
+        _texture = texture;
     }
 
     void Update()
@@ -203,7 +213,7 @@ public class StageController : MonoBehaviour
     }
 
     /// <summary>
-    /// タップ/ドラッグできるかを判定する　範囲外ならfalse
+    /// タップ/ドラッグできるかを判定する　範囲外をタップしているならfalse
     /// </summary>
     /// <param name="_pos">タップ位置</param>
     /// <returns></returns>
@@ -217,5 +227,42 @@ public class StageController : MonoBehaviour
         else canTap = true;
 
         return canTap;
+    }
+
+    /// <summary>
+    /// タップ/ドラッグできるかを判定する　範囲外をタップしているならfalse
+    /// </summary>
+    /// <param name="_pos">タップ位置</param>
+    /// <param name="_minPos">範囲　最小値</param>
+    /// <param name="_maxPos">範囲　最大値</param>
+    /// <returns></returns>
+    public bool TapOrDragRange(Vector3 _pos, Vector3 _minPos, Vector3 _maxPos)
+    {
+        bool canTap = false;
+
+        if (_pos.x <= _minPos.x || _pos.x > _maxPos.x || _pos.y <= _minPos.y || _pos.y > _maxPos.y)
+            canTap = false;
+        else canTap = true;
+
+        return canTap;
+    }
+
+    /// <summary>
+    /// タップ/ドラッグできる範囲を取得
+    /// </summary>
+    /// <returns>範囲の最小/最大の座標が返ってくる</returns>
+    public Vector2[] GetTapOrDragRange()
+    {
+        Vector2[] r = {dragRangeMin, dragRangeMax};
+        return r;
+    }
+
+    private void OnGUI()
+    {
+        if(isDragRangeDraw)
+        {
+            var rect = new Rect(dragRangeMin.x, dragRangeMin.y, dragRangeMax.x - dragRangeMin.x, dragRangeMax.y - dragRangeMin.y);
+            GUI.DrawTexture(rect, _texture);
+        }
     }
 }

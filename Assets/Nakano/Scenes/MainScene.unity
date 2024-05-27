@@ -1870,9 +1870,17 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2993032368877678227, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3124951205919739708, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3306380890049891908, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4091224194674907887, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_Camera
@@ -2117,7 +2125,8 @@ MonoBehaviour:
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
   <FastForwardRatio>k__BackingField: 2
-  fallVibrateTime: 0.1
+  fallVibrateTime_Normal: 0.3
+  fallVibrateTime_FastForward: 0.1
   clearVibrateTime: 0.3
   fallSpeed: 10
   fallPos: 20
@@ -2259,7 +2268,11 @@ MonoBehaviour:
   vMin: 10
   vDefault: 60
   vSpeed: 0.1
-  dragAjust: 30
+  dragAdjust: 10
+  dragRangeMin: {x: 150, y: 500}
+  dragRangeMax: {x: 930, y: 1730}
+  _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
+  isDragRangeDraw: 0
 --- !u!1 &900491404
 GameObject:
   m_ObjectHideFlags: 0
@@ -3409,6 +3422,7 @@ GameObject:
   - component: {fileID: 1471772879}
   - component: {fileID: 1471772881}
   - component: {fileID: 1471772882}
+  - component: {fileID: 1471772883}
   m_Layer: 0
   m_Name: MainController
   m_TagString: Untagged
@@ -3489,8 +3503,10 @@ MonoBehaviour:
   checkPhase: {fileID: 1395020500}
   selectPhase: {fileID: 271283359}
   playPhase: {fileID: 798559330}
-  dragRangeMin: {x: 0, y: 500}
+  dragRangeMin: {x: 0, y: 350}
   dragRangeMax: {x: 1080, y: 1880}
+  _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
+  isDragRangeDraw: 0
 --- !u!114 &1471772882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3510,6 +3526,18 @@ MonoBehaviour:
   frontMark: {fileID: 5078242685851999855}
   backMark: {fileID: 5078242686320769937}
   stageController: {fileID: 1471772881}
+--- !u!114 &1471772883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471772876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e740fe508ce4264d836a6dda356565d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1527151162
 GameObject:
   m_ObjectHideFlags: 0
@@ -3797,50 +3825,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1668699965}
   m_CullTransparentMesh: 1
---- !u!1 &1730702727
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1730702729}
-  - component: {fileID: 1730702728}
-  m_Layer: 0
-  m_Name: Direction
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1730702728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1730702727}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e740fe508ce4264d836a6dda356565d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1730702729
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1730702727}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1870841705
 GameObject:
   m_ObjectHideFlags: 0
@@ -4350,7 +4334,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!224 &2111849880
 RectTransform:
@@ -4756,7 +4740,6 @@ SceneRoots:
   - {fileID: 271283360}
   - {fileID: 798559329}
   - {fileID: 1894742054}
-  - {fileID: 2111849880}
   - {fileID: 2061910044}
-  - {fileID: 1730702729}
+  - {fileID: 2111849880}
   - {fileID: 779704045}

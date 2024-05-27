@@ -38,7 +38,8 @@ public class PlayPhase : MonoBehaviour
     bool countStart = false;
     [field: SerializeField, Header("‘‘—‚è‚Ì”{—¦")] public float FastForwardRatio { get; private set; }
 
-    [SerializeField, Header("—‰º‚ÌU“®‚Ì’·‚³(•b)")] float fallVibrateTime;
+    [SerializeField, Header("—‰º‚ÌU“®‚Ì’·‚³(•b) ’Êí")] float fallVibrateTime_Normal;
+    [SerializeField, Header("—‰º‚ÌU“®‚Ì’·‚³(•b) ‘‘—‚è")] float fallVibrateTime_FastForward;
     [SerializeField, Header("ƒNƒŠƒA‚ÌU“®‚Ì’·‚³(•b)")] float clearVibrateTime;
 
     [SerializeField, Header("—‰º‘¬“x")] float fallSpeed;
@@ -98,7 +99,7 @@ public class PlayPhase : MonoBehaviour
 
         if (canJudgement) skipTime += Time.deltaTime;
 
-        if (skipTime <= 0.2f && skipTime >= 0.05f)
+        if (skipTime <= 0.2f && skipTime >= 0.1f)
         {
             // 2‰ñ–Ú‚Ìƒ^ƒbƒv
             if (Input.GetMouseButtonDown(0))
@@ -322,8 +323,7 @@ public class PlayPhase : MonoBehaviour
                     mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
                     mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
                     mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
-
-                    StartCoroutine(VibrateOn(mapObj[x, y, z]));
+                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true; // U“®ƒIƒ“
 
                     if (!isSkip)
                         yield return new WaitForSeconds(fallInterval);
@@ -338,18 +338,6 @@ public class PlayPhase : MonoBehaviour
 
         isSkip = false;
         IsFastForward = false;
-    }
-
-    /// <summary>
-    /// U“®ƒIƒ“
-    /// </summary>
-    /// <param name="obj">U“®‚ğƒIƒ“‚É‚µ‚½‚¢ƒIƒuƒWƒFƒNƒg</param>
-    /// <returns></returns>
-    IEnumerator VibrateOn(GameObject obj)
-    {
-        yield return new WaitForSeconds(0.1f);
-        obj.GetComponent<ShapeObjects>().VibrateTime = fallVibrateTime;
-        obj.GetComponent<ShapeObjects>().IsVibrate = true; // U“®ƒIƒ“
     }
 
     /// <summary>
@@ -407,5 +395,15 @@ public class PlayPhase : MonoBehaviour
 
         PlayPhaseEnd();
         stageController.ToPlayPhase();
+    }
+
+    /// <summary>
+    /// U“®ŠÔæ“¾
+    /// </summary>
+    /// <returns>[0]‚ª’ÊíA[1]‚ª‘‘—‚è‚ÌU“®‚Ì’·‚³</returns>
+    public float[] GetVibrateTime()
+    {
+        float[] t = { fallVibrateTime_Normal, fallVibrateTime_FastForward };
+        return t;
     }
 }
