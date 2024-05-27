@@ -10,7 +10,9 @@ public class ShapeObjects : MonoBehaviour
     bool isVibrate = false;
     public bool IsVibrate { get{ return isVibrate; } set{ isVibrate = value; } }
 
-    public float VibrateTime { get; set; } = 0.3f;
+    float vibrateTime = 0.3f;
+    float vibrateTime_Normal = 0.3f;
+    float vibrateTime_FastForward = 0.1f;
 
     /// <summary>
     /// 落下速度
@@ -33,42 +35,52 @@ public class ShapeObjects : MonoBehaviour
     {
         vibration = GameObject.FindObjectOfType<Vibration>();
         playPhase = GameObject.FindObjectOfType<PlayPhase>();
+
+        // 振動時間取得
+        vibrateTime_Normal = playPhase.GetVibrateTime()[0];
+        vibrateTime_FastForward = playPhase.GetVibrateTime()[1];
     }
 
     private void Update()
     {
-        // 落下速度取得
+        // 落下速度取得、振動時間変更
         if(playPhase.IsFastForward)
         {
             fastForwardRatio = playPhase.FastForwardRatio;
-        }
-        else fastForwardRatio = 1;
-    }
-
-    private void FixedUpdate()
-    {
-        if (!IsFall) return;
-
-        // 落下処理
-        if (transform.position.y > TargetHeight)
-        {
-            transform.Translate(Vector3.down * FallSpeed * fastForwardRatio * Time.deltaTime);
+            vibrateTime = vibrateTime_FastForward;
         }
         else
         {
-            var pos = transform.position;
-            pos.y = TargetHeight;
-            transform.position = pos;
-            IsFall = false;
+            fastForwardRatio = 1;
+            vibrateTime = vibrateTime_Normal;
+        }
+
+        if(IsFall)
+        {
+            var tmpPos = this.transform;
+            tmpPos.Translate(Vector3.down * FallSpeed * fastForwardRatio * Time.deltaTime);
+
+            // 落下処理
+            if (tmpPos.position.y >= TargetHeight)
+            {
+                transform.position = tmpPos.position;
+            }
+            else
+            {
+                var pos = transform.position;
+                pos.y = TargetHeight;
+                transform.position = pos;
+                IsFall = false;
+            }
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        // 衝突時に振動
-        if (isVibrate)
+        // 衝突時 かつ 目標位置まで来ていたら振動
+        if (transform.position.y <= TargetHeight && isVibrate)
         {
-            vibration.PluralVibrate(1, (long)(VibrateTime * 1000));
+            vibration.PluralVibrate(1, (long)(vibrateTime * 1000));
         }
     }
 }
