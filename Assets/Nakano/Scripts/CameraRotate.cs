@@ -233,8 +233,6 @@ public class CameraRotate : MonoBehaviour
             if(inputDir1 == inputDir2 && inputDir1 != DoubleTap_TeleportDir.NULL && inputDir2 != DoubleTap_TeleportDir.NULL)
                 teleportDir = inputDir1;
 
-            //Debug.LogFormat("teleportDir: {0}, inputDir1: {1}, inputDir2: {2}", teleportDir, inputDir1, inputDir2);
-
             canJudgement = false;
             doubleTapTime = 0f;
             is90Rotate = true;
@@ -429,6 +427,7 @@ public class CameraRotate : MonoBehaviour
 
         // サンプルのサイズに応じてカメラ位置を調整
         transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x + 10, mapSize.z + 2);
+        //_camera.orthographicSize = mapSize.x + 2;
         defaultPos = transform.position;
         defaultRot = transform.rotation;
 
