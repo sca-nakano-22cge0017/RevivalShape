@@ -2125,7 +2125,7 @@ MonoBehaviour:
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 186826433}
   <FastForwardRatio>k__BackingField: 2
-  fallVibrateTime_Normal: 0.3
+  fallVibrateTime_Normal: 0.2
   fallVibrateTime_FastForward: 0.1
   clearVibrateTime: 0.3
   fallSpeed: 10
@@ -2215,7 +2215,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 7
   m_Depth: -1
   m_CullingMask:

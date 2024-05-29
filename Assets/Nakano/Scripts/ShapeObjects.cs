@@ -78,7 +78,7 @@ public class ShapeObjects : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // Õ“Ë ‚©‚Â –Ú•WˆÊ’u‚Ü‚Å—ˆ‚Ä‚¢‚½‚çU“®
-        if (transform.position.y <= TargetHeight && isVibrate)
+        if (Mathf.Abs(transform.position.y - TargetHeight) <= 0.1f && isVibrate)
         {
             vibration.PluralVibrate(1, (long)(vibrateTime * 1000));
         }
