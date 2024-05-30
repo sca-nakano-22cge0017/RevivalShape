@@ -250,73 +250,73 @@ public class CameraRotate : MonoBehaviour
 
     void Camera90Rotate()
     {
-        Vector3 crossMin_right = new Vector3(0, 0, -100);
-        Vector3 crossMin_left = new Vector3(0, 0, 100);
-        Vector3 crossMin_up = new Vector3(100, 0, 0);
-        Vector3 crossMin_down = new Vector3(-100, 0, 0);
+        //Vector3 crossMin_right = new Vector3(0, 0, -100);
+        //Vector3 crossMin_left = new Vector3(0, 0, 100);
+        //Vector3 crossMin_up = new Vector3(100, 0, 0);
+        //Vector3 crossMin_down = new Vector3(-100, 0, 0);
 
-        Vector3 near_right = Vector3.zero;
-        Vector3 near_left = Vector3.zero;
-        Vector3 near_up = Vector3.zero;
-        Vector3 near_down = Vector3.zero;
+        //Vector3 near_right = Vector3.zero;
+        //Vector3 near_left = Vector3.zero;
+        //Vector3 near_up = Vector3.zero;
+        //Vector3 near_down = Vector3.zero;
 
-        for (int i = 0; i < adjustPoint_90.Length; i++)
-        {
-            var f = transform.forward;
-            var v = adjustPoint_90[i] - transform.position;
-            var cross = Vector3.Cross(f, v);
+        //for (int i = 0; i < adjustPoint_90.Length; i++)
+        //{
+        //    var f = transform.forward;
+        //    var v = adjustPoint_90[i] - transform.position;
+        //    var cross = Vector3.Cross(f, v);
 
-            Debug.Log(i + " : " + cross);
+        //    Debug.Log(i + " : " + cross);
 
-            // ¶‰E”»’è
-            if(cross.z < 0 && Mathf.Abs(cross.z) < Mathf.Abs(crossMin_right.z))
-            {
-                crossMin_right = cross;
-                near_right = adjustPoint_90[i];
-            }
-            else if (cross.z > 0 && Mathf.Abs(cross.z) < Mathf.Abs(crossMin_left.z))
-            {
-                crossMin_left = cross;
-                near_left = adjustPoint_90[i];
-            }
+        //    // ¶‰E”»’è
+        //    if(cross.z < 0 && Mathf.Abs(cross.z) < Mathf.Abs(crossMin_right.z))
+        //    {
+        //        crossMin_right = cross;
+        //        near_right = adjustPoint_90[i];
+        //    }
+        //    else if (cross.z > 0 && Mathf.Abs(cross.z) < Mathf.Abs(crossMin_left.z))
+        //    {
+        //        crossMin_left = cross;
+        //        near_left = adjustPoint_90[i];
+        //    }
 
-            // ã‰º”»’è
-            if (cross.x > 0 && Mathf.Abs(cross.x) < Mathf.Abs(crossMin_up.x))
-            {
-                crossMin_up = cross;
-                near_up = adjustPoint_90[i];
-            }
-            else if (cross.x < 0 && Mathf.Abs(cross.x) < Mathf.Abs(crossMin_down.x))
-            {
-                crossMin_down = cross;
-                near_down = adjustPoint_90[i];
-            }
-        }
+        //    // ã‰º”»’è
+        //    if (cross.x > 0 && Mathf.Abs(cross.x) < Mathf.Abs(crossMin_up.x))
+        //    {
+        //        crossMin_up = cross;
+        //        near_up = adjustPoint_90[i];
+        //    }
+        //    else if (cross.x < 0 && Mathf.Abs(cross.x) < Mathf.Abs(crossMin_down.x))
+        //    {
+        //        crossMin_down = cross;
+        //        near_down = adjustPoint_90[i];
+        //    }
+        //}
 
-        Vector3 cPos = transform.position;
-        switch(teleportDir)
-        {
-            case DoubleTap_TeleportDir.UP:
-                cPos = near_up;
-                break;
-            case DoubleTap_TeleportDir.DOWN:
-                cPos = near_down;
-                break;
-            case DoubleTap_TeleportDir.RIGHT:
-                cPos = near_right;
-                break;
-            case DoubleTap_TeleportDir.LEFT:
-                cPos = near_left;
-                break;
-            default:
-                cPos = transform.position;
-                break;
-        }
+        //Vector3 cPos = transform.position;
+        //switch(teleportDir)
+        //{
+        //    case DoubleTap_TeleportDir.UP:
+        //        cPos = near_up;
+        //        break;
+        //    case DoubleTap_TeleportDir.DOWN:
+        //        cPos = near_down;
+        //        break;
+        //    case DoubleTap_TeleportDir.RIGHT:
+        //        cPos = near_right;
+        //        break;
+        //    case DoubleTap_TeleportDir.LEFT:
+        //        cPos = near_left;
+        //        break;
+        //    default:
+        //        cPos = transform.position;
+        //        break;
+        //}
 
-        transform.position = cPos;
+        //transform.position = cPos;
 
-        if (cPos.y > 0) transform.LookAt(target, Vector3.back);
-        else transform.LookAt(target, Vector3.up);
+        //if (cPos.y > 0) transform.LookAt(target, Vector3.back);
+        //else transform.LookAt(target, Vector3.up);
     }
 
     /// <summary>
