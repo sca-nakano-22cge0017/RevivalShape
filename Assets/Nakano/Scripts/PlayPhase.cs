@@ -9,7 +9,6 @@ public class PlayPhase : MonoBehaviour
 {
     [SerializeField] StageController stageController;
     [SerializeField] ShapeData shapeData;
-    [SerializeField] MissionCheck missionCheck;
     Vibration vibration;
 
     // 親オブジェクト
@@ -88,10 +87,12 @@ public class PlayPhase : MonoBehaviour
     void Skip()
     {
         // 1回目のタップ
-        if (Input.GetMouseButtonDown(0) && skipTapCount == 0)
+        if (Input.touchCount == 1 && skipTapCount == 0)
         {
+            Touch t = Input.GetTouch(0);
+
             // 範囲外は無効
-            if (!stageController.TapOrDragRange(Input.mousePosition)) return;
+            if (!stageController.TapOrDragRange(t.position)) return;
 
             skipTapCount++;
             canJudgement = true;
@@ -102,10 +103,12 @@ public class PlayPhase : MonoBehaviour
         if (skipTime <= 0.2f && skipTime >= 0.1f)
         {
             // 2回目のタップ
-            if (Input.GetMouseButtonDown(0))
+            if (Input.touchCount == 1)
             {
+                Touch t = Input.GetTouch(0);
+
                 // 範囲外は無効
-                if (!stageController.TapOrDragRange(Input.mousePosition)) return;
+                if (!stageController.TapOrDragRange(t.position)) return;
 
                 skipTapCount++;
             }
@@ -132,10 +135,12 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void FastForward()
     {
-        if (Input.GetMouseButtonDown(0) && !IsFastForward)
+        if (Input.touchCount == 1 && !IsFastForward)
         {
+            Touch t = Input.GetTouch(0);
+
             // 範囲外は無効
-            if(!stageController.TapOrDragRange(Input.mousePosition)) return;
+            if (!stageController.TapOrDragRange(t.position)) return;
 
             countStart = true;
             longTapTime = 0;
@@ -152,7 +157,7 @@ public class PlayPhase : MonoBehaviour
             isSkip = false;
         }
 
-        if (Input.GetMouseButtonUp(0) && (IsFastForward || countStart))
+        if (Input.touchCount == 1 && (IsFastForward || countStart))
         {
             // 範囲外は無効
             if (!stageController.TapOrDragRange(Input.mousePosition)) return;
@@ -355,7 +360,6 @@ public class PlayPhase : MonoBehaviour
         if (matchRate >= 100)
         {
             clearWindow.SetActive(true);
-            missionCheck.Mission();
 
             vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
 
