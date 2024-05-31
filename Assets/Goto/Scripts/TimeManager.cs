@@ -9,7 +9,7 @@ public class TimeManager : MonoBehaviour
     private Text timerText;
     private int minute;
     private float seconds;
-    private float oldSeconds;
+  
     public float stopTime;
     //@Å‰‚ÌŠÔ
     private float startTime;
@@ -20,7 +20,7 @@ public class TimeManager : MonoBehaviour
     void Start()
     {
        
-        oldSeconds = 0f;
+      
        // startTime = Time.time;
         nowTime = 0f;
         timerText = GetComponentInChildren<Text>();
