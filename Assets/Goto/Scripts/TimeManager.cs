@@ -10,9 +10,10 @@ public class TimeManager : MonoBehaviour
     private int minute;
     private float seconds;
     private float oldSeconds;
-    public float maxTime;
+    public float stopTime;
     //Å@ç≈èâÇÃéûä‘
     private float startTime;
+    private  bool timeActive = true;
 
     void Start()
     {
@@ -20,20 +21,19 @@ public class TimeManager : MonoBehaviour
         oldSeconds = 0;
         startTime = Time.time;
 
-        maxTime = 700;
+       
     }
 
     void Update()
-    {
-
-        maxTime += Time.deltaTime;
+    { 
+        if (timeActive)
+      {
+            seconds = Time.time - startTime;
+          
+      }
         //Å@Time.timeÇ≈ÇÃéûä‘åvë™
-        seconds = Time.time - startTime;
-
+       // seconds = Time.time - startTime;
         minute = (int)seconds / 60;
-
-       
-
         if ((int)seconds != (int)oldSeconds)
         {
             timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
@@ -41,16 +41,26 @@ public class TimeManager : MonoBehaviour
 
         oldSeconds = seconds;
 
-    
-        if (Input.GetMouseButtonDown(1))
-        {
-            Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
-        }
         //Debug.Log(Time.time);
     }
     public void TimeStop()
     {
-        Time.timeScale = Mathf.Approximately(Time.timeScale, 0f) ? 1f : 0f;
+        Time.timeScale = 0;
         timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
+    }
+
+    public void TimeStart()
+    {
+        Time.timeScale = 1;
+        timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
+    }
+
+    public void OnStart()
+    {
+        timeActive = true;
+    }
+    public void OnStop()
+    {
+        timeActive = false;
     }
 }

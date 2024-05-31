@@ -13,6 +13,7 @@ public class PhaseChager : MonoBehaviour
     [SerializeField] private GameObject openPanel;
     [SerializeField] private GameObject blockSelectPanel;
     [SerializeField] private GameObject checkPanel;
+    [SerializeField] private GameObject settingPanel;
 
 
     void Start()
@@ -52,9 +53,11 @@ public class PhaseChager : MonoBehaviour
     /// </summary>
     public void Oncheck()
     {
+     
         if (toggles[0].isOn)// && sc.phase != StageController.PHASE.PLAY)
         {
-          //  stageController.ToCheckPhase();
+            
+            // stageController.ToCheckPhase();
             Debug.Log("確認フェーズ");
 
             //実行フェーズのtoggleを押せないようにする
@@ -75,17 +78,19 @@ public class PhaseChager : MonoBehaviour
     {
         if (toggles[1].isOn)
         {
-           // stageController.ToSelectPhase();
+           
+            //stageController.ToSelectPhase();
             Debug.Log("選択フェーズ");
 
             //実行フェーズのtoggleを押せないようにする
             toggles[0].interactable = true;
-            toggles[2].interactable = true;
+            toggles[2].interactable = false;
 
             //ブロック選択画面を出す
             openPanel.SetActive(true);
             blockSelectPanel.SetActive(false);
             checkPanel.SetActive(false);
+            settingPanel.SetActive(true);
 
 
         }
@@ -99,7 +104,8 @@ public class PhaseChager : MonoBehaviour
         //100%未満だったらselectに戻す
         if (toggles[2].isOn)
         {
-           // stageController.ToPlayPhase();
+       
+            //stageController.ToPlayPhase();
             Debug.Log("実行フェーズ");
 
             //実行フェーズ中移動しなくする
@@ -107,16 +113,18 @@ public class PhaseChager : MonoBehaviour
             toggles[1].interactable = false;
 
             // 実行フェーズ中は時間を止める
-            timeManager.TimeStop();
+            timeManager.OnStop();
+            
 
             //ブロック選択画面消す
             openPanel.SetActive(false);
             blockSelectPanel.SetActive(false);
+            settingPanel.SetActive(false);
         }
         else
         {
             //実行終わりに時間を進める
-            timeManager.TimeStop();
+            timeManager.OnStart();
         }
     }
     
