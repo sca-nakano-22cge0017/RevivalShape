@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// シート上の前後のマークの制御
@@ -8,7 +9,10 @@ using UnityEngine;
 /// </summary>
 public class SheatMark : MonoBehaviour
 {
-    Vector3 cameraPos;
+    Vector3 markPos;
+    [SerializeField] GameObject markPoint;
+
+    [SerializeField] GameObject anotherMarkPoint;
 
     void Start()
     {
@@ -16,14 +20,17 @@ public class SheatMark : MonoBehaviour
 
     void Update()
     {
-        cameraPos = Camera.main.transform.position;
+        markPos = markPoint.transform.position;
+        GetComponent<RectTransform>().position = markPos;
 
-        transform.LookAt(cameraPos, -Camera.main.transform.up);
-        var rot = Quaternion.AngleAxis(90f, transform.right);
+        float disFromCamera = (markPos - Camera.main.transform.position).magnitude;
+        float disAnother = (anotherMarkPoint.transform.position - Camera.main.transform.position).magnitude;
 
-        transform.rotation = rot * transform.rotation;
-
-        var rotY = Quaternion.AngleAxis(180f, transform.up);
-        transform.rotation = rotY * transform.rotation;
+        // もう一つのマークよりカメラに近ければ
+        if(disFromCamera < disAnother)
+        {
+            // 一番上に描画する
+            this.transform.SetAsLastSibling();
+        }
     }
 }

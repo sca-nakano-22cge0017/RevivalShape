@@ -41,9 +41,6 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")]
     float dragAdjust = 10;
 
-    [SerializeField, Header("回転・縮小ができる範囲 最小")] Vector2 dragRangeMin;
-    [SerializeField, Header("回転・縮小ができる範囲 最大")] Vector2 dragRangeMax;
-
     Vector2[] dragRangeVertex = new Vector2[5]; // タップ可能範囲の中心と4頂点
 
     // ダブルタップ
@@ -98,35 +95,35 @@ public class CameraRotate : MonoBehaviour
         // 回転
         if (Input.touchCount == 1)
         {
-            Touch t1 = Input.GetTouch(0);
+            Touch t = Input.GetTouch(0);
 
-            if (t1.phase == TouchPhase.Began)
+            if (t.phase == TouchPhase.Began)
             {
                 // 範囲外は無効
-                if (!stageController.TapOrDragRange(t1.position)) return;
+                if (!stageController.TapOrDragRange(t.position)) return;
 
-                sPos = t1.position;
-                lastPos = t1.position;
+                sPos = t.position;
+                lastPos = t.position;
             }
-            else if (t1.phase == TouchPhase.Moved)
+            else if (t.phase == TouchPhase.Moved)
             {
                 // 範囲外からスワイプしたとき用の調整
-                if (!stageController.TapOrDragRange(t1.position))
+                if (!stageController.TapOrDragRange(t.position))
                 {
-                    sPos = t1.position;
-                    lastPos = t1.position;
+                    sPos = t.position;
+                    lastPos = t.position;
                 }
 
                 // スワイプ量
-                tx = t1.position.x - lastPos.x;
-                ty = t1.position.y - lastPos.y;
+                tx = t.position.x - lastPos.x;
+                ty = t.position.y - lastPos.y;
 
                 // 移動量から回転角度を求める
                 // 始点からの移動量の絶対値が、dragAjustより小さかったら0にし、水平/垂直の移動にする
-                if (Mathf.Abs(sPos.x - t1.position.x) < dragAdjust) tx = 0;
+                if (Mathf.Abs(sPos.x - t.position.x) < dragAdjust) tx = 0;
                 float deltaAngleLR = tx / wid * sensitivity;
 
-                if (Mathf.Abs(sPos.y - t1.position.y) < dragAdjust) ty = 0;
+                if (Mathf.Abs(sPos.y - t.position.y) < dragAdjust) ty = 0;
                 float deltaAngleTB = -ty / hei * sensitivity;
 
                 // カメラから見て上・右向きのベクトルを回転軸として回転させる
@@ -147,7 +144,7 @@ public class CameraRotate : MonoBehaviour
                     CameraPosAdjust();
                 }
 
-                lastPos = t1.position;
+                lastPos = t.position;
             }
         }
 
@@ -193,7 +190,6 @@ public class CameraRotate : MonoBehaviour
         {
             // 範囲外は無効
             if (!stageController.TapOrDragRange(Input.mousePosition)) return;
-            if (stageController.TapOrDragRange(Input.mousePosition, dragRangeMin, dragRangeMax)) return;
 
             // 入力方向を保存
             inputDir1 = DoubleTapPosJudgement(Input.mousePosition);
@@ -211,7 +207,6 @@ public class CameraRotate : MonoBehaviour
             {
                 // 範囲外は無効
                 if (!stageController.TapOrDragRange(Input.mousePosition)) return;
-                if (stageController.TapOrDragRange(Input.mousePosition, dragRangeMin, dragRangeMax)) return;
 
                 // 入力方向を保存
                 inputDir2 = DoubleTapPosJudgement(Input.mousePosition);
@@ -455,19 +450,5 @@ public class CameraRotate : MonoBehaviour
         }
 
         //! Todo サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
-    }
-
-    private void OnGUI()
-    {
-        if (isDragRangeDraw)
-        {
-            var texture = new Texture2D(1, 1);
-            texture.SetPixel(0, 0, Color.red);
-            texture.Apply();
-            _texture = texture;
-
-            var rect = new Rect(dragRangeMin.x, dragRangeMin.y, dragRangeMax.x - dragRangeMin.x, dragRangeMax.y - dragRangeMin.y);
-            GUI.DrawTexture(rect, _texture);
-        }
     }
 }
