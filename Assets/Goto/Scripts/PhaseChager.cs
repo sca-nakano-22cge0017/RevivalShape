@@ -10,9 +10,21 @@ public class PhaseChager : MonoBehaviour
     public TimeManager timeManager;
     public BlockSelectButton blockSelectButton;
     [SerializeField] private Toggle[] toggles = null;
+    /// <summary>
+    /// 選択フェーズのパネル
+    /// </summary>
     [SerializeField] private GameObject openPanel;
+    /// <summary>
+    /// 選択フェーズのブロック選択パネル
+    /// </summary>
     [SerializeField] private GameObject blockSelectPanel;
+    /// <summary>
+    /// 確認フェーズのパネル
+    /// </summary>
     [SerializeField] private GameObject checkPanel;
+    /// <summary>
+    /// 設定画面のパネル
+    /// </summary>
     [SerializeField] private GameObject settingPanel;
 
 
@@ -68,6 +80,8 @@ public class PhaseChager : MonoBehaviour
             openPanel.SetActive(false);
             blockSelectPanel.SetActive(false);
             checkPanel.SetActive(true);
+
+           // timeManager.OnStart();//test
         }
     }
     /// <summary>
@@ -92,6 +106,7 @@ public class PhaseChager : MonoBehaviour
             checkPanel.SetActive(false);
             settingPanel.SetActive(true);
 
+            //timeManager.OnStop();//test
 
         }
     }

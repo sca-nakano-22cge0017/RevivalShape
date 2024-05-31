@@ -14,32 +14,51 @@ public class TimeManager : MonoBehaviour
     //　最初の時間
     private float startTime;
     private  bool timeActive = true;
+    private float nowTime;
+   
 
     void Start()
     {
-        timerText = GetComponentInChildren<Text>();
-        oldSeconds = 0;
-        startTime = Time.time;
-
        
+        oldSeconds = 0f;
+       // startTime = Time.time;
+        nowTime = 0f;
+        timerText = GetComponentInChildren<Text>();
+
+
     }
 
     void Update()
-    { 
+    {
         if (timeActive)
-      {
-            seconds = Time.time - startTime;
-          
-      }
-        //　Time.timeでの時間計測
-       // seconds = Time.time - startTime;
-        minute = (int)seconds / 60;
-        if ((int)seconds != (int)oldSeconds)
         {
-            timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
-        }
+            nowTime += Time.deltaTime;
+            if (nowTime >= 60f)
+            {
+                minute++;
+                nowTime = nowTime - 60;
+            }
+            // minute = (int)nowTime / 60;
 
-        oldSeconds = seconds;
+
+
+            if ((int)nowTime != (int)seconds)
+            {
+                timerText.text = minute.ToString("00") + ":" + ((int)nowTime).ToString("00");
+            }
+            seconds = nowTime;
+        }
+        //　Time.timeでの時間計測
+        // seconds = Time.time - startTime;
+        //minute = (int)seconds / 60;
+        //if ((int)seconds != (int)oldSeconds)
+        //{
+        //    timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
+        //}
+
+
+
+        //oldSeconds = seconds;
 
         //Debug.Log(Time.time);
     }
@@ -62,5 +81,6 @@ public class TimeManager : MonoBehaviour
     public void OnStop()
     {
         timeActive = false;
+        Debug.Log("止める");
     }
 }
