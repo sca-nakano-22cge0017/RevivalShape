@@ -1,33 +1,63 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FadeScript : MonoBehaviour
 {
 
     [SerializeField]
-    Material FadeMaterial;
+    private Material fadeMaterial;  // マテリアルの参照
 
-    void Start()
+    [SerializeField]
+    private float fadeDuration = 2f;  // フェード効果の時間（秒）
+
+    private void Start()
     {
-        StartCoroutine(FadeRoutine());
+        if (fadeMaterial == null)
+        {
+            Debug.LogError("FadeMaterial が設定されていません。");
+        }
     }
 
-    IEnumerator FadeRoutine()
+    public void StartFadeOut()
     {
+        if (fadeMaterial != null)
+        {
+            StartCoroutine(FadeRoutine(true));
+        }
+    }
 
-        // 黒＋全透明に初期化
-        Color bl = Color.black;
-        bl.a = 0;
-        FadeMaterial.color = bl;
+    public void StartFadeIn()
+    {
+        if (fadeMaterial != null)
+        {
+            StartCoroutine(FadeRoutine(false));
+        }
+    }
 
-        // 黒くフェードさせるループ
-        while (FadeMaterial.color.a < 0.8f)
+    private IEnumerator FadeRoutine(bool fadeOut)
+    {
+        // フェード開始時の初期値を設定
+        float startAlpha = fadeOut ? 0 : 0.8f;
+        float endAlpha = fadeOut ? 0.8f : 0;
+
+        Color color = fadeMaterial.color;
+        color.a = startAlpha;
+        fadeMaterial.color = color;
+
+        float elapsedTime = 0f;
+
+        // フェードループ
+        while (elapsedTime < fadeDuration)
         {
             yield return null;
-            Color col = FadeMaterial.color;
-            col.a += 0.02f;
-            FadeMaterial.color = col;
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / fadeDuration);
+            color.a = alpha;
+            fadeMaterial.color = color;
         }
+
+        // 最終不透明度を確保
+        color.a = endAlpha;
+        fadeMaterial.color = color;
     }
 }
