@@ -91,26 +91,32 @@ public class PlayPhase : MonoBehaviour
         {
             Touch t = Input.GetTouch(0);
 
-            // 範囲外は無効
-            if (!stageController.TapOrDragRange(t.position)) return;
+            if (t.phase == TouchPhase.Began)
+            {
+                // 範囲外は無効
+                if (!stageController.TapOrDragRange(t.position)) return;
 
-            skipTapCount++;
-            canJudgement = true;
+                skipTapCount++;
+                canJudgement = true;
+            }
         }
 
         if (canJudgement) skipTime += Time.deltaTime;
 
-        if (skipTime <= 0.2f && skipTime >= 0.1f)
+        if (skipTime <= 0.2f && skipTime >= 0.05f)
         {
             // 2回目のタップ
             if (Input.touchCount == 1)
             {
                 Touch t = Input.GetTouch(0);
 
-                // 範囲外は無効
-                if (!stageController.TapOrDragRange(t.position)) return;
+                if (t.phase == TouchPhase.Began)
+                {
+                    // 範囲外は無効
+                    if (!stageController.TapOrDragRange(t.position)) return;
 
-                skipTapCount++;
+                    skipTapCount++;
+                }
             }
         }
         else if (skipTime > 0.2f)
@@ -139,11 +145,14 @@ public class PlayPhase : MonoBehaviour
         {
             Touch t = Input.GetTouch(0);
 
-            // 範囲外は無効
-            if (!stageController.TapOrDragRange(t.position)) return;
+            if (t.phase == TouchPhase.Began)
+            {
+                // 範囲外は無効
+                if (!stageController.TapOrDragRange(t.position)) return;
 
-            countStart = true;
-            longTapTime = 0;
+                countStart = true;
+                longTapTime = 0;
+            }
         }
 
         if (countStart)
@@ -159,12 +168,17 @@ public class PlayPhase : MonoBehaviour
 
         if (Input.touchCount == 1 && (IsFastForward || countStart))
         {
-            // 範囲外は無効
-            if (!stageController.TapOrDragRange(Input.mousePosition)) return;
+            Touch t = Input.GetTouch(0);
 
-            longTapTime = 0;
-            IsFastForward = false;
-            countStart = false;
+            if (t.phase == TouchPhase.Ended)
+            {
+                // 範囲外は無効
+                if (!stageController.TapOrDragRange(t.position)) return;
+
+                longTapTime = 0;
+                IsFastForward = false;
+                countStart = false;
+            }
         }
     }
 

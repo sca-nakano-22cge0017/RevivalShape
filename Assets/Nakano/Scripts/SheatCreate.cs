@@ -11,7 +11,7 @@ public class SheatCreate : MonoBehaviour
 
     [SerializeField] GameObject sheatPrefab;
     [SerializeField] Transform sheatParent;
-    [SerializeField] Transform marks;
+    [SerializeField] GameObject marks;
 
     [SerializeField] GameObject frontMark;
     [SerializeField] GameObject backMark;
@@ -58,6 +58,6 @@ public class SheatCreate : MonoBehaviour
     public void SheatDisp(bool isDisp, bool isMarkDisp)
     {
         sheatParent.gameObject.SetActive(isDisp);
-        marks.gameObject.SetActive(isMarkDisp);
+        marks.SetActive(isMarkDisp);
     }
 }

@@ -1212,6 +1212,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 792046790199603199, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: settingPanel
+      value: 
+      objectReference: {fileID: 1001538271}
     - target: {fileID: 866884499592431049, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -2415,6 +2419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   markPoint: {fileID: 161642742}
+  anotherMarkPoint: {fileID: 237658094}
 --- !u!1 &990715579
 GameObject:
   m_ObjectHideFlags: 0
@@ -2477,6 +2482,11 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1001538271 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8008850692925388007, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+  m_PrefabInstance: {fileID: 558481290}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1016165194
 GameObject:
   m_ObjectHideFlags: 0
@@ -3237,6 +3247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   markPoint: {fileID: 237658094}
+  anotherMarkPoint: {fileID: 161642742}
 --- !u!1 &1357435983
 GameObject:
   m_ObjectHideFlags: 0
@@ -3537,7 +3548,7 @@ MonoBehaviour:
   sampleCheck: {fileID: 0}
   sheatPrefab: {fileID: 5078242686620595751, guid: 8b2d2f86b8b67f346b8992878c28d21c, type: 3}
   sheatParent: {fileID: 2050629755}
-  marks: {fileID: 916804200}
+  marks: {fileID: 165481808}
   frontMark: {fileID: 161642742}
   backMark: {fileID: 237658094}
   stageController: {fileID: 1471772881}
