@@ -40,6 +40,9 @@ public class DataSave : MonoBehaviour
         }
         else
         {
+            //ƒtƒ@ƒCƒ‹¶¬
+            FileStream fs = File.Create(datapath);
+            fs.Close();
             Initialize();
         }
     }
