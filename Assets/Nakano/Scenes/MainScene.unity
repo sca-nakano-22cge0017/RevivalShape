@@ -844,7 +844,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &291813422
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1216,6 +1216,14 @@ PrefabInstance:
       propertyPath: settingPanel
       value: 
       objectReference: {fileID: 1001538271}
+    - target: {fileID: 792046790199603199, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: stageController
+      value: 
+      objectReference: {fileID: 1471772881}
+    - target: {fileID: 792046790199603199, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: blockSelectButton
+      value: 
+      objectReference: {fileID: 1450625746}
     - target: {fileID: 866884499592431049, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1235,6 +1243,10 @@ PrefabInstance:
     - target: {fileID: 1944242656843340540, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2108851041641827501, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2993032368877678227, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_Enabled
@@ -3360,6 +3372,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1450625746 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 697932519668536163, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+  m_PrefabInstance: {fileID: 558481290}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c522f3dec28a24490666d329b61cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1456814904
 GameObject:
   m_ObjectHideFlags: 0
