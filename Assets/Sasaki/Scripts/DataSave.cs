@@ -26,12 +26,27 @@ public class DataSave : MonoBehaviour
 
     private void Awake()
     {
+        //パスを指定して読み込み
+        string directoryName = Application.persistentDataPath + "/Resources";
+
+        //ディレクトリがなかったら
+        while (!Directory.Exists(directoryName))
+        {
+            Directory.CreateDirectory(directoryName); //生成
+        }
 #if UNITY_EDITOR
         datapath = Application.dataPath + "/Resources/WinJson.json";
 #endif
 #if UNITY_ANDROID
         datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
 #endif
+        while (!File.Exists(datapath))
+        {
+            //ファイル生成
+            FileStream fs = File.Create(datapath);
+            fs.Close();
+            Initialize();
+        }
 
         //Jsonファイルがあればロード、なければ初期化
         if (File.Exists(datapath))
@@ -40,10 +55,7 @@ public class DataSave : MonoBehaviour
         }
         else
         {
-            //ファイル生成
-            FileStream fs = File.Create(datapath);
-            fs.Close();
-            Initialize();
+            Debug.Log("ファイルが存在しません");
         }
     }
 
