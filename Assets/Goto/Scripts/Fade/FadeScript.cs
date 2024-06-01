@@ -7,7 +7,7 @@ public class FadeScript : MonoBehaviour
     private Material fadeMaterial;  // マテリアルの参照
 
     [SerializeField]
-    private float fadeDuration = 0.5f;  // フェード効果の時間（秒）
+    private float fadeDuration= 0f;  // フェード効果の時間（秒）
 
     private bool isFading = false;  // フェード中かどうかを確認するフラグ
 
