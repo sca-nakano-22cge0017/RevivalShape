@@ -23,7 +23,7 @@ public class TimeManager : MonoBehaviour
       
        // startTime = Time.time;
         nowTime = 0f;
-        timerText = GetComponentInChildren<Text>();
+        
 
 
     }
@@ -62,17 +62,17 @@ public class TimeManager : MonoBehaviour
 
         //Debug.Log(Time.time);
     }
-    public void TimeStop()
-    {
-        Time.timeScale = 0;
-        timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
-    }
+    //public void TimeStop()
+    //{
+    //    Time.timeScale = 0;
+    //    timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
+    //}
 
-    public void TimeStart()
-    {
-        Time.timeScale = 1;
-        timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
-    }
+    //public void TimeStart()
+    //{
+    //    Time.timeScale = 1;
+    //    timerText.text = minute.ToString("00") + ":" + ((int)(seconds % 60)).ToString("00");
+    //}
 
     public void OnStart()
     {
