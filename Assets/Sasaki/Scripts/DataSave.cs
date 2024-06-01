@@ -3,40 +3,44 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
-using UnityEditor.AddressableAssets.Build;
 
+//Playerのクリア状態を保存する
 [System.Serializable]
 public class PlayerData
 {
-    public bool clearCheck; //クリアしているかどうか
-    public int star;
+    public List<StageData> DataList = new();
 }
 
-public class SaveData : MonoBehaviour
+[System.Serializable]
+public class StageData
+{
+    public bool IsClear; //クリアしているかどうか
+    public int GotStar; //星の数(ミッションクリア状態)
+}
+
+public class DataSave : MonoBehaviour
 {
     string datapath;
+
+    PlayerData playerData;
 
     private void Awake()
     {
 #if UNITY_EDITOR
-        datapath = Application.dataPath + "Assets/Resources/WinJson.json";
+        datapath = Application.dataPath + "/Resources/WinJson.json";
 #endif
 #if UNITY_ANDROID
-        datapath = Application.persistentDataPath + "Assets/Resources/AndJson.json";
+        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
 #endif
-    }
 
-    private void Start()
-    {
         //Jsonファイルがあればロード、なければ初期化
-        PlayerData player = new PlayerData();
         if (File.Exists(datapath))
         {
-            player = LoadPlayerData();
+            playerData = LoadPlayerData();
         }
         else
         {
-            Initialize(player);
+            Initialize();
         }
     }
 
@@ -69,11 +73,17 @@ public class SaveData : MonoBehaviour
     }
 
     //Jsonファイルがない場合初期値をセーブし生成する
-    public void Initialize(PlayerData player)
+    public void Initialize()
     {
-        player.clearCheck = false;
-        player.star = 0;
+        PlayerData data = new PlayerData();
+        StageData stageData = new StageData();
 
-        SavePlayerData(player);
+        stageData.IsClear = false;
+        stageData.GotStar = 0;
+
+        //リストの中にデータ生成
+        data.DataList.Add(stageData);
+
+        SavePlayerData(data);
     }
 }
