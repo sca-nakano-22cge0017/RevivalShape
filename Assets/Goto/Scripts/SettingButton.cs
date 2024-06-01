@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SettingButton : MonoBehaviour
 {
-    public FadeSceneLoader fadeSceneLoader;
+  
     public TimeManager timeManager;
     [SerializeField] private GameObject[] Panels =null;
 
@@ -14,12 +15,6 @@ public class SettingButton : MonoBehaviour
     {   
 
          Panels[2].SetActive(true);
-        FadeScript fadeScript = GetComponent<FadeScript>();
-        if (fadeScript != null)
-        {
-            fadeScript.StartFadeIn();
-        }
-
         timeManager.OnStop();
     }
 
@@ -40,5 +35,9 @@ public class SettingButton : MonoBehaviour
         Panels[2].SetActive(true);
         Panels[1].SetActive(false);
         timeManager.OnStop();
+    }
+    public void SelectScene()
+    {
+        SceneManager.LoadScene("SelectScene");
     }
 }
