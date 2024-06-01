@@ -4984,7 +4984,7 @@ GameObject:
   - component: {fileID: 2008752256}
   - component: {fileID: 2008752255}
   m_Layer: 0
-  m_Name: SaveData
+  m_Name: DataSave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
