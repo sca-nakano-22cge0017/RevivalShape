@@ -44,8 +44,8 @@ public class SheatCreate : MonoBehaviour
             }
         }
 
-        frontMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, mapSize.z + 0.5f);
-        backMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, -1.5f);
+        frontMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, mapSize.z + 1.5f);
+        backMark.transform.position = new Vector3(-mapSize.x / 2 + 0.5f, -0.5f, -2.5f);
 
         isCreated = true;
     }
