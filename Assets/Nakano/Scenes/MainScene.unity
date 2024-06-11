@@ -2099,6 +2099,7 @@ MonoBehaviour:
   _camera: {fileID: 883029808}
   adjustAngle: 5
   sensitivity: 50
+  rotMax: 10
   vMax: 80
   vMin: 10
   vDefault: 60
@@ -2106,6 +2107,8 @@ MonoBehaviour:
   dragAdjust: 100
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   isDragRangeDraw: 0
+  dragRangeMin: {x: 360, y: 935}
+  dragRangeMax: {x: 720, y: 1295}
 --- !u!1 &913452547
 GameObject:
   m_ObjectHideFlags: 0
@@ -3554,6 +3557,8 @@ MonoBehaviour:
     fileName: StageDataOther.csv
   - stageName: ExtraStage
     fileName: StageDataOther.csv
+  - stageName: Sample
+    fileName: StageDataOther.csv
 --- !u!4 &1471772880
 Transform:
   m_ObjectHideFlags: 0
@@ -3582,7 +3587,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Tutorial
+  stageName: Sample
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   cameraRotate: {fileID: 883029810}
