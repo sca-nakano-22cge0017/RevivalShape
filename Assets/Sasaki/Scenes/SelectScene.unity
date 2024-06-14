@@ -3526,6 +3526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b3548a87cdf975429cc850c61deb222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  extraNum: 1
   buttonObj:
   - {fileID: 1262241619}
   - {fileID: 1191963741}
@@ -3533,7 +3534,6 @@ MonoBehaviour:
   - {fileID: 400184721}
   - {fileID: 1003132848}
   - {fileID: 1923867291}
-  - {fileID: 1268526556}
   content: {fileID: 671857493}
   contentHeight: 400
 --- !u!4 &1337745178
