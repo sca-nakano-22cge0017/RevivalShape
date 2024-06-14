@@ -40,6 +40,7 @@ public class DataSave : MonoBehaviour
 #if UNITY_ANDROID
         datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
 #endif
+        //Jsonファイルがなければ生成、初期化
         while (!File.Exists(datapath))
         {
             //ファイル生成
@@ -48,7 +49,7 @@ public class DataSave : MonoBehaviour
             Initialize();
         }
 
-        //Jsonファイルがあればロード、なければ初期化
+        //Jsonファイルがあればロード
         if (File.Exists(datapath))
         {
             playerData = LoadPlayerData();

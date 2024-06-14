@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class InactiveButton : MonoBehaviour
 {
+    [SerializeField, Header("エキストラボタンの数")] private int extraNum = 0;
     [SerializeField, Header("使えないボタン")] private GameObject[] buttonObj = null;
     [SerializeField, Header("Content")] private RectTransform content = null;
     [SerializeField, Header("エキストラボタンを引いた分のContentの縦幅")] private float contentHeight = 400.0f;
@@ -18,7 +19,7 @@ public class InactiveButton : MonoBehaviour
 
         width = content.sizeDelta.x;
         height = content.sizeDelta.y;
-        for (int i = 0; i < buttonObj.Length - 2; i++)
+        for (int i = 0; i < buttonObj.Length - extraNum; i++)
         {
             buttonObj[i].GetComponent<Button>().interactable = true;
         }
@@ -26,10 +27,10 @@ public class InactiveButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < buttonObj.Length - 2; i++)
+        for (int i = 0; i < buttonObj.Length - extraNum; i++)
         {
             //星が一定値にいったらエクストラボタンを表示
-            if (buttonObj[i].GetComponent<Button>().interactable == false)
+            if (buttonObj[i].GetComponent<Button>().interactable == true)
             {
                 extraButton.SetActive(true);
                 content.sizeDelta = new Vector2(width, height);
@@ -37,7 +38,7 @@ public class InactiveButton : MonoBehaviour
             else
             {
                 extraButton.SetActive(false);
-                content.sizeDelta = new Vector2(width, height - contentHeight);
+                content.sizeDelta = new Vector2(width, height - (contentHeight * extraNum));
             }
         }
     }
