@@ -146,7 +146,12 @@ public class StageController : MonoBehaviour
 
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
+            {
                 ToCheckPhase();
+                TestButton testButton = GameObject.FindObjectOfType<TestButton>();
+                testButton.BackToggle();
+            }
+                
             IsRetry = false;
         }
     }

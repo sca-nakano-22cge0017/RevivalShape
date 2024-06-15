@@ -2099,7 +2099,6 @@ MonoBehaviour:
   _camera: {fileID: 883029808}
   adjustAngle: 5
   sensitivity: 50
-  rotMax: 10
   vMax: 80
   vMin: 10
   vDefault: 60
