@@ -8,13 +8,16 @@ public class SettingButton : MonoBehaviour
 {
     public FadeButtonA fadeButton;
     public TimeManager timeManager;
-    [SerializeField] private GameObject[] Panels =null;
+    
+    [SerializeField] public GameObject[] Panels =null;
+    [SerializeField] public GameObject panel;
 
 
     public void MenuOnPush()
-    {   
-
+    {
+       
          Panels[2].SetActive(true);
+        panel.SetActive(true);
         timeManager.OnStop();
        // fadeButton.FadeOut();
     }

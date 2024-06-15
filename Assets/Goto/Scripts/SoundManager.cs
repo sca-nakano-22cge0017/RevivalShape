@@ -9,58 +9,78 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip[] BGM = null;
     [SerializeField] private AudioClip[] SE  =null;
 
-    [SerializeField] private AudioSource audioSource;
-   
-    public void BGMPlay()
-    {
-        audioSource.clip = BGM[0];
-        audioSource.Play();
-    }
+    [SerializeField] private AudioSource audioSourceSE;
+    [SerializeField] private AudioSource audioSourceBGM;
+
     public void BGMPlay1()
     {
-        audioSource.clip = BGM[1];
-        audioSource.Play();
+        audioSourceBGM.clip = BGM[1];
+        audioSourceBGM.Play();
     }
     public void BGMPlay2()
     {
-        audioSource.clip = BGM[2];
-        audioSource.Play();
+        audioSourceBGM.clip = BGM[2];
+        audioSourceBGM.Play();
     }
-    public void SEPlay()
+    public void BGMPlay3()
     {
-        audioSource.PlayOneShot(SE[0]);
+        audioSourceBGM.clip = BGM[3];
+        audioSourceBGM.Play();
     }
     public void SEPlay1()
     {
-        audioSource.PlayOneShot(SE[1]);
+        audioSourceSE.PlayOneShot(SE[1]);
+        audioSourceSE.clip = SE[1];
     }
     public void SEPlay2()
     {
-        audioSource.PlayOneShot(SE[2]);
+        audioSourceSE.PlayOneShot(SE[2]);
+        audioSourceSE.clip = SE[2];
     }
     public void SEPlay3()
     {
-        audioSource.PlayOneShot(SE[3]);
+        audioSourceSE.PlayOneShot(SE[3]);
+        audioSourceSE.clip = SE[3];
     }
     public void SEPlay4()
     {
-        audioSource.PlayOneShot(SE[4]);
+        audioSourceSE.PlayOneShot(SE[4]);
+        audioSourceSE.clip = SE[4];
     }
     public void SEPlay5()
     {
-        audioSource.PlayOneShot(SE[5]);
+        audioSourceSE.PlayOneShot(SE[5]);
+        audioSourceSE.clip = SE[5];
     }
     public void SEPlay6()
     {
-        audioSource.PlayOneShot(SE[6]);
+        audioSourceSE.PlayOneShot(SE[6]);
+        audioSourceSE.clip = SE[6];
+    }
+    public void SEPlay7()
+    {
+        audioSourceSE.PlayOneShot(SE[7]);
+        audioSourceSE.clip = SE[7];
     }
     public void ClearSEPlay()
     {
-        audioSource.PlayOneShot(SE[7]);
+        audioSourceSE.PlayOneShot(SE[8]);
+        audioSourceSE.clip = SE[8];
     }
     public void ClearSEPlay1()
     {
-        audioSource.PlayOneShot(SE[8]);
+        audioSourceSE.PlayOneShot(SE[9]);
+        audioSourceSE.clip = SE[9];
     }
+
+    public void BGMNone()
+    {
+        audioSourceBGM.clip = BGM[0];
+    }
+    public void SENone()
+    {
+        audioSourceSE.clip = SE[0];
+    }
+
 
 }
