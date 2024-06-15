@@ -30,7 +30,7 @@ public class InactiveButton : MonoBehaviour
         for (int i = 0; i < buttonObj.Length - extraNum; i++)
         {
             //星が一定値にいったらエクストラボタンを表示
-            if (buttonObj[i].GetComponent<Button>().interactable == true)
+            if (buttonObj[i].GetComponent<Button>().interactable == false)
             {
                 extraButton.SetActive(true);
                 content.sizeDelta = new Vector2(width, height);
