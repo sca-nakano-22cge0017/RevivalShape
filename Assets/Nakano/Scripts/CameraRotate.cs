@@ -498,7 +498,7 @@ public class CameraRotate : MonoBehaviour
 
         // •â³ƒ|ƒCƒ“ƒg‚Ì¶¬
         float r = (target - transform.position).magnitude;
-        Vector3 firstPos = new Vector3(r, 0, 0);
+        Vector3 firstPos = new Vector3(r, -0.5f, 0);
         for (int i = 0; i < point.Length; i++)
         {
             point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;
