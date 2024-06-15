@@ -8,6 +8,7 @@ public class FadeButtonA : MonoBehaviour
     public TimeManager timeManager;
     public GameObject Panel;
     public FadeScript fadeScript;
+    public SettingButton settingButton;
     // Start is called before the first frame update
 
    public void Start()
@@ -26,9 +27,7 @@ public class FadeButtonA : MonoBehaviour
     {
         fadeScript.StartFadeOut();
         StartCoroutine(FadeOutOk());
-       
-       
-       
+     
     }
     public void FadeIn()
     {
@@ -38,16 +37,18 @@ public class FadeButtonA : MonoBehaviour
     }
     IEnumerator FadeOutOk()
     {
-     
+        timeManager.OnStop();
         yield return new WaitForSeconds(0.5f);
         Panel.SetActive(true);
+       
         Debug.Log("è≠Çµë“Ç¬");
     }
     IEnumerator FadeOutOff()
     {
 
         yield return new WaitForSeconds(0.2f);
-        Panel.SetActive(false);
+         Panel.SetActive(false);
+       
         timeManager.OnStart();
         Debug.Log("è≠Çµë“Ç¬");
     }

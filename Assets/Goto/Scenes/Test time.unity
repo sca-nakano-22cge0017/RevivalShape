@@ -719,6 +719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74a0f0261c105ec4a9dfc5036630c7d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeManager: {fileID: 0}
   Panel: {fileID: 1890907916}
   fadeScript: {fileID: 1251596107}
 --- !u!114 &753058314
@@ -1248,6 +1249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74a0f0261c105ec4a9dfc5036630c7d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeManager: {fileID: 0}
   Panel: {fileID: 1890907916}
   fadeScript: {fileID: 1251596107}
 --- !u!114 &1147486534
@@ -1471,7 +1473,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -101.38258, y: 77.086075}
+  m_AnchoredPosition: {x: -138, y: 77.086075}
   m_SizeDelta: {x: 1832.3406, y: 2434.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1251596105
@@ -2303,6 +2305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74a0f0261c105ec4a9dfc5036630c7d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeManager: {fileID: 0}
   Panel: {fileID: 1890907916}
   fadeScript: {fileID: 1251596107}
 --- !u!1660057539 &9223372036854775807
