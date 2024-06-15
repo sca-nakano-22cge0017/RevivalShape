@@ -30,7 +30,6 @@ public class CameraRotate : MonoBehaviour
     Vector2 lastTapPos;  // 前フレームのタップ位置
     float wid, hei;  // スクリーンサイズ
     float tx, ty;
-    [SerializeField, Header("回転量の上限")] float rotMax;
     Vector3 lastPos; // 回転開始前の座標
     Quaternion lastRot; // 回転開始前の角度
 
@@ -49,6 +48,7 @@ public class CameraRotate : MonoBehaviour
     // ダブルタップ
     int tapCount = 0;
     bool canJudgement = false;
+    bool isDoubleTapStart = false;
     float doubleTapTime = 0;
     bool is90Rotate = false;
 
@@ -94,6 +94,8 @@ public class CameraRotate : MonoBehaviour
         dragRangeVertex[2] = new Vector2(rangeMax.x, rangeMin.y);
         dragRangeVertex[3] = new Vector2(rangeMin.x, rangeMax.y);
         dragRangeVertex[4] = new Vector2(rangeMax.x, rangeMax.y);
+
+        Application.targetFrameRate = 120;
     }
 
     void Update()
@@ -106,7 +108,7 @@ public class CameraRotate : MonoBehaviour
         if (Input.touchCount == 1)
         {
             Touch t = Input.GetTouch(0);
-
+            
             if (t.phase == TouchPhase.Began)
             {
                 // 範囲外は無効
@@ -125,6 +127,8 @@ public class CameraRotate : MonoBehaviour
                 {
                     sPos = t.position;
                     lastTapPos = t.position;
+
+                    RotateRestore();
                 }
 
                 // スワイプ量
@@ -161,9 +165,10 @@ public class CameraRotate : MonoBehaviour
             }
             else if (t.phase == TouchPhase.Ended)
             {
-                //! Todo 戻るときゆっくりと
-                transform.position = lastPos;
-                transform.rotation = lastRot;
+                // 範囲外は無効
+                if (!stageController.TapOrDragRange(t.position)) return;
+
+                RotateRestore();
             }
         }
 
@@ -200,32 +205,60 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
+    /// スワイプによる回転状態をもとに戻す
+    /// </summary>
+    void RotateRestore()
+    {
+        //! Todo 戻るときゆっくりと
+        transform.position = lastPos;
+        transform.rotation = lastRot;
+    }
+
+    /// <summary>
     /// ダブルタップで90度回転 前後左右に移動する
     /// </summary>
     void DoubleTapRotate()
     {
-        // 1回目のタップ
-        if (Input.touchCount == 1)
+        if (isDoubleTapStart)
         {
-            Touch t = Input.GetTouch(0);
-
-            if (t.phase == TouchPhase.Began && tapCount == 0)
+            doubleTapTime += Time.deltaTime;
+            if(doubleTapTime < 0.2f)
             {
-                // 範囲外は無効
-                if (!stageController.TapOrDragRange(Input.mousePosition)) return;
+                if(Input.touchCount == 1)
+                {
+                    Touch t = Input.GetTouch(0);
 
-                // 入力方向を保存
-                inputDir1 = DoubleTapPosJudgement(Input.mousePosition);
+                    if (Input.GetTouch(0).phase == TouchPhase.Began)
+                    {
+                        // 範囲外は無効
+                        if (!stageController.TapOrDragRange(t.position)) return;
 
-                tapCount++;
-                canJudgement = true;
+                        // 中心部分は除外
+                        if (stageController.TapOrDragRange(t.position, dragRangeMin, dragRangeMax)) return;
+
+                        // 入力方向を保存
+                        inputDir2 = DoubleTapPosJudgement(t.position);
+
+                        if (inputDir1 == inputDir2 && inputDir1 != TeleportDir.NULL && inputDir2 != TeleportDir.NULL)
+                            teleportDir = inputDir1;
+
+                        is90Rotate = true;
+
+                        isDoubleTapStart = false;
+                        doubleTapTime = 0.0f;
+                    }
+                }
+            }
+            else
+            {
+                isDoubleTapStart = false;
+                doubleTapTime = 0.0f;
+
+                inputDir1 = TeleportDir.NULL;
+                inputDir2 = TeleportDir.NULL;
             }
         }
-
-        if (canJudgement) doubleTapTime += Time.deltaTime;
-
-        // 2回目のタップ
-        if (doubleTapTime <= 0.2f && doubleTapTime >= 0.05f && tapCount == 1)
+        else
         {
             if (Input.touchCount == 1)
             {
@@ -234,35 +267,21 @@ public class CameraRotate : MonoBehaviour
                 if (t.phase == TouchPhase.Began)
                 {
                     // 範囲外は無効
-                    if (!stageController.TapOrDragRange(Input.mousePosition)) return;
+                    if (!stageController.TapOrDragRange(t.position)) return;
+
+                    // 中心部分は除外
+                    if (stageController.TapOrDragRange(t.position, dragRangeMin, dragRangeMax)) return;
 
                     // 入力方向を保存
-                    inputDir2 = DoubleTapPosJudgement(Input.mousePosition);
+                    inputDir1 = DoubleTapPosJudgement(t.position);
 
-                    tapCount++;
+                    isDoubleTapStart = true;
+                    doubleTapTime = 0.0f;
                 }
             }
         }
-        else if (doubleTapTime > 0.2f)
-        {
-            canJudgement = false;
-            tapCount = 0;
-            doubleTapTime = 0f;
-            inputDir1 = TeleportDir.NULL;
-            inputDir2 = TeleportDir.NULL;
-        }
 
-        if (tapCount >= 2)
-        {
-            if(inputDir1 == inputDir2 && inputDir1 != TeleportDir.NULL && inputDir2 != TeleportDir.NULL)
-                teleportDir = inputDir1;
-
-            canJudgement = false;
-            doubleTapTime = 0f;
-            is90Rotate = true;
-        }
-
-        if(is90Rotate)
+        if (is90Rotate)
         {
             // 現在のカメラ位置に応じて上下左右を決める
             switch (nowCameraPos)
@@ -291,6 +310,13 @@ public class CameraRotate : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 現在のカメラ位置に応じて上下左右方向のカメラ位置を決める
+    /// </summary>
+    /// <param name="_up">上</param>
+    /// <param name="_down">下</param>
+    /// <param name="_right">右</param>
+    /// <param name="_left">左</param>
     void SetNextCameraPos(CameraPos _up, CameraPos _down, CameraPos _right, CameraPos _left)
     {
         switch (teleportDir)
@@ -317,37 +343,30 @@ public class CameraRotate : MonoBehaviour
             case CameraPos.UP:
                 transform.position = adjustPoint_90[0];
                 transform.LookAt(target);
-
-                Quaternion rot = transform.rotation;
-                Vector3 rotVec = rot.eulerAngles;
-                rotVec.z = 180;
-                rot = Quaternion.Euler(rotVec);
-                transform.rotation = rot;
-
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.BACK:
                 transform.position = adjustPoint_90[1];
-                transform.LookAt(target, Vector3.up);
+                transform.LookAt(target);
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.RIGHT:
                 transform.position = adjustPoint_90[2];
-                transform.LookAt(target, Vector3.up);
+                transform.LookAt(target);
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.FRONT:
                 transform.position = adjustPoint_90[3];
-                transform.LookAt(target, Vector3.up);
+                transform.LookAt(target);
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.LEFT:
                 transform.position = adjustPoint_90[4];
-                transform.LookAt(target, Vector3.up);
+                transform.LookAt(target);
                 nowCameraPos = nextCameraPos;
                 break;
 
@@ -443,7 +462,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void RotateReset()
     {
-        transform.position = defaultPos;
+        transform.position = adjustPoint_90[0];
         transform.rotation = defaultRot;
 
         _camera.fieldOfView = vDefault;
@@ -464,7 +483,6 @@ public class CameraRotate : MonoBehaviour
 
         // サンプルのサイズに応じてカメラ位置を調整
         transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x + 12, mapSize.z / 2);
-        defaultPos = transform.position;
         defaultRot = transform.rotation;
 
         // 注視位置設定
@@ -479,7 +497,7 @@ public class CameraRotate : MonoBehaviour
         nextCameraPos = CameraPos.NULL;
 
         // 補正ポイントの生成
-        float r = (target - defaultPos).magnitude;
+        float r = (target - transform.position).magnitude;
         Vector3 firstPos = new Vector3(r, 0, 0);
         for (int i = 0; i < point.Length; i++)
         {
@@ -487,7 +505,7 @@ public class CameraRotate : MonoBehaviour
         }
 
         // 90度毎の補正ポイントの作成
-        adjustPoint_90[0] = new Vector3(target.x, r, target.z);
+        adjustPoint_90[0] = transform.position;
         
         for (int i = 1; i < adjustPoint_90.Length; i++)
         {
