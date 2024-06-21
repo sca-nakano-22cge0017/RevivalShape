@@ -1408,6 +1408,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainUI
       objectReference: {fileID: 0}
+    - target: {fileID: 8579634296667023572, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8715678068527555378, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -2104,6 +2108,7 @@ MonoBehaviour:
   vDefault: 60
   vSpeed: 0.1
   dragAdjust: 100
+  rotateTime: 1
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   isDragRangeDraw: 0
   dragRangeMin: {x: 360, y: 935}

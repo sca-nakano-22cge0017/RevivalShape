@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -17,8 +18,8 @@ public class CameraRotate : MonoBehaviour
     Vector3 target;
 
     // 初期位置
-    Vector3 defaultPos;
     Quaternion defaultRot;
+    float range; // カメラが移動できる球の半径
 
     // これらはカメラのY座標を0に補正できるようにするための変数
     [SerializeField, Header("ajustAngle度毎に補正ポイントを置く")] float adjustAngle;
@@ -46,11 +47,12 @@ public class CameraRotate : MonoBehaviour
     Vector2[] dragRangeVertex = new Vector2[5]; // タップ可能範囲の中心と4頂点
 
     // ダブルタップ
-    int tapCount = 0;
-    bool canJudgement = false;
     bool isDoubleTapStart = false;
     float doubleTapTime = 0;
     bool is90Rotate = false;
+
+    [SerializeField, Header("ダブルタップ時の回転にかかる時間")] float rotateTime = 1.0f;
+    bool isNowRotate = false;
 
     // 移動方向
     enum TeleportDir { UP, DOWN, RIGHT, LEFT, NULL };
@@ -102,7 +104,11 @@ public class CameraRotate : MonoBehaviour
     {
         if (!CanRotate) return;
 
-        DoubleTapRotate();
+        if(isNowRotate)
+        {
+            transform.LookAt(target);
+        }
+        else DoubleTapRotate();
 
         // 回転
         if (Input.touchCount == 1)
@@ -304,7 +310,6 @@ public class CameraRotate : MonoBehaviour
             }
 
             is90Rotate = false;
-            tapCount = 0;
             inputDir1 = TeleportDir.NULL;
             inputDir2 = TeleportDir.NULL;
         }
@@ -341,38 +346,81 @@ public class CameraRotate : MonoBehaviour
         switch (nextCameraPos)
         {
             case CameraPos.UP:
-                transform.position = adjustPoint_90[0];
-                transform.LookAt(target);
+                if (nowCameraPos == CameraPos.BACK)
+                {
+                    float x = target.x + range / 2;
+                    float z = target.z - range / 2;
+                    float y = Mathf.Sqrt(range * range - (x * x + z * z));
+                    Vector3 relay = new Vector3(x, y, z);
+                    StartCoroutine(Move(adjustPoint_90[0], relay));
+                }
+                else StartCoroutine(Move(adjustPoint_90[0]));
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.BACK:
-                transform.position = adjustPoint_90[1];
-                transform.LookAt(target);
+                if(nowCameraPos == CameraPos.UP)
+                {
+                    float x = target.x - range / 2;
+                    float z = target.z - range / 2;
+                    float y = Mathf.Sqrt(range * range - (x * x + z * z));
+                    Vector3 relay = new Vector3(x, y, z);
+
+                    StartCoroutine(Move(adjustPoint_90[1], relay));
+                }
+                else StartCoroutine(Move(adjustPoint_90[1]));
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.RIGHT:
-                transform.position = adjustPoint_90[2];
-                transform.LookAt(target);
+                StartCoroutine(Move(adjustPoint_90[2]));
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.FRONT:
-                transform.position = adjustPoint_90[3];
-                transform.LookAt(target);
+                StartCoroutine(Move(adjustPoint_90[3]));
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.LEFT:
-                transform.position = adjustPoint_90[4];
-                transform.LookAt(target);
+                StartCoroutine(Move(adjustPoint_90[4]));
                 nowCameraPos = nextCameraPos;
                 break;
 
             case CameraPos.NULL:
                 break;
         }
+    }
+
+    /// <summary>
+    /// カメラ移動
+    /// </summary>
+    /// <param name="nextPoint">移動先の座標</param>
+    IEnumerator Move(Vector3 nextPoint)
+    {
+        isNowRotate = true;
+
+        transform.DOLocalPath(new[] { transform.position, nextPoint }, rotateTime, PathType.CatmullRom).SetOptions(false);
+        yield return new WaitForSeconds(rotateTime);
+
+        isNowRotate = false;
+    }
+
+    /// <summary>
+    /// 中継地点が必要な場合のカメラ移動
+    /// </summary>
+    /// <param name="nextPoint">移動先の座標</param>
+    /// <param name="relayPoint">中継地点の座標</param>
+    /// <returns></returns>
+    IEnumerator Move(Vector3 nextPoint, Vector3 relayPoint)
+    {
+        isNowRotate = true;
+
+        transform.DOLocalPath(new[] { transform.position, relayPoint, nextPoint }, rotateTime, PathType.CatmullRom).SetOptions(false);
+        transform.DORotate(new Vector3(90, -180, 0), rotateTime, RotateMode.WorldAxisAdd);
+        yield return new WaitForSeconds(rotateTime);
+
+        isNowRotate = false;
     }
 
     /// <summary>
@@ -497,8 +545,8 @@ public class CameraRotate : MonoBehaviour
         nextCameraPos = CameraPos.NULL;
 
         // 補正ポイントの生成
-        float r = (target - transform.position).magnitude;
-        Vector3 firstPos = new Vector3(r, -0.5f, 0);
+        range = (target - transform.position).magnitude;
+        Vector3 firstPos = new Vector3(range, -0.5f, 0);
         for (int i = 0; i < point.Length; i++)
         {
             point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;
