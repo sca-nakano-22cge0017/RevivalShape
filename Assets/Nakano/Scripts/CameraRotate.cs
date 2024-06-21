@@ -32,7 +32,7 @@ public class CameraRotate : MonoBehaviour
     float wid, hei;  // スクリーンサイズ
     float tx, ty;
     Vector3 lastPos; // 回転開始前の座標
-    Quaternion lastRot; // 回転開始前の角度
+    bool isRestore = false;
 
     // 拡縮
     float sDist = 0.0f, nDist = 0.0f;  //距離変数
@@ -108,10 +108,17 @@ public class CameraRotate : MonoBehaviour
         {
             transform.LookAt(target);
         }
-        else DoubleTapRotate();
+        else if (isRestore)
+        {
+            transform.LookAt(target, transform.up);
+        }
+        else
+        {
+            DoubleTapRotate();
+        }
 
         // 回転
-        if (Input.touchCount == 1)
+        if (Input.touchCount == 1 && !isRestore)
         {
             Touch t = Input.GetTouch(0);
             
@@ -124,7 +131,6 @@ public class CameraRotate : MonoBehaviour
                 lastTapPos = t.position;
 
                 lastPos = transform.position;
-                lastRot = transform.rotation;
             }
             else if (t.phase == TouchPhase.Moved)
             {
@@ -134,7 +140,10 @@ public class CameraRotate : MonoBehaviour
                     sPos = t.position;
                     lastTapPos = t.position;
 
-                    RotateRestore();
+                    if (Mathf.Abs(tx) > 0.5f || Mathf.Abs(ty) > 0.5f)
+                    {
+                        StartCoroutine(RotateRestore());
+                    }
                 }
 
                 // スワイプ量
@@ -174,7 +183,11 @@ public class CameraRotate : MonoBehaviour
                 // 範囲外は無効
                 if (!stageController.TapOrDragRange(t.position)) return;
 
-                RotateRestore();
+                // スワイプによる回転状態をもとに戻す
+                if (Mathf.Abs(tx) > 0.5f || Mathf.Abs(ty) > 0.5f)
+                {
+                    StartCoroutine(RotateRestore());
+                }
             }
         }
 
@@ -211,16 +224,6 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
-    /// スワイプによる回転状態をもとに戻す
-    /// </summary>
-    void RotateRestore()
-    {
-        //! Todo 戻るときゆっくりと
-        transform.position = lastPos;
-        transform.rotation = lastRot;
-    }
-
-    /// <summary>
     /// ダブルタップで90度回転 前後左右に移動する
     /// </summary>
     void DoubleTapRotate()
@@ -241,6 +244,8 @@ public class CameraRotate : MonoBehaviour
 
                         // 中心部分は除外
                         if (stageController.TapOrDragRange(t.position, dragRangeMin, dragRangeMax)) return;
+
+                        Debug.Log("double");
 
                         // 入力方向を保存
                         inputDir2 = DoubleTapPosJudgement(t.position);
@@ -352,6 +357,7 @@ public class CameraRotate : MonoBehaviour
                     float z = target.z - range / 2;
                     float y = Mathf.Sqrt(range * range - (x * x + z * z));
                     Vector3 relay = new Vector3(x, y, z);
+
                     StartCoroutine(Move(adjustPoint_90[0], relay));
                 }
                 else StartCoroutine(Move(adjustPoint_90[0]));
@@ -421,6 +427,20 @@ public class CameraRotate : MonoBehaviour
         yield return new WaitForSeconds(rotateTime);
 
         isNowRotate = false;
+    }
+
+    /// <summary>
+    /// スワイプによるカメラの移動を元の位置に戻す
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator RotateRestore()
+    {
+        isRestore = true;
+
+        transform.DOLocalPath(new[] { transform.position, lastPos }, rotateTime, PathType.CatmullRom).SetOptions(false);
+        yield return new WaitForSeconds(rotateTime);
+
+        isRestore = false;
     }
 
     /// <summary>
@@ -510,12 +530,18 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void RotateReset()
     {
-        transform.position = adjustPoint_90[0];
-        transform.rotation = defaultRot;
+        if(nowCameraPos == CameraPos.BACK)
+        {
+            float x = target.x + range / 2;
+            float z = target.z - range / 2;
+            float y = Mathf.Sqrt(range * range - (x * x + z * z));
+            Vector3 relay = new Vector3(x, y, z);
+            StartCoroutine(Move(adjustPoint_90[0], relay));
+        }
+
+        else StartCoroutine(Move(adjustPoint_90[0]));
 
         _camera.fieldOfView = vDefault;
-
-        transform.LookAt(target, transform.up);
     }
 
     /// <summary>
