@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class FadeButtonA : MonoBehaviour
 {
+    public AnimationOnFide animationOnFide;
     public TimeManager timeManager;
     public GameObject Panel;
+    public GameObject Panel1;
     public FadeScript fadeScript;
     public SettingButton settingButton;
     // Start is called before the first frame update
@@ -40,7 +42,12 @@ public class FadeButtonA : MonoBehaviour
         timeManager.OnStop();
         yield return new WaitForSeconds(0.5f);
         Panel.SetActive(true);
-       
+        yield return new WaitForSeconds(0.3f);
+        Panel1.SetActive(true);
+        animationOnFide.PlayAnim();
+        Debug.Log("アニメーション");
+
+
         Debug.Log("少し待つ");
     }
     IEnumerator FadeOutOff()
@@ -48,7 +55,8 @@ public class FadeButtonA : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
          Panel.SetActive(false);
-       
+        Panel1.SetActive(false);
+
         timeManager.OnStart();
         Debug.Log("少し待つ");
     }
