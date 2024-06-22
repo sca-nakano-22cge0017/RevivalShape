@@ -22,5 +22,7 @@ public class SelectButton : MonoBehaviour
         SelectStage = objName;
 
         SceneManager.LoadScene("MainScene");
+        //Debug—p
+        //SceneManager.LoadScene("SampleScene");
     }
 }
