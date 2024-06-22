@@ -85,6 +85,8 @@ public class StageController : MonoBehaviour
 
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
 
+        Application.targetFrameRate = 120;
+
         var texture = new Texture2D(1, 1);
         texture.SetPixel(0, 0, Color.red);
         texture.Apply();
@@ -228,6 +230,7 @@ public class StageController : MonoBehaviour
 
         // シート
         sheatCreate.SheatDisp(true, false);
+
         cameraRotate.PlayPhaseCamera();
 
         // 実行フェーズ開始処理
