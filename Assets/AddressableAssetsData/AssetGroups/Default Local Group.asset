@@ -17,7 +17,7 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 2c4572cfdc8292c45b59056ec7de41a2
   m_SerializeEntries:
-  - m_GUID: 39916a6432a4fb746bd5450bfc34ac2e
+  - m_GUID: 7b601ad01c2f2904c88a6faadbb55be6
     m_Address: Assets/Nakano/StageData/StageData1.csv
     m_ReadOnly: 0
     m_SerializedLabels: []

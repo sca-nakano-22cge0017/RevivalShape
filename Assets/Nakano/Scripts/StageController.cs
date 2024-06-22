@@ -32,9 +32,14 @@ public class StageController : MonoBehaviour
     bool dataGot = false;
 
     /// <summary>
-    /// 確認フェーズに戻った回数
+    /// ミス回数
     /// </summary>
-    public int PhaseBackCount { get; set; } = 0;
+    public int Miss { get; private set; } = 0;
+
+    /// <summary>
+    /// 再確認回数
+    /// </summary>
+    public int Reconfirmation { get; private set; } = 0;
 
     /// <summary>
     /// 使用図形の種類一覧
@@ -162,6 +167,17 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToCheckPhase()
     {
+        switch (phase)
+        {
+            case PHASE.SELECT:
+                Reconfirmation++;
+                break;
+            case PHASE.PLAY:
+                Miss++;
+                cameraRotate.Restore();
+                break;
+        }
+
         phase = PHASE.CHECK;
 
         playPhase.PlayPhaseEnd();
@@ -212,6 +228,7 @@ public class StageController : MonoBehaviour
 
         // シート
         sheatCreate.SheatDisp(true, false);
+        cameraRotate.PlayPhaseCamera();
 
         // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();
