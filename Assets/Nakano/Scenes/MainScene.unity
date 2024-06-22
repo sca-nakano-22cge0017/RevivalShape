@@ -1453,6 +1453,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8417289508086476205, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       insertIndex: 8
       addedObject: {fileID: 827930356}
+    - targetCorrespondingSourceObject: {fileID: 8417289508086476205, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 900356053}
     - targetCorrespondingSourceObject: {fileID: 2901442862558752047, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1357435984}
@@ -2104,17 +2107,99 @@ MonoBehaviour:
   dir: 12
   adjustAngle: 5
   sensitivity: 50
+  rotateCancellRangeMin: {x: 190, y: 800}
+  rotateCancellRangeMax: {x: 890, y: 1500}
   vMax: 80
   vMin: 10
   vDefault: 60
   vSpeed: 0.1
   dragAdjust: 100
+  cantDoubleTapRangeMin: {x: 340, y: 950}
+  cantDoubleTapRangeMax: {x: 740, y: 1350}
   rotateTime: 1
   play_Angle: 30
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   isDragRangeDraw: 0
-  dragRangeMin: {x: 360, y: 935}
-  dragRangeMax: {x: 720, y: 1295}
+  debug: {fileID: 900356054}
+--- !u!1 &900356052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 900356053}
+  - component: {fileID: 900356055}
+  - component: {fileID: 900356054}
+  m_Layer: 5
+  m_Name: Debug
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &900356053
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900356052}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1313798984}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -519, y: -1534}
+  m_SizeDelta: {x: 1000, y: 500}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &900356054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900356052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 100
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 100
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: New Text
+--- !u!222 &900356055
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900356052}
+  m_CullTransparentMesh: 1
 --- !u!1 &913452547
 GameObject:
   m_ObjectHideFlags: 0
@@ -3561,8 +3646,6 @@ MonoBehaviour:
   fileSelect:
   - stageName: Tutorial
     fileName: StageDataOther.csv
-  - stageName: ExtraStage
-    fileName: StageDataOther.csv
   - stageName: Sample
     fileName: StageDataOther.csv
 --- !u!4 &1471772880
@@ -3593,7 +3676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: EXTRA1
+  stageName: Sample
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   cameraRotate: {fileID: 883029810}
