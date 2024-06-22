@@ -5,16 +5,19 @@ using UnityEngine.UI;
 
 public class TestButton : MonoBehaviour
 {
+    //public PhaseChager phaseChager;
     public StageController stageController;
     [SerializeField] private Toggle[] toggles = null;
     // Start is called before the first frame update
     public void OnNext()
     {
         toggles[1].isOn=true;
+        
     }
     public void OnPlayNext()
     {
         toggles[2].isOn = true;
+       
     }
     public void BackToggle()
     {
