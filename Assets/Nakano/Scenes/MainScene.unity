@@ -2101,6 +2101,7 @@ MonoBehaviour:
   sampleCheck: {fileID: 0}
   stageController: {fileID: 1471772881}
   _camera: {fileID: 883029808}
+  dir: 12
   adjustAngle: 5
   sensitivity: 50
   vMax: 80
@@ -2109,6 +2110,7 @@ MonoBehaviour:
   vSpeed: 0.1
   dragAdjust: 100
   rotateTime: 1
+  play_Angle: 30
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   isDragRangeDraw: 0
   dragRangeMin: {x: 360, y: 935}
@@ -3591,7 +3593,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Tutorial
+  stageName: EXTRA1
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   cameraRotate: {fileID: 883029810}

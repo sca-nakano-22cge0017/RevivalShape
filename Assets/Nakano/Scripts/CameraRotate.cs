@@ -14,11 +14,12 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] Camera _camera;
     Vector3 mapSize;
 
+    [SerializeField, Header("オブジェクトとの距離")] float dir = 12;
+
     // 注視位置
     Vector3 target;
 
     // 初期位置
-    Quaternion defaultRot;
     float range; // カメラが移動できる球の半径
 
     // これらはカメラのY座標を0に補正できるようにするための変数
@@ -32,6 +33,7 @@ public class CameraRotate : MonoBehaviour
     float wid, hei;  // スクリーンサイズ
     float tx, ty;
     Vector3 lastPos; // 回転開始前の座標
+    Quaternion lastRot; // 回転開始前の回転
     bool isRestore = false;
 
     // 拡縮
@@ -67,6 +69,10 @@ public class CameraRotate : MonoBehaviour
 
     // 90度毎の補正位置 画面端をダブルタップでこれらの位置に移動する
     Vector3[] adjustPoint_90 = new Vector3[5];
+
+    // 実行フェーズ時のカメラ位置
+    Vector3 play_Pos = new Vector3(0, 0, 0);
+    [SerializeField, Header("実行フェーズ時のカメラと水平軸のなす角度")] float play_Angle;
 
     // タップ/スワイプ可能範囲を描画
     [SerializeField] Texture _texture;
@@ -130,7 +136,7 @@ public class CameraRotate : MonoBehaviour
                 sPos = t.position;
                 lastTapPos = t.position;
 
-                lastPos = transform.position;
+                LastPosSet();
             }
             else if (t.phase == TouchPhase.Moved)
             {
@@ -223,6 +229,33 @@ public class CameraRotate : MonoBehaviour
         }
     }
 
+    void LastPosSet()
+    {
+        switch (nowCameraPos)
+        {
+            case CameraPos.UP:
+                lastPos = adjustPoint_90[0];
+                lastRot = Quaternion.Euler(90, 0, 180);
+                break;
+            case CameraPos.BACK:
+                lastPos = adjustPoint_90[1];
+                lastRot = Quaternion.Euler(0, 0, 0);
+                break;
+            case CameraPos.RIGHT:
+                lastPos = adjustPoint_90[2];
+                lastRot = Quaternion.Euler(180, -90, 180);
+                break;
+            case CameraPos.FRONT:
+                lastPos = adjustPoint_90[3];
+                lastRot = Quaternion.Euler(180, 0, 180);
+                break;
+            case CameraPos.LEFT:
+                lastPos = adjustPoint_90[4];
+                lastRot = Quaternion.Euler(180, 90, 180);
+                break;
+        }
+    }
+
     /// <summary>
     /// ダブルタップで90度回転 前後左右に移動する
     /// </summary>
@@ -244,8 +277,6 @@ public class CameraRotate : MonoBehaviour
 
                         // 中心部分は除外
                         if (stageController.TapOrDragRange(t.position, dragRangeMin, dragRangeMax)) return;
-
-                        Debug.Log("double");
 
                         // 入力方向を保存
                         inputDir2 = DoubleTapPosJudgement(t.position);
@@ -361,6 +392,7 @@ public class CameraRotate : MonoBehaviour
                     StartCoroutine(Move(adjustPoint_90[0], relay));
                 }
                 else StartCoroutine(Move(adjustPoint_90[0]));
+
                 nowCameraPos = nextCameraPos;
                 break;
 
@@ -375,6 +407,7 @@ public class CameraRotate : MonoBehaviour
                     StartCoroutine(Move(adjustPoint_90[1], relay));
                 }
                 else StartCoroutine(Move(adjustPoint_90[1]));
+
                 nowCameraPos = nextCameraPos;
                 break;
 
@@ -439,6 +472,8 @@ public class CameraRotate : MonoBehaviour
 
         transform.DOLocalPath(new[] { transform.position, lastPos }, rotateTime, PathType.CatmullRom).SetOptions(false);
         yield return new WaitForSeconds(rotateTime);
+
+        transform.rotation = lastRot;
 
         isRestore = false;
     }
@@ -530,6 +565,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void RotateReset()
     {
+        if(isNowRotate || isRestore) return;
+
         if(nowCameraPos == CameraPos.BACK)
         {
             float x = target.x + range / 2;
@@ -545,6 +582,35 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
+    /// 実行フェーズ時のカメラ位置に移動
+    /// </summary>
+    public void PlayPhaseCamera()
+    {
+        play_Angle = 90 - play_Angle;
+
+        float buttom = target.z + range * Mathf.Cos(play_Angle * Mathf.Deg2Rad);
+        float height = range * Mathf.Sin(play_Angle * Mathf.Deg2Rad);
+
+        play_Pos = new Vector3(target.x, buttom, height);
+
+        transform.position = play_Pos;
+        transform.LookAt(target, transform.up);
+    }
+
+    /// <summary>
+    /// 実行フェーズから確認フェーズに戻ったときにカメラを移動
+    /// </summary>
+    public void Restore()
+    {
+        lastPos = adjustPoint_90[0];
+        lastRot = Quaternion.Euler(90, 0, 180);
+
+        nowCameraPos = CameraPos.UP;
+
+        StartCoroutine(RotateRestore());
+    }
+
+    /// <summary>
     /// カメラの注視位置を設定
     /// </summary>
     public void TargetSet()
@@ -555,16 +621,16 @@ public class CameraRotate : MonoBehaviour
         else if (sampleCheck)
             mapSize = sampleCheck.MapSize;
 
-        // サンプルのサイズに応じてカメラ位置を調整
-        transform.position = new Vector3(-mapSize.x / 2 + 0.5f, mapSize.x + 12, mapSize.z / 2);
-        defaultRot = transform.rotation;
-
         // 注視位置設定
         target = mapSize / 2;
         target.x *= -1;
         target.y = 0;
         target += new Vector3(0.5f, 0, -0.5f);
-        
+
+        // サンプルのサイズに応じてカメラの初期位置を調整
+        transform.position = new Vector3(target.x, mapSize.x + dir, target.z);
+
+        // 注視
         transform.LookAt(target, transform.up);
 
         nowCameraPos = CameraPos.UP;
@@ -580,13 +646,10 @@ public class CameraRotate : MonoBehaviour
 
         // 90度毎の補正ポイントの作成
         adjustPoint_90[0] = transform.position;
-        
         for (int i = 1; i < adjustPoint_90.Length; i++)
         {
             adjustPoint_90[i] = Quaternion.Euler(0, i * 90, 0) * firstPos + target;
         }
-
-        //! Todo サイズに応じて、Field of Viewの初期値・最大値・最小値も変更
     }
 
     private void OnGUI()

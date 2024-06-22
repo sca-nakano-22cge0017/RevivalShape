@@ -189,6 +189,23 @@ public class StageDataLoader : MonoBehaviour
         }
         else isNumberStage = false;
 
+        if (stageName.Contains("EXTRA"))
+        {
+            string _stageName = stageName.Replace("EXTRA", "");
+
+            if (int.TryParse(_stageName, out int n))
+            {
+                // ステージの番号に応じてファイル名取得
+                fileNum = n;
+                fileName = fileNameFormat1 + fileNum.ToString() + fileNameFormat2;
+
+                return;
+            }
+
+            else isNumberStage = false;
+        }
+        else isNumberStage = false;
+
         // ステージ名が番号じゃない場合（TutorialやExtraStageの場合）は指定ファイルを読み込み
         if (!isNumberStage)
         {
