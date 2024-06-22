@@ -12,6 +12,11 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource audioSourceSE;
     [SerializeField] private AudioSource audioSourceBGM;
 
+    public void Start()
+    {
+        //audioSourceBGM.clip = BGM[1];
+       // audioSourceBGM.Play();
+    }
     public void BGMPlay1()
     {
         audioSourceBGM.clip = BGM[1];

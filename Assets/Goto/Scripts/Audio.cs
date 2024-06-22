@@ -14,27 +14,34 @@ public class Audio : MonoBehaviour
     [SerializeField] Slider SESlider;
     [SerializeField] Slider MasterSlider;
 
-
+    public bool DontDestroyEnabled = true;
     private void Start()
     {
         InitializeSliders();
         AttachSliderListeners();
+        if (DontDestroyEnabled)
+        {
+            // Sceneを遷移してもオブジェクトが消えないようにする
+            DontDestroyOnLoad(this);
+        }
+
     }
 
     private void InitializeSliders()
     {
         float maxSound = 20f;
         float minSound = -80f;
-        float nowSound =-10;
+       // float nowSound =-10;
         float MasterSound =0;
 
         BGMSlider.maxValue = maxSound;
         BGMSlider.minValue = minSound;
-        BGMSlider.value =nowSound;
+       // BGMSlider.value = 0.5f;
+       
 
         SESlider.maxValue = maxSound;
         SESlider.minValue = minSound;
-        SESlider.value =nowSound;
+        //SESlider.value =-10;
 
         MasterSlider.maxValue = maxSound;
         MasterSlider.minValue = minSound;
