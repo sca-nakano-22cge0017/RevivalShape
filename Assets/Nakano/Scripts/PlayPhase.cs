@@ -22,6 +22,7 @@ public class PlayPhase : MonoBehaviour
     GameObject[,,] mapObj;   // GameObject型配列
 
     ShapeData.Shape[,,] correctAnswer; // 正答
+    ShapeData.Shape[,,] lastAnswer;    // 前の回答
 
     bool isFalling = false;
 
@@ -70,6 +71,32 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
+    }
+
+    public void Initialize()
+    {
+        // マップサイズ取得
+        mapSize = stageController.MapSize;
+
+        // 配列 要素数指定
+        map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        lastAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    map[x, y, z] = ShapeData.Shape.Empty;
+                    mapObj[x, y, z] = null;
+                    correctAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    lastAnswer[x, y, z] = ShapeData.Shape.Empty;
+                }
+            }
+        }
     }
 
     private void Update()
@@ -189,14 +216,6 @@ public class PlayPhase : MonoBehaviour
     {
         playPhaseUI.SetActive(true);
 
-        // サイズ代入
-        mapSize = stageController.MapSize;
-
-        // 配列 要素数指定
-        map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-        mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-        correctAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-
         // 正答とプレイヤーの解答を取得する
         correctAnswer = stageController.CorrectAnswer;
         map = stageController.PlayerAnswer;
@@ -228,6 +247,7 @@ public class PlayPhase : MonoBehaviour
         foreach (Transform obj in children)
         {
             Destroy(obj.gameObject);
+            //obj.gameObject.SetActive(false);
         }
 
         playPhaseUI.SetActive(false);
@@ -267,7 +287,7 @@ public class PlayPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     // 空白部分は生成しない
-                    if(map[x, y, z] != ShapeData.Shape.Empty)
+                    if (map[x, y, z] != ShapeData.Shape.Empty)
                         mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
 
                     // 正答とプレイヤーの解答を比べる
@@ -341,10 +361,13 @@ public class PlayPhase : MonoBehaviour
                         continue;
                     }
 
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
+                    if(mapObj[x, y, z])
+                    {
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
+                    }
 
                     if (!isSkip)
                         yield return new WaitForSeconds(fallInterval);

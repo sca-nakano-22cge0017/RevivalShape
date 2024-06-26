@@ -33,12 +33,9 @@ public class SelectPhase : MonoBehaviour
     SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
 
     int[,] playerInputData;
-    int selectShapeNum = 1;  // 選択中の図形
     ShapeData.Shape selectingShape; // 選択中の図形
 
     ShapeData.Shape[] shapeType;     // 使用図形の種類
-
-    bool firstInput = true; // 一番最初の入力かどうか
 
     Vector3 mapSize;
 
@@ -91,6 +88,37 @@ public class SelectPhase : MonoBehaviour
         }
     }
 
+    public void Initialize()
+    {
+        // マップサイズ取得
+        mapSize = stageController.MapSize;
+
+        // 配列　要素数指定
+        selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
+        playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
+
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    playerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    selectButtons[x, z] = null;
+                    playerInputData[x, z] = 0;
+                }
+            }
+        }
+
+        steps = new Image[(int)mapSize.y];
+
+        // 図形変更ボタン　使う図形のボタンのみ表示する
+        ShapeChangeButtonsSet();
+
+        UISetting();
+    }
+
     private void Update()
     {
         UIControl();
@@ -103,24 +131,7 @@ public class SelectPhase : MonoBehaviour
     {
         // UI表示
         selectPhaseUI.SetActive(true);
-
-        // 図形変更ボタン　使う図形のボタンのみ表示する
-        ShapeChangeButtonsSet();
-
-        // 初回でないとき
-        if (!firstInput)
-        {
-            InputDataToButton();
-            return;
-        }
-
-        // マップサイズ取得
-        mapSize = stageController.MapSize;
-
-        ArraysCreate();
-        UISetting();
-
-        firstInput = false;
+        InputDataToButton();
     }
 
     /// <summary>
@@ -138,23 +149,7 @@ public class SelectPhase : MonoBehaviour
     }
 
     /// <summary>
-    /// 配列要素数指定
-    /// </summary>
-    void ArraysCreate()
-    {
-        // 配列　要素数指定
-        selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
-        playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-        playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
-
-        steps = new Image[(int)mapSize.y];
-
-        InputNumDataInitialize();
-        ShapeArrayInitialize();
-    }
-
-    /// <summary>
-    /// UIのサイズなどを設定
+    /// ボタンの生成、UIのサイズを設定
     /// </summary>
     void UISetting()
     {
@@ -337,7 +332,6 @@ public class SelectPhase : MonoBehaviour
             // 名前が打ち込まれたstringと同じなら、選択している図形を変更する
             if (name.ToLower() == shapeName.ToLower())
             {
-                selectShapeNum = (int)value;
                 selectingShape = value;
             }
         }
@@ -373,8 +367,6 @@ public class SelectPhase : MonoBehaviour
                     if (firstShape)
                     {
                         // 初期状態で選択している図形を設定
-                        selectShapeNum = (int)shapeType[st];
-
                         selectingShape = shapeType[st];
                         firstShape = false;
                     }
@@ -401,21 +393,6 @@ public class SelectPhase : MonoBehaviour
     }
 
     /// <summary>
-    /// 入力データを初期化
-    /// </summary>
-    /// <param name="num">初期化する配列</param>
-    void InputNumDataInitialize()
-    {
-        for (int z = 0; z < (int)mapSize.z; z++)
-        {
-            for (int x = 0; x < (int)mapSize.x; x++)
-            {
-                playerInputData[x, z] = 0;
-            }
-        }
-    }
-
-    /// <summary>
     /// ボタンの表示を変更
     /// </summary>
     /// <param name="isReset">値を0にするか</param>
@@ -427,24 +404,6 @@ public class SelectPhase : MonoBehaviour
             {
                 // 入力されていた値をボタンに反映する
                 selectButtons[x, z].InputNum = playerInputData[z, x];
-            }
-        }
-    }
-
-    /// <summary>
-    /// 配置データの初期化
-    /// </summary>
-    void ShapeArrayInitialize()
-    {
-        for (int z = 0; z < (int)mapSize.z; z++)
-        {
-            for (int x = 0; x < (int)mapSize.x; x++)
-            {
-                for (int y = 0; y < (int)mapSize.y; y++)
-                {
-                    // 空を入れておく
-                    playerAnswer[x, y, z] = ShapeData.Shape.Empty;
-                }
             }
         }
     }

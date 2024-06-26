@@ -29,6 +29,28 @@ public class CheckPhase : MonoBehaviour
         objParent.gameObject.SetActive(false);
     }
 
+    public void Initialize()
+    {
+        // マップサイズ取得
+        mapSize = stageController.MapSize;
+
+        // 配列 要素数指定
+        map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+        mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
+
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    map[x, y, z] = ShapeData.Shape.Empty;
+                    mapObj[x, y, z] = null;
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// 確認フェーズ移行時の処理
     /// UI表示、サンプル生成
@@ -59,13 +81,6 @@ public class CheckPhase : MonoBehaviour
     {
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
-
-        // サイズ代入
-        mapSize = stageController.MapSize;
-
-        // 配列 要素数指定
-        map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
-        mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
         // 正解の配置データを取得
         map = stageController.CorrectAnswer;

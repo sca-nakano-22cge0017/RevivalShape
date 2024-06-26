@@ -47,11 +47,6 @@ public class StageController : MonoBehaviour
     public ShapeData.Shape[] ShapeType { get; private set; }
 
     /// <summary>
-    /// 使用図形の種類数
-    /// </summary>
-    public int ShapeTypeAmount { get; private set; } = 0;
-
-    /// <summary>
     /// 正しい答え
     /// </summary>
     public ShapeData.Shape[,,] CorrectAnswer { get; set; }
@@ -74,6 +69,8 @@ public class StageController : MonoBehaviour
     [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
     [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
 
+    [SerializeField, Header("フレームレート")] int fps = 120;
+
     // タップ/スワイプ可能範囲を描画
     [SerializeField] Texture _texture;
     [SerializeField] bool isDragRangeDraw = false;
@@ -85,7 +82,7 @@ public class StageController : MonoBehaviour
 
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
 
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = fps;
 
         var texture = new Texture2D(1, 1);
         texture.SetPixel(0, 0, Color.red);
@@ -106,16 +103,22 @@ public class StageController : MonoBehaviour
             // マップサイズ取得
             MapSize = stageDataLoader.LoadStageSize();
             
-            // ゲームに登場する図形の種類数を取得
-            ShapeTypeAmount = System.Enum.GetValues(typeof(ShapeData.Shape)).Length;
-
-            // 図形の種類数に応じてプレイヤーの解答用の配列のサイズを変更する
-            // MapSize = new Vector3(MapSize.x, yDataMax * ShapeTypeAmount, MapSize.z);
-
             // 配列 要素数指定
-            ShapeType = new ShapeData.Shape[ShapeTypeAmount];
+            ShapeType = new ShapeData.Shape[System.Enum.GetValues(typeof(ShapeData.Shape)).Length];
             CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
             PlayerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+
+            for (int z = 0; z < MapSize.z; z++)
+            {
+                for (int y = 0; y < MapSize.y; y++)
+                {
+                    for (int x = 0; x < MapSize.x; x++)
+                    {
+                        CorrectAnswer[x, y, z] = ShapeData.Shape.Empty;
+                        PlayerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    }
+                }
+            }
 
             cameraRotate.TargetSet();
 
@@ -125,8 +128,9 @@ public class StageController : MonoBehaviour
             // 使用している図形の種類を取得
             ShapeType = shapeData.ShapeTypes(CorrectAnswer);
 
-            // 使用している図形の種類数を取得
-            ShapeTypeAmount = shapeData.ShapeTypesAmount(ShapeType);
+            checkPhase.Initialize();
+            selectPhase.Initialize();
+            playPhase.Initialize();
 
             // シート作成
             sheatCreate.Sheat();
