@@ -82,8 +82,12 @@ public class CheckPhase : MonoBehaviour
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
-                    mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
-                    mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
+                    // 空白マスは生成しない
+                    if(s != ShapeData.Shape.Empty)
+                    {
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
+                    }
                 }
             }
         }

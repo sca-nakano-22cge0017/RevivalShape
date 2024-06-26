@@ -116,15 +116,15 @@ public class CameraRotate : MonoBehaviour
         dragRangeVertex[4] = new Vector2(rangeMax.x, rangeMax.y);
 
         adjustRot[CameraPos.UP] = new Vector3(90, 0, 180);
-        adjustRot[CameraPos.BACK] = new Vector3(180, 180, 180);
-        adjustRot[CameraPos.RIGHT] = new Vector3(180, -90, 180);
-        adjustRot[CameraPos.FRONT] = new Vector3(180, 0, 180);
-        adjustRot[CameraPos.LEFT] = new Vector3(180, 90, 180);
+        adjustRot[CameraPos.BACK] = new Vector3(181.79f, 180, 180);
+        adjustRot[CameraPos.RIGHT] = new Vector3(181.79f, -90, 180);
+        adjustRot[CameraPos.FRONT] = new Vector3(181.79f, 0, 180);
+        adjustRot[CameraPos.LEFT] = new Vector3(181.79f, 90, 180);
     }
 
     void Update()
     {
-        debug.text = "tx : " + tx + "  ty : " + ty;
+        debug.text = "isRotating : " + isRotating + ", isRestore : " + isRestore + ", didSwip : " + didSwip;
 
         if (!CanRotate) return;
 
@@ -159,7 +159,7 @@ public class CameraRotate : MonoBehaviour
                 sPos = t.position;
                 lastTapPos = t.position;
 
-                // 回転前の座標、角度を保存
+                // 回転前の座標を保存
                 lastPos = adjustPoint[nowCameraPos];
 
                 // シングルタップ時、スワイプによる回転状態をもとに戻す
@@ -178,8 +178,6 @@ public class CameraRotate : MonoBehaviour
                     lastTapPos = t.position;
                 }
 
-                didSwip = true;
-
                 // スワイプ量
                 tx = t.position.x - lastTapPos.x;
                 ty = t.position.y - lastTapPos.y;
@@ -192,6 +190,8 @@ public class CameraRotate : MonoBehaviour
                 if (Mathf.Abs(sPos.y - t.position.y) < dragAdjust) ty = 0;
                 float deltaAngleTB = -ty / hei * sensitivity;
 
+                if(tx != 0 && ty != 0) didSwip = true;
+
                 // カメラから見て上・右向きのベクトルを回転軸として回転させる
                 var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up); // 左右方向
                 var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, transform.right); // 上下方向
@@ -201,11 +201,15 @@ public class CameraRotate : MonoBehaviour
                 pos = angleAxisLR * angleAxisTB * pos; // 回転移動
                 pos += target;                          // 平行移動
 
-                transform.position = pos;
-                transform.LookAt(target, transform.up);
 
+                if (pos.y >= -0.5f)
+                {
+                    transform.position = pos;
+                    transform.LookAt(target, transform.up);
+                }
+                
                 // カメラがサンプルの下に回り込まないように調整
-                if (pos.y <= 0.005f && pos.y != 0)
+                if (pos.y <= -0.495f && pos.y != -0.5f)
                 {
                     CameraPosAdjust();
                 }
@@ -380,6 +384,10 @@ public class CameraRotate : MonoBehaviour
     /// <param name="nextPoint">移動先の座標</param>
     IEnumerator Move()
     {
+        // 現在位置と目標位置が同じなら動かさない
+        if(nowCameraPos == nextCameraPos) yield break;
+
+        // スワイプで回転されてたらもとに戻す
         if (didSwip)
         {
             StartCoroutine(RotateRestore());
@@ -406,19 +414,19 @@ public class CameraRotate : MonoBehaviour
             }
             else if (nowCameraPos == CameraPos.RIGHT && nextCameraPos == CameraPos.UP)
             {
-                angle = new Vector3(0, 90, -90);
+                angle = new Vector3(0, 90, -91.79f);
             }
             else if (nowCameraPos == CameraPos.LEFT && nextCameraPos == CameraPos.UP)
             {
-                angle = new Vector3(0, -90, 90);
+                angle = new Vector3(0, -90, 91.79f);
             }
             else if (nowCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
             {
-                angle = new Vector3(90, -180, 0);
+                angle = new Vector3(91.79f, -180, 0);
             }
             else if (nowCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
             {
-                angle = new Vector3(90, -180, 0);
+                angle = new Vector3(91.79f, -180, 0);
             }
             else angle = nextRot - nowRot;
         }
@@ -572,6 +580,11 @@ public class CameraRotate : MonoBehaviour
     {
         if(isRotating || isRestore) return;
 
+        // スワイプで回転されてたら戻す
+        if(didSwip) StartCoroutine(RotateRestore());
+
+        // 上に戻す
+        nextCameraPos = CameraPos.UP;
         StartCoroutine(Move());
 
         _camera.fieldOfView = vDefault;

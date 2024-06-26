@@ -2,17 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class ObjPrefab
+{
+    public ShapeData.Shape shape;
+    public GameObject obj;
+}
+
 /// <summary>
 /// 図形
 /// </summary>
 public class ShapeData : MonoBehaviour
 {
-    [SerializeField] GameObject[] prefabs;
+    [SerializeField] ObjPrefab[] prefabs;
     
     /// <summary>
     /// オブジェクトの形
     /// </summary>
-    public enum Shape { Empty, Cube, Sphere, };
+    public enum Shape { Empty, Cube, Sphere, Alpha, };
 
     /// <summary>
     /// string型からShapeに変換
@@ -34,6 +41,10 @@ public class ShapeData : MonoBehaviour
                 shape = Shape.Sphere;
                 break;
 
+            case "a":
+                shape = Shape.Alpha;
+                break;
+
             case "e":
             case " ":
                 shape = Shape.Empty;
@@ -53,25 +64,15 @@ public class ShapeData : MonoBehaviour
     /// <returns>生成オブジェクト（Prefab）</returns>
     public GameObject ShapeToPrefabs(Shape s)
     {
-        int objNum;
-
-        switch (s)
+        foreach(var o in prefabs)
         {
-            case Shape.Empty:
-                objNum = 0;
-                break;
-            case Shape.Cube:
-                objNum = 1;
-                break;
-            case Shape.Sphere:
-                objNum = 2;
-                break;
-            default:
-                objNum = 0;
-                break;
+            if(o.shape == s)
+            {
+                return o.obj;
+            }
         }
 
-        return prefabs[objNum];
+        return prefabs[0].obj;
     }
 
     /// <summary>
