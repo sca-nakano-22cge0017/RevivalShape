@@ -66,7 +66,6 @@ public class CameraRotate : MonoBehaviour
 
     [SerializeField, Header("ダブルタップ時の回転にかかる時間")] float rotateTime = 1.0f;
     bool isRotating = false;
-    bool isMoving_up2back = false;
 
     // 移動方向
     enum TeleportDir { UP, DOWN, RIGHT, LEFT, NULL };
@@ -90,8 +89,6 @@ public class CameraRotate : MonoBehaviour
     // タップ/スワイプ可能範囲を描画
     [SerializeField] Texture _texture;
     [SerializeField] bool isDragRangeDraw = false;
-
-    [SerializeField] Text debug;
 
     /// <summary>
     /// カメラを動かすかどうか
@@ -124,8 +121,6 @@ public class CameraRotate : MonoBehaviour
 
     void Update()
     {
-        debug.text = "isRotating : " + isRotating + ", isRestore : " + isRestore + ", didSwip : " + didSwip;
-
         if (!CanRotate) return;
 
         // オブジェクトから目を離さないように
@@ -401,6 +396,8 @@ public class CameraRotate : MonoBehaviour
 
         Vector3 angle; // 回転量 オイラー角
         Vector3 relay = Vector3.zero; // 中継位置
+        Vector3 relay_1 = Vector3.zero; // 制御点1
+        Vector3 relay_2 = Vector3.zero; // 制御点2
 
         // 回転量取得
         {
@@ -431,38 +428,23 @@ public class CameraRotate : MonoBehaviour
             else angle = nextRot - nowRot;
         }
 
-        // 中継地点取得
+        // 制御点計算
         {
-            if (nowCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
-            {
-                float x = target.x - range / 2;
-                float z = target.z - range / 2;
-                float y = Mathf.Sqrt(range * range - (x * x + z * z));
+            if(adjustPoint[nowCameraPos].x == adjustPoint[nextCameraPos].x) relay.x = adjustPoint[nowCameraPos].x;
+            else relay.x = (Mathf.Abs(target.x - adjustPoint[nowCameraPos].x) >= 1f) ? adjustPoint[nowCameraPos].x : adjustPoint[nextCameraPos].x;
 
-                relay = new Vector3(x, y, z);
-            }
-            else if (nowCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
-            {
-                float x = target.x + range / 2;
-                float z = target.z - range / 2;
-                float y = Mathf.Sqrt(range * range - (x * x + z * z));
+            if (adjustPoint[nowCameraPos].y == adjustPoint[nextCameraPos].y) relay.y = adjustPoint[nowCameraPos].y;
+            else relay.y= (Mathf.Abs(target.y - (adjustPoint[nowCameraPos].y + 0.5f)) >= 1f) ? adjustPoint[nowCameraPos].y : adjustPoint[nextCameraPos].y;
 
-                relay = new Vector3(x, y, z);
-            }
-            else
-            {
-                Vector3 m = Vector3.Lerp(adjustPoint[nowCameraPos], adjustPoint[nextCameraPos], 0.5f);
-                relay = (m - target).normalized * range + target;
+            if (adjustPoint[nowCameraPos].z == adjustPoint[nextCameraPos].z) relay.z = adjustPoint[nowCameraPos].z;
+            else relay.z = (Mathf.Abs(target.z - adjustPoint[nowCameraPos].z) >= 1f) ? adjustPoint[nowCameraPos].z : adjustPoint[nextCameraPos].z;
 
-                if(nowCameraPos != CameraPos.UP && nextCameraPos != CameraPos.UP)
-                {
-                    relay.y = -0.5f;
-                }
-            }
+            relay_1 = Vector3.Lerp(adjustPoint[nowCameraPos], relay, 0.5f);
+            relay_2 = Vector3.Lerp(adjustPoint[nextCameraPos], relay, 0.5f);
         }
 
         // 移動
-        transform.DOLocalPath(new[] { transform.position, relay, adjustPoint[nextCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false);
+        transform.DOLocalPath(new[] { adjustPoint[nextCameraPos], relay_1, relay_2 }, rotateTime, PathType.CubicBezier).SetOptions(false);
 
         // 回転
         transform.DORotate(angle, rotateTime, RotateMode.WorldAxisAdd);
@@ -636,7 +618,7 @@ public class CameraRotate : MonoBehaviour
         target += new Vector3(0.5f, 0, -0.5f);
 
         // サンプルのサイズに応じてカメラの初期位置を調整
-        transform.position = new Vector3(target.x, mapSize.x + dir, target.z);
+        transform.position = new Vector3(target.x, mapSize.x + dir - 0.5f, target.z);
 
         // 注視
         transform.LookAt(target, transform.up);
@@ -655,6 +637,7 @@ public class CameraRotate : MonoBehaviour
 
         // 90度毎の補正ポイントの作成
         adjustPoint.Add(CameraPos.UP, transform.position);
+
         for (int i = 1; i < 5; i++)
         {
             CameraPos c = (CameraPos)Enum.ToObject(typeof(CameraPos), i);
