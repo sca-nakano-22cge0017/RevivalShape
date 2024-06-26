@@ -266,35 +266,31 @@ public class PlayPhase : MonoBehaviour
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
-                    mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                    // 空白部分は生成しない
+                    if(map[x, y, z] != ShapeData.Shape.Empty)
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
 
                     // 正答とプレイヤーの解答を比べる
-                    if (map[x, y, z] != ShapeData.Shape.Empty) total++;
-                    if (correctAnswer[x, y, z] != ShapeData.Shape.Empty) c_total++;
+                    if (map[x, y, z] != ShapeData.Shape.Empty)
+                        total++;
+                    if (correctAnswer[x, y, z] != ShapeData.Shape.Empty)
+                        c_total++;
 
                     // 超過分 正答では何も置かれていない場所にオブジェクトが置かれた場合
                     if (correctAnswer[x, y, z] == ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
-                    {
                         excess++;
-                    }
 
                     // 不足分 正答では何か置かれている場所にオブジェクトが何も置かれていなかった場合
                     if (correctAnswer[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] == ShapeData.Shape.Empty)
-                    {
                         lack++;
-                    }
 
                     // 相違分 形が違う場合 かつ 空でない場合
                     if (correctAnswer[x, y, z] != map[x, y, z] && correctAnswer[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Empty)
-                    {
                         diff++;
-                    }
 
                     // 一致率計算の分母　正答/プレイヤーの解答のどちらかで何か置かれているマスだったら
                     if (correctAnswer[x, y, z] != ShapeData.Shape.Empty || map[x, y, z] != ShapeData.Shape.Empty)
-                    {
                         hasAnything = true;
-                    }
                 }
 
                 if (hasAnything) hasBlockTrout++;
@@ -336,8 +332,14 @@ public class PlayPhase : MonoBehaviour
             {
                 for (int x = 0; x < mapSize.x; x++)
                 {
-                    // 空白マスなら落下演出を飛ばす
                     if (map[x, y, z] == ShapeData.Shape.Empty) continue;
+
+                    // 透明ブロックなら演出を飛ばす
+                    if (map[x, y, z] == ShapeData.Shape.Alpha)
+                    {
+                        mapObj[x, y, z].transform.position = new Vector3(-x, y, z);
+                        continue;
+                    }
 
                     mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
                     mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
