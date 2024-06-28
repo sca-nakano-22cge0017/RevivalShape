@@ -173,6 +173,7 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToCheckPhase()
     {
+        Debug.Log("check");
         switch (phase)
         {
             case PHASE.SELECT:
@@ -205,6 +206,7 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToSelectPhase()
     {
+        Debug.Log("select");
         phase = PHASE.SELECT;
 
         checkPhase.CheckPhaseEnd();
@@ -227,6 +229,7 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToPlayPhase()
     {
+        Debug.Log("play");
         phase = PHASE.PLAY;
 
         checkPhase.CheckPhaseEnd();
