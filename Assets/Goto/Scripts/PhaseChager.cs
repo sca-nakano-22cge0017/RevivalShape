@@ -69,8 +69,8 @@ public class PhaseChager : MonoBehaviour
         if (toggles[0].isOn)// && sc.phase != StageController.PHASE.PLAY)
         {
             
-            // stageController.ToCheckPhase();
-            Debug.Log("確認フェーズ");
+            if(stageController) stageController.ToCheckPhase();
+            //Debug.Log("確認フェーズ");
 
             //実行フェーズのtoggleを押せないようにする
             toggles[1].interactable = true;
@@ -92,9 +92,8 @@ public class PhaseChager : MonoBehaviour
     {
         if (toggles[1].isOn)
         {
-           
-            //stageController.ToSelectPhase();
-            Debug.Log("選択フェーズ");
+            if(stageController) stageController.ToSelectPhase();
+            //Debug.Log("選択フェーズ");
 
             //実行フェーズのtoggleを押せないようにする
             toggles[0].interactable = true;
@@ -119,9 +118,9 @@ public class PhaseChager : MonoBehaviour
         //100%未満だったらselectに戻す
         if (toggles[2].isOn)
         {
-       
-            //stageController.ToPlayPhase();
-            Debug.Log("実行フェーズ");
+
+            if (stageController) stageController.ToPlayPhase();
+            //Debug.Log("実行フェーズ");
 
             //実行フェーズ中移動しなくする
             toggles[0].interactable = false;
