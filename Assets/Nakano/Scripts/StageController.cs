@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEditor;
 
 /// <summary>
 /// メインゲーム制御
@@ -11,7 +10,7 @@ public class StageController : MonoBehaviour
 {
     // フェーズ
     public enum PHASE { CHECK = 0, SELECT, PLAY, };
-    public PHASE phase = 0;
+    public PHASE phase = PHASE.CHECK;
 
     [SerializeField, Header("ステージ名")] string stageName;
     public string StageName { get { return stageName; } }
@@ -25,6 +24,8 @@ public class StageController : MonoBehaviour
     [SerializeField] CheckPhase checkPhase;
     [SerializeField] SelectPhase selectPhase;
     [SerializeField] PlayPhase playPhase;
+
+    [SerializeField] TestButton testButton;
 
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
@@ -80,6 +81,7 @@ public class StageController : MonoBehaviour
         if(SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
+        dataGot = false;
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
 
         Application.targetFrameRate = fps;
@@ -98,8 +100,6 @@ public class StageController : MonoBehaviour
         // データを変数として取得していなければ
         if(!dataGot)
         {
-            dataGot = true;
-
             // マップサイズ取得
             MapSize = stageDataLoader.LoadStageSize();
             
@@ -119,6 +119,10 @@ public class StageController : MonoBehaviour
                     }
                 }
             }
+            for (int i = 0; i < ShapeType.Length; i++)
+            {
+                ShapeType[i] = ShapeData.Shape.Empty;
+            }
 
             cameraRotate.TargetSet();
 
@@ -137,6 +141,8 @@ public class StageController : MonoBehaviour
 
             // 確認フェーズに移行
             ToCheckPhase();
+
+            dataGot = true;
         }
 
         // クリア時の遷移処理
@@ -158,8 +164,6 @@ public class StageController : MonoBehaviour
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
             {
-                ToCheckPhase();
-                TestButton testButton = GameObject.FindObjectOfType<TestButton>();
                 testButton.BackToggle();
             }
                 
@@ -173,22 +177,20 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToCheckPhase()
     {
-        Debug.Log("check");
         switch (phase)
         {
             case PHASE.SELECT:
+                selectPhase.SelectPhaseEnd();
                 Reconfirmation++;
                 break;
             case PHASE.PLAY:
+                playPhase.PlayPhaseEnd();
                 Miss++;
                 cameraRotate.Restore();
                 break;
         }
 
         phase = PHASE.CHECK;
-
-        playPhase.PlayPhaseEnd();
-        selectPhase.SelectPhaseEnd();
 
         // カメラの回転ができるようにする
         cameraRotate.CanRotate = true;
@@ -206,11 +208,17 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToSelectPhase()
     {
-        Debug.Log("select");
-        phase = PHASE.SELECT;
+        switch (phase)
+        {
+            case PHASE.CHECK:
+                checkPhase.CheckPhaseEnd();
+                break;
+            case PHASE.PLAY:
+                playPhase.PlayPhaseEnd();
+                break;
+        }
 
-        checkPhase.CheckPhaseEnd();
-        playPhase.PlayPhaseEnd();
+        phase = PHASE.SELECT;
 
         // カメラ
         cameraRotate.CanRotate = false;
@@ -229,11 +237,17 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void ToPlayPhase()
     {
-        Debug.Log("play");
-        phase = PHASE.PLAY;
+        switch (phase)
+        {
+            case PHASE.CHECK:
+                checkPhase.CheckPhaseEnd();
+                break;
+            case PHASE.SELECT:
+                selectPhase.SelectPhaseEnd();
+                break;
+        }
 
-        checkPhase.CheckPhaseEnd();
-        selectPhase.SelectPhaseEnd();
+        phase = PHASE.PLAY;
 
         // シート
         sheatCreate.SheatDisp(true, false);

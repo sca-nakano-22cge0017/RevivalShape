@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// </summary>
 public class SelectPhaseButton : MonoBehaviour
 {
-    SelectPhase selectPhase;
+    public SelectPhase selectPhase{ get; set;}
 
     /// <summary>
     /// 各ボタンに入力された数
@@ -41,13 +41,10 @@ public class SelectPhaseButton : MonoBehaviour
 
     public bool IsCheck{ get; set; } = false; // 確認するマスのボタンか
 
-    private void Start()
+    private void Awake()
     {
         // ボタンの子オブジェクトのTextを取得
         thisText = transform.GetChild(0).gameObject.GetComponent<Text>();
-
-        selectPhase = FindObjectOfType<SelectPhase>();
-
         flame.enabled = false;
     }
 

@@ -7,8 +7,6 @@ using UnityEngine;
 /// </summary>
 public class SheatCreate : MonoBehaviour
 {
-    [SerializeField, Header("デバッグ用")] SampleCheck sampleCheck;
-
     [SerializeField] GameObject sheatPrefab;
     [SerializeField] Transform sheatParent;
     [SerializeField] GameObject marks;
@@ -32,8 +30,6 @@ public class SheatCreate : MonoBehaviour
         // サイズ代入
         if (stageController)
             mapSize = stageController.MapSize;
-        else if (sampleCheck)
-            mapSize = sampleCheck.MapSize;
 
         // マップの広さ分シートをを生成
         for (int x = 0; x < (int)mapSize.x; x++)
