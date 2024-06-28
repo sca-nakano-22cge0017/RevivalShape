@@ -16,7 +16,7 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField] GameObject playPhaseUI;
 
-    Vector3 mapSize;
+    Vector3 mapSize = new Vector3(0, 0, 0);
 
     ShapeData.Shape[,,] map; // 配置データ
     GameObject[,,] mapObj;   // GameObject型配列
@@ -56,6 +56,8 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] Text matchRateText;
 
     [SerializeField] GameObject clearWindow;
+
+    [SerializeField] Text debug;
 
     /// <summary>
     /// 確認中か
@@ -97,10 +99,19 @@ public class PlayPhase : MonoBehaviour
                 }
             }
         }
+
+        loaded = true;
     }
+
+    bool loaded  = false;
 
     private void Update()
     {
+        if(loaded)
+        {
+            debug.text = "nowAnswer : " + map[0, 0, 0].ToString() + ", \nlastAnswer : " + lastAnswer[0, 0, 0].ToString();
+        }
+
         if (isFalling)
         {
             Skip();
@@ -242,17 +253,16 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     public void PlayPhaseEnd()
     {
+        matchRateText.enabled = false;
+        playPhaseUI.SetActive(false);
+        clearWindow.SetActive(false);
+
         // ブロック削除
         Transform children = objParent.GetComponentInChildren<Transform>();
         foreach (Transform obj in children)
         {
             Destroy(obj.gameObject);
-            //obj.gameObject.SetActive(false);
         }
-
-        playPhaseUI.SetActive(false);
-        clearWindow.SetActive(false);
-        matchRateText.enabled = false;
     }
 
     /// <summary>
@@ -285,7 +295,7 @@ public class PlayPhase : MonoBehaviour
 
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
-
+                    
                     // 空白部分は生成しない
                     if (map[x, y, z] != ShapeData.Shape.Empty)
                         mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
@@ -336,6 +346,8 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
+        lastAnswer = map;
+
         StartCoroutine(Fall());
     }
 
@@ -361,7 +373,7 @@ public class PlayPhase : MonoBehaviour
                         continue;
                     }
 
-                    if(mapObj[x, y, z])
+                    if (mapObj[x, y, z])
                     {
                         mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
                         mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
@@ -407,8 +419,6 @@ public class PlayPhase : MonoBehaviour
         else
         {
             StartCoroutine(MatchTextBlinking());
-
-            stageController.IsRetry = true;
         }
     }
 
@@ -427,6 +437,8 @@ public class PlayPhase : MonoBehaviour
             yield return new WaitForSeconds(unDispTime);
             matchRateText.enabled = true;
         }
+
+        stageController.IsRetry = true;
     }
 
     /// <summary>

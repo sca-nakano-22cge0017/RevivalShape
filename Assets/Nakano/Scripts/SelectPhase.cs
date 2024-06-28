@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 
 namespace select
@@ -71,6 +72,8 @@ public class SelectPhase : MonoBehaviour
     // 図形変更
     [SerializeField] GameObject[] shapeChangeButtons;
 
+    [SerializeField] PlayPhase play;
+
     private void Awake()
     {
         // ウィンドウ、UI非表示
@@ -131,7 +134,15 @@ public class SelectPhase : MonoBehaviour
     {
         // UI表示
         selectPhaseUI.SetActive(true);
-        InputDataToButton();
+
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                // 入力されていた値をボタンに反映する
+                selectButtons[x, z].InputNum = playerInputData[z, x];
+            }
+        }
     }
 
     /// <summary>
@@ -167,6 +178,7 @@ public class SelectPhase : MonoBehaviour
                 selectButtons[x, z] = button.GetComponent<SelectPhaseButton>();
                 selectButtons[x, z].Position = new Vector2(x, z);
                 selectButtons[x, z].Input_max = (int)mapSize.y;
+                selectButtons[x, z].selectPhase = this;
             }
         }
 
@@ -195,15 +207,15 @@ public class SelectPhase : MonoBehaviour
             clearBG.SetActive(true);
 
             // ボタンの外を押したらモード終了
-            if (Input.GetMouseButtonDown(0))
+            if (Input.touchCount >= 1)
             {
-                Vector2 mPos = Input.mousePosition;
-                float minX = Screen.width / 2 - buttonRange.x / 2;
-                float maxX = Screen.width - minX;
-                float minY = Screen.height / 2 - buttonRange.y / 2;
-                float maxY = Screen.height - minY;
+                Touch t = Input.GetTouch(0);
 
-                if (mPos.x < minX || mPos.x > maxX || mPos.y < minY || mPos.y > maxY)
+                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
+                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
+
+                if (t.phase == TouchPhase.Began &&
+                    !stageController.TapOrDragRange(t.position, min, max))
                 {
                     if (IsEraser) IsEraser = false;
                     if (IsCheck) IsCheck = false;
@@ -229,7 +241,7 @@ public class SelectPhase : MonoBehaviour
         }
 
         // 画面タップで確認カメラモードのウィンドウを閉じる
-        if (canCheckWindowUnDisp && Input.GetMouseButtonDown(0))
+        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             checkModeWindow.SetActive(false);
             canCheckWindowUnDisp = false;
@@ -306,16 +318,11 @@ public class SelectPhase : MonoBehaviour
             }
         }
 
-        StartCoroutine(CheckWindowUnDisp());
-    }
-
-    /// <summary>
-    /// ウィンドウの表示と非表示が一瞬で行われるので表示後一定時間待ってから、非表示にできるようにする
-    /// </summary>
-    IEnumerator CheckWindowUnDisp()
-    {
-        yield return new WaitForSeconds(0.1f);
-        canCheckWindowUnDisp = true;
+        // ウィンドウの表示と非表示が一瞬で行われるので表示後一定時間待ってから、非表示にできるようにする
+        StartCoroutine(DelayCoroutine(0.1f, () => 
+        {
+            canCheckWindowUnDisp = true;
+        }));
     }
 
     /// <summary>
@@ -393,22 +400,6 @@ public class SelectPhase : MonoBehaviour
     }
 
     /// <summary>
-    /// ボタンの表示を変更
-    /// </summary>
-    /// <param name="isReset">値を0にするか</param>
-    void InputDataToButton()
-    {
-        for (int z = 0; z < (int)mapSize.z; z++)
-        {
-            for (int x = 0; x < (int)mapSize.x; x++)
-            {
-                // 入力されていた値をボタンに反映する
-                selectButtons[x, z].InputNum = playerInputData[z, x];
-            }
-        }
-    }
-
-    /// <summary>
     /// 図形入力
     /// </summary>
     /// <param name="buttonPos">入力するマス</param>
@@ -448,5 +439,11 @@ public class SelectPhase : MonoBehaviour
                 break;
             }
         }
+    }
+
+    private IEnumerator DelayCoroutine(float seconds, Action action)
+    {
+        yield return new WaitForSeconds(seconds);
+        action?.Invoke();
     }
 }

@@ -11,8 +11,6 @@ using UnityEngine.UI;
 /// </summary>
 public class CameraRotate : MonoBehaviour
 {
-    [SerializeField, Header("デバッグ用")] SampleCheck sampleCheck;
-
     [SerializeField] StageController stageController;
     [SerializeField] Camera _camera;
     Vector3 mapSize;
@@ -608,8 +606,6 @@ public class CameraRotate : MonoBehaviour
         // サイズ代入
         if (stageController)
             mapSize = stageController.MapSize;
-        else if (sampleCheck)
-            mapSize = sampleCheck.MapSize;
 
         // 注視位置設定
         target = mapSize / 2;
