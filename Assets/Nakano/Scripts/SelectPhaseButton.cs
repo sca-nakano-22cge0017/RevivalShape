@@ -81,8 +81,16 @@ public class SelectPhaseButton : MonoBehaviour
             {
                 tapStartTime = 0;
 
-                if(!isEraserMode && InputNum < Input_max) InputNum++;
-                else if (isEraserMode && InputNum > 0) InputNum--;
+                if(!isEraserMode && InputNum < Input_max)
+                {
+                    InputNum++;
+                    selectPhase.ShapeInput(Position);  // ê}å`í«â¡
+                }
+                else if (isEraserMode && InputNum > 0)
+                {
+                    InputNum--;
+                    selectPhase.ShapeDelete(Position); // ê}å`è¡ãé
+                }
             }
         }
 

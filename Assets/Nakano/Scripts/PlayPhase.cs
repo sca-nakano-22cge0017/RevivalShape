@@ -99,19 +99,10 @@ public class PlayPhase : MonoBehaviour
                 }
             }
         }
-
-        loaded = true;
     }
-
-    bool loaded  = false;
 
     private void Update()
     {
-        if(loaded)
-        {
-            debug.text = "nowAnswer : " + map[0, 0, 0].ToString() + ", \nlastAnswer : " + lastAnswer[0, 0, 0].ToString();
-        }
-
         if (isFalling)
         {
             Skip();
@@ -228,8 +219,18 @@ public class PlayPhase : MonoBehaviour
         playPhaseUI.SetActive(true);
 
         // 正答とプレイヤーの解答を取得する
-        correctAnswer = stageController.CorrectAnswer;
-        map = stageController.PlayerAnswer;
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    correctAnswer[x, y, z] = stageController.CorrectAnswer[x, y, z];
+                    lastAnswer[x, y, z] = map[x, y, z];
+                    map[x, y, z] = stageController.PlayerAnswer[x, y, z];
+                }
+            }
+        }
 
         // 一致率 初期化
         matchRateTroutTotal = 0;
@@ -261,7 +262,7 @@ public class PlayPhase : MonoBehaviour
         Transform children = objParent.GetComponentInChildren<Transform>();
         foreach (Transform obj in children)
         {
-            Destroy(obj.gameObject);
+            obj.gameObject.SetActive(false);
         }
     }
 
@@ -296,9 +297,22 @@ public class PlayPhase : MonoBehaviour
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
                     
-                    // 空白部分は生成しない
-                    if (map[x, y, z] != ShapeData.Shape.Empty)
-                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                    // 前の解答と異なっていたら生成し直す
+                    if(map[x, y, z] != lastAnswer[x, y, z])
+                    {
+                        if(mapObj[x, y, z]) Destroy(mapObj[x, y, z]);
+
+                        // 空白部分は生成しない
+                        if (map[x, y, z] != ShapeData.Shape.Empty) mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                    }
+                    else
+                    {
+                        if (mapObj[x, y, z])
+                        {
+                            mapObj[x, y, z].transform.position = pos;
+                            mapObj[x, y, z].SetActive(true);
+                        }
+                    }
 
                     // 正答とプレイヤーの解答を比べる
                     if (map[x, y, z] != ShapeData.Shape.Empty)
@@ -345,8 +359,6 @@ public class PlayPhase : MonoBehaviour
                 matchRateTroutTotal += matchRateTrout;
             }
         }
-
-        lastAnswer = map;
 
         StartCoroutine(Fall());
     }

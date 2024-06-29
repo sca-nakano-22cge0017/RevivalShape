@@ -83,7 +83,16 @@ public class CheckPhase : MonoBehaviour
         if (sampleCreated) return;
 
         // 正解の配置データを取得
-        map = stageController.CorrectAnswer;
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    map[x, y, z] = stageController.CorrectAnswer[x, y, z];
+                }
+            }
+        }
 
         // 生成
         for (int z = 0; z < mapSize.z; z++)

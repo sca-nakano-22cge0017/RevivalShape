@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 8807721753031513946}
   - component: {fileID: 3980209854529859719}
   m_Layer: 5
-  m_Name: Button (Legacy)
+  m_Name: SelectInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
