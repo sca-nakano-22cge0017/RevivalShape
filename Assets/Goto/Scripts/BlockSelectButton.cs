@@ -26,7 +26,7 @@ public class BlockSelectButton : MonoBehaviour
     }
     public void OnBlookSelect()
     {
-        onPanel.SetActive(false);
+        onPanel.SetActive(true);
         offPanels[0].SetActive(false);
         offPanels[1].SetActive(false);
         offPanels[2].SetActive(true);
@@ -35,6 +35,7 @@ public class BlockSelectButton : MonoBehaviour
     public void OffBlookSelect()
     {
         onPanel.SetActive(true);
+        offPanels[0].SetActive(true);
         offPanels[2].SetActive(false);
 
     }

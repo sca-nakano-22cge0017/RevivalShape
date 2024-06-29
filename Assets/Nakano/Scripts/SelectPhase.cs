@@ -22,81 +22,104 @@ namespace select
 /// </summary>
 public class SelectPhase : MonoBehaviour
 {
-    [SerializeField] StageController stageController;
+    [SerializeField] private StageController stageController;
 
-    [SerializeField] GameObject buttonParent;
-    [SerializeField] GameObject buttonPrefab;
+    [SerializeField] private GameObject buttonParent;
+    [SerializeField] private GameObject buttonPrefab;
 
-    [SerializeField, Header("ボタン表示範囲")] Vector2 buttonRange;
+    [SerializeField, Header("ボタン表示範囲")] private Vector2 buttonRange;
 
-    [SerializeField] GameObject selectPhaseUI;
+    [SerializeField] private GameObject selectPhaseUI;
 
-    SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
+    private SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
 
-    int[,] playerInputData;
-    ShapeData.Shape selectingShape; // 選択中の図形
+    private int[,] playerInputData;
+    private ShapeData.Shape selectingShape; // 選択中の図形
 
-    ShapeData.Shape[] shapeType;     // 使用図形の種類
+    private ShapeData.Shape[] shapeType;     // 使用図形の種類
 
-    Vector3 mapSize;
+    private Vector3 mapSize;
 
-    ShapeData.Shape[,,] playerAnswer; // プレイヤーの解答
+    private ShapeData.Shape[,,] playerAnswer; // プレイヤーの解答
 
     // 各図形毎のUI
-    [SerializeField] select.ShapesUI[] shapesUI;
+    [SerializeField] private select.ShapesUI[] shapesUI;
 
     // 削除モード
-    [SerializeField] GameObject eraserModeButton;
+    [SerializeField] private GameObject eraserModeButton;
     public bool IsEraser { get; set; } = false;
 
     // 確認モード
-    [SerializeField] GameObject checkModeButton;
-    [SerializeField] GameObject checkModeWindow;
-    [SerializeField] GameObject stepsParent;
-    [SerializeField] GameObject stepsPrefab;
-    Image[] steps;
+    [SerializeField] private GameObject checkModeButton;
+    [SerializeField] private GameObject checkModeWindow;
+    [SerializeField] private GameObject stepsParent;
+    [SerializeField] private GameObject stepsPrefab;
+    private Image[] steps;
     public bool IsCheck { get; set; } = false;
-    Vector2 checkPos = new Vector2(0, 0); // 確認するマス
+    private Vector2 checkPos = new Vector2(0, 0); // 確認するマス
 
     // 確認カメラモードのウィンドウを消去できるか
-    bool canCheckWindowUnDisp = false;
+    private bool canCheckWindowUnDisp = false;
 
     // スワイプして数字を上昇させられるか
     public bool CanSwipInput { get; set; } = false;
 
     // 各モード時の黒背景
-    [SerializeField] GameObject modeBG;
+    [SerializeField] private GameObject modeBG;
 
-    [SerializeField] GameObject clearBG;
+    [SerializeField] private GameObject clearBG;
 
-    // 図形変更
-    [SerializeField] GameObject[] shapeChangeButtons;
+    [SerializeField] private PlayPhase play;
 
-    [SerializeField] PlayPhase play;
-
-    private void Awake()
+    private void Update()
     {
+        if (IsEraser || IsCheck)
+        {
+            // ボタンの外を押したらモード終了
+            if (Input.touchCount >= 1)
+            {
+                Touch t = Input.GetTouch(0);
+
+                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
+                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
+
+                if (t.phase == TouchPhase.Began &&
+                    !stageController.TapOrDragRange(t.position, min, max))
+                {
+                    if (IsEraser) IsEraser = false;
+                    if (IsCheck) IsCheck = false;
+                }
+
+                ModeUIDispSet();
+            }
+        }
+
+        // 画面タップで確認カメラモードのウィンドウを閉じる
+        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            checkModeWindow.SetActive(false);
+            canCheckWindowUnDisp = false;
+
+            selectButtons[(int)checkPos.x, (int)checkPos.y].IsCheck = false;
+        }
+    }
+
+    public void Initialize()
+    {
+        if(!stageController) return;
+
         // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
         checkModeWindow.SetActive(false);
         modeBG.SetActive(false);
         clearBG.SetActive(false);
 
-        // 図形変更ボタンの非表示
-        foreach (var ui in shapesUI)
-        {
-            if(ui.shape == ShapeData.Shape.Empty) continue;
-
-            ui.button.SetActive(false);
-        }
-    }
-
-    public void Initialize()
-    {
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
-        // 配列　要素数指定
+        // 使用図形を取得
+        shapeType = stageController.ShapeType;
+
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
@@ -114,17 +137,70 @@ public class SelectPhase : MonoBehaviour
             }
         }
 
+        // ボタンの親オブジェクトのサイズ調整
+        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
+        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
+
+        // マップの広さ分ボタンを生成
+        for (int z = 0; z < (int)mapSize.z; z++)
+        {
+            for (int x = 0; x < (int)mapSize.x; x++)
+            {
+                var button = Instantiate(buttonPrefab, buttonParent.transform);
+
+                selectButtons[x, z] = button.GetComponent<SelectPhaseButton>();
+                selectButtons[x, z].Position = new Vector2(x, z);
+                selectButtons[x, z].Input_max = (int)mapSize.y;
+                selectButtons[x, z].selectPhase = this;
+            }
+        }
+
+        // 確認カメラモードのウィンドウ設定
         steps = new Image[(int)mapSize.y];
+        stepsParent.GetComponent<RectTransform>().transform.localPosition = new Vector2(0, 900 + mapSize.y * 50);
+        for (int y = 0; y < (int)mapSize.y; y++)
+        {
+            steps[y] = Instantiate(stepsPrefab, stepsParent.transform).GetComponent<Image>();
 
-        // 図形変更ボタン　使う図形のボタンのみ表示する
-        ShapeChangeButtonsSet();
+            float size = 200 * (1 - 1 / mapSize.y);
+            steps[y].GetComponent<RectTransform>().sizeDelta = new Vector2(size, size);
 
-        UISetting();
-    }
+            // 作ったらHierarchyの一番上に設定する → 下から順に生成する
+            steps[y].transform.SetAsFirstSibling();
+        }
 
-    private void Update()
-    {
-        UIControl();
+        // 図形変更ボタン設定
+        bool firstShape = true; // 一番最初に配置する図形
+
+        foreach (var ui in shapesUI)
+        {
+            if (ui.shape == ShapeData.Shape.Empty) continue;
+
+            string buttonsName = ui.button.name;
+
+            for (int st = 0; st < shapeType.Length; st++)
+            {
+                string needShapeName = ShapeData.Shape.GetName(typeof(ShapeData.Shape), shapeType[st]);
+
+                // ボタンの名前と使用している図形の種類が被っているものがあれば
+                if (buttonsName.ToLower() == needShapeName.ToLower())
+                {
+                    // ボタンを表示
+                    ui.button.SetActive(true);
+
+                    if (firstShape)
+                    {
+                        // 初期状態で選択している図形を設定
+                        selectingShape = shapeType[st];
+                        firstShape = false;
+                    }
+
+                    break;
+                }
+                else ui.button.SetActive(false);
+            }
+        }
+        ShapeChangeButtonDispSet();
     }
 
     /// <summary>
@@ -156,97 +232,53 @@ public class SelectPhase : MonoBehaviour
         selectPhaseUI.SetActive(false);
 
         // プレイヤーの答えを保存
-        stageController.PlayerAnswer = playerAnswer;
-    }
-
-    /// <summary>
-    /// ボタンの生成、UIのサイズを設定
-    /// </summary>
-    void UISetting()
-    {
-        // ボタンの親オブジェクトのサイズ調整
-        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
-        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
-
-        // マップの広さ分ボタンを生成
-        for (int z = 0; z < (int)mapSize.z; z++)
+        for (int z = 0; z < mapSize.z; z++)
         {
-            for (int x = 0; x < (int)mapSize.x; x++)
+            for (int y = 0; y < mapSize.y; y++)
             {
-                var button = Instantiate(buttonPrefab, buttonParent.transform);
-
-                selectButtons[x, z] = button.GetComponent<SelectPhaseButton>();
-                selectButtons[x, z].Position = new Vector2(x, z);
-                selectButtons[x, z].Input_max = (int)mapSize.y;
-                selectButtons[x, z].selectPhase = this;
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    stageController.PlayerAnswer[x, y, z] = playerAnswer[x, y, z];
+                }
             }
         }
-
-        // 確認カメラモードのウィンドウ生成
-        for (int y = 0; y < (int)mapSize.y; y++)
-        {
-            steps[y] = Instantiate(stepsPrefab, stepsParent.transform).GetComponent<Image>();
-
-            float size = 200 * (1 - 1 / mapSize.y);
-            steps[y].GetComponent<RectTransform>().sizeDelta = new Vector2(size, size);
-
-            // 作ったらHierarchyの一番上に設定する → 下から順に生成する
-            steps[y].transform.SetAsFirstSibling();
-        }
     }
 
-    /// <summary>
-    /// UI制御
-    /// </summary>
-    void UIControl()
+    void ModeUIDispSet()
     {
+        Color clear = new Color(1, 1, 1, 0);
+        Color unClear = new Color(1, 1, 1, 1);
+
         if (IsEraser || IsCheck)
         {
             // モード時は背景暗く
             modeBG.SetActive(true);
             clearBG.SetActive(true);
-
-            // ボタンの外を押したらモード終了
-            if (Input.touchCount >= 1)
-            {
-                Touch t = Input.GetTouch(0);
-
-                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
-                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
-
-                if (t.phase == TouchPhase.Began &&
-                    !stageController.TapOrDragRange(t.position, min, max))
-                {
-                    if (IsEraser) IsEraser = false;
-                    if (IsCheck) IsCheck = false;
-                }
-            }
         }
         else
         {
+            checkModeButton.GetComponent<Image>().color = clear;
+            eraserModeButton.GetComponent<Image>().color = clear;
+
             modeBG.SetActive(false);
             clearBG.SetActive(false);
         }
 
-        // ボタンのレイヤー位置調整
         if (IsEraser)
         {
+            checkModeButton.GetComponent<Image>().color = clear;
+            eraserModeButton.GetComponent<Image>().color = unClear;
+
             checkModeButton.transform.SetAsFirstSibling();
             eraserModeButton.transform.SetAsLastSibling();
         }
         if (IsCheck)
         {
+            checkModeButton.GetComponent<Image>().color = unClear;
+            eraserModeButton.GetComponent<Image>().color = clear;
+
             eraserModeButton.transform.SetAsFirstSibling();
             checkModeButton.transform.SetAsLastSibling();
-        }
-
-        // 画面タップで確認カメラモードのウィンドウを閉じる
-        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
-        {
-            checkModeWindow.SetActive(false);
-            canCheckWindowUnDisp = false;
-
-            selectButtons[(int)checkPos.x, (int)checkPos.y].IsCheck = false;
         }
     }
 
@@ -256,6 +288,7 @@ public class SelectPhase : MonoBehaviour
     public void EraserModeChange()
     {
         IsEraser = !IsEraser;
+        ModeUIDispSet();
     }
 
     /// <summary>
@@ -264,6 +297,7 @@ public class SelectPhase : MonoBehaviour
     public void CheckModeChange()
     {
         IsCheck = !IsCheck;
+        ModeUIDispSet();
     }
 
     /// <summary>
@@ -329,7 +363,7 @@ public class SelectPhase : MonoBehaviour
     /// 選択中の図形を変更 ボタンで呼び出す
     /// </summary>
     /// <param name="shape">選択する図形の名前</param>
-    public void ShapeChange(string shapeName)
+    public void ShapeChange(string shapeType)
     {
         // 列挙型を全検索
         foreach (ShapeData.Shape value in ShapeData.Shape.GetValues(typeof(ShapeData.Shape)))
@@ -337,49 +371,35 @@ public class SelectPhase : MonoBehaviour
             string name = ShapeData.Shape.GetName(typeof(ShapeData.Shape), value);
 
             // 名前が打ち込まれたstringと同じなら、選択している図形を変更する
-            if (name.ToLower() == shapeName.ToLower())
+            if (name.ToLower() == shapeType.ToLower())
             {
                 selectingShape = value;
             }
         }
+
+        ShapeChangeButtonDispSet();
     }
 
     /// <summary>
-    /// 図形変更ボタンの表示・非表示
-    /// 使わない図形は非表示にする
+    /// 図形変更ボタンの表示変更
     /// </summary>
-    void ShapeChangeButtonsSet()
+    void ShapeChangeButtonDispSet()
     {
-        // 使用図形を取得
-        shapeType = stageController.ShapeType;
-
-        bool firstShape = true; // 一番最初に配置する図形
-
-        foreach (var ui in shapesUI)
+        foreach (select.ShapesUI s in shapesUI)
         {
-            if(ui.shape == ShapeData.Shape.Empty) continue;
+            if (s.shape == ShapeData.Shape.Empty) continue;
 
-            string buttonsName = ui.button.name;
-
-            for (int st = 0; st < shapeType.Length; st++)
+            var frame = s.button.transform.GetChild(1).gameObject;
+            var front = s.button.transform.GetChild(2).gameObject;
+            if (s.shape == selectingShape)
             {
-                string needShapeName = ShapeData.Shape.GetName(typeof(ShapeData.Shape), shapeType[st]);
-
-                // ボタンの名前と使用している図形の種類が被っているものがあれば
-                if (buttonsName.ToLower() == needShapeName.ToLower())
-                {
-                    // ボタンを表示
-                    ui.button.SetActive(true);
-
-                    if (firstShape)
-                    {
-                        // 初期状態で選択している図形を設定
-                        selectingShape = shapeType[st];
-                        firstShape = false;
-                    }
-
-                    break;
-                }
+                frame.SetActive(true);
+                front.SetActive(false);
+            }
+            else
+            {
+                frame.SetActive(false);
+                front.SetActive(true);
             }
         }
     }

@@ -1300,7 +1300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 0}
-  maxTime: 0
+  stopTime: 0
 --- !u!1 &1332263937124138483
 GameObject:
   m_ObjectHideFlags: 0
@@ -2140,8 +2140,8 @@ RectTransform:
   - {fileID: 8426704196553768295}
   - {fileID: 4037183959277985475}
   - {fileID: 4825255221048028449}
-  - {fileID: 2901442862558752047}
   - {fileID: 8211786934925720015}
+  - {fileID: 2901442862558752047}
   - {fileID: 7687089537918887501}
   - {fileID: 4610849500740984530}
   m_Father: {fileID: 419109242829790107}
@@ -4953,7 +4953,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8381cab8883eedd4f9042009e107d8d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fadeButton: {fileID: 0}
+  timeManager: {fileID: 0}
   Panels: []
+  panel: {fileID: 0}
 --- !u!82 &5565287422790520934
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7704,6 +7707,7 @@ MonoBehaviour:
   openPanel: {fileID: 8186953127079650067}
   blockSelectPanel: {fileID: 866884499592431049}
   checkPanel: {fileID: 8182440903757595458}
+  settingPanel: {fileID: 0}
 --- !u!1 &8182440903757595458
 GameObject:
   m_ObjectHideFlags: 0

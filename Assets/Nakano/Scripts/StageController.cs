@@ -52,6 +52,7 @@ public class StageController : MonoBehaviour
     /// </summary>
     public ShapeData.Shape[,,] CorrectAnswer { get; set; }
 
+    private ShapeData.Shape[,,] playerAnswer;
     /// <summary>
     /// プレイヤーの答え
     /// </summary>
@@ -107,6 +108,7 @@ public class StageController : MonoBehaviour
             ShapeType = new ShapeData.Shape[System.Enum.GetValues(typeof(ShapeData.Shape)).Length];
             CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
             PlayerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+            playerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
 
             for (int z = 0; z < MapSize.z; z++)
             {
@@ -116,6 +118,7 @@ public class StageController : MonoBehaviour
                     {
                         CorrectAnswer[x, y, z] = ShapeData.Shape.Empty;
                         PlayerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                        playerAnswer[x, y, z] = ShapeData.Shape.Empty;
                     }
                 }
             }
@@ -157,10 +160,8 @@ public class StageController : MonoBehaviour
         }
 
         // 再挑戦時の処理
-        if (IsRetry && Input.GetMouseButton(0))
+        if (IsRetry && Input.touchCount >= 1)
         {
-            if(!TapOrDragRange(Input.mousePosition)) return;
-
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
             {
@@ -222,7 +223,6 @@ public class StageController : MonoBehaviour
 
         // カメラ
         cameraRotate.CanRotate = false;
-        cameraRotate.RotateReset();
 
         // シート
         sheatCreate.SheatDisp(false, false);
@@ -265,6 +265,10 @@ public class StageController : MonoBehaviour
     /// <returns></returns>
     public bool TapOrDragRange(Vector3 _pos)
     {
+        // 原点が違うので調整
+        _pos.y *= -1;
+        _pos.y += Screen.height;
+
         bool canTap = false;
 
         var p = _pos;

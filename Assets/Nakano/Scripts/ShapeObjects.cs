@@ -46,8 +46,8 @@ public class ShapeObjects : MonoBehaviour
         // —‰º‘¬“xæ“¾AU“®ŠÔ•ÏX
         if(playPhase.IsFastForward)
         {
-            fastForwardRatio = playPhase.FastForwardRatio;
             vibrateTime = vibrateTime_FastForward;
+            fastForwardRatio = playPhase.FastForwardRatio;
         }
         else
         {

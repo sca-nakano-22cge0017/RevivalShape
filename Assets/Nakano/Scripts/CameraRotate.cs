@@ -42,7 +42,6 @@ public class CameraRotate : MonoBehaviour
     bool isRestore = false;
     [SerializeField, Header("スワイプ回転解除範囲　最小")] Vector2 rotateCancellRangeMin;
     [SerializeField, Header("スワイプ回転解除範囲　最大")] Vector2 rotateCancellRangeMax;
-    Vector2[] rotateCancellRangeVertex = new Vector2[5]; // 範囲の中心と4頂点
 
     // 拡縮
     float sDist = 0.0f, nDist = 0.0f;  //距離変数
@@ -183,7 +182,7 @@ public class CameraRotate : MonoBehaviour
                 if (Mathf.Abs(sPos.y - t.position.y) < dragAdjust) ty = 0;
                 float deltaAngleTB = -ty / hei * sensitivity;
 
-                if(tx != 0 && ty != 0) didSwip = true;
+                if(tx != 0 || ty != 0) didSwip = true;
 
                 // カメラから見て上・右向きのベクトルを回転軸として回転させる
                 var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up); // 左右方向
@@ -204,7 +203,20 @@ public class CameraRotate : MonoBehaviour
                 // カメラがサンプルの下に回り込まないように調整
                 if (pos.y <= -0.495f && pos.y != -0.5f)
                 {
-                    CameraPosAdjust();
+                    Vector3 nearPos = new Vector3(100, 100, 100);
+
+                    pos = transform.position;
+
+                    foreach (var p in point)
+                    {
+                        var nearDiff = (pos - nearPos).magnitude;
+                        var diff = (pos - p).magnitude;
+
+                        if (nearDiff > diff) nearPos = p;
+                    }
+
+                    transform.position = nearPos;
+                    transform.LookAt(target, transform.up);
                 }
 
                 lastTapPos = t.position;
@@ -227,6 +239,7 @@ public class CameraRotate : MonoBehaviour
                 sDist = Vector2.Distance(t1.position, t2.position);
 
                 vRatio = _camera.fieldOfView;
+                //transform.LookAt(target, transform.up);
             }
             else if (t1.phase == TouchPhase.Moved || t2.phase == TouchPhase.Moved)
             {
@@ -239,6 +252,8 @@ public class CameraRotate : MonoBehaviour
 
                 _camera.fieldOfView = vRatio;
                 sDist = nDist;
+
+                //transform.LookAt(target, transform.up);
             }
         }
     }
@@ -260,10 +275,9 @@ public class CameraRotate : MonoBehaviour
                     if (Input.GetTouch(0).phase == TouchPhase.Began)
                     {
                         // 範囲外は無効
-                        if (!stageController.TapOrDragRange(t.position)) return;
-
-                        // 中心部分は除外
-                        if (stageController.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax)) return;
+                        if (!stageController.TapOrDragRange(t.position) ||
+                            stageController.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
+                            return;
 
                         // 入力方向を保存
                         inputDir2 = DoubleTapPosJudgement(t.position);
@@ -296,10 +310,9 @@ public class CameraRotate : MonoBehaviour
                 if (t.phase == TouchPhase.Began)
                 {
                     // 範囲外は無効
-                    if (!stageController.TapOrDragRange(t.position)) return;
-
-                    // 中心部分は除外
-                    if (stageController.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax)) return;
+                    if (!stageController.TapOrDragRange(t.position) ||
+                        stageController.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
+                        return;
 
                     // 入力方向を保存
                     inputDir1 = DoubleTapPosJudgement(t.position);
@@ -478,7 +491,7 @@ public class CameraRotate : MonoBehaviour
     /// <returns>方向を返す</returns>
     TeleportDir DoubleTapPosJudgement(Vector2 _pos)
     {
-        // Input.mousepositionは原点が違うので調整
+        // 原点が違うので調整
         _pos.y *= -1;
         _pos.y += hei;
 
@@ -533,27 +546,6 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
-    /// カメラ位置を補正する
-    /// </summary>
-    void CameraPosAdjust()
-    {
-        Vector3 nearPos = new Vector3(100, 100, 100);
-
-        var pos = transform.position;
-
-        foreach (var p in point)
-        {
-            var nearDiff = (pos - nearPos).magnitude;
-            var diff = (pos - p).magnitude;
-
-            if (nearDiff > diff) nearPos = p;
-        }
-
-        transform.position = nearPos;
-        transform.LookAt(target, transform.up);
-    }
-
-    /// <summary>
     /// カメラの位置・回転を初期状態に戻す
     /// </summary>
     public void RotateReset()
@@ -564,8 +556,11 @@ public class CameraRotate : MonoBehaviour
         if(didSwip) StartCoroutine(RotateRestore());
 
         // 上に戻す
-        nextCameraPos = CameraPos.UP;
-        StartCoroutine(Move());
+        if(nowCameraPos != CameraPos.UP)
+        {
+            nextCameraPos = CameraPos.UP;
+            StartCoroutine(Move());
+        }
 
         _camera.fieldOfView = vDefault;
     }
@@ -575,6 +570,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void PlayPhaseCamera()
     {
+        transform.rotation = Quaternion.Euler(0,0,0);
+
         play_Angle = 90 - play_Angle;
 
         float buttom = target.z + range * Mathf.Cos(play_Angle * Mathf.Deg2Rad);

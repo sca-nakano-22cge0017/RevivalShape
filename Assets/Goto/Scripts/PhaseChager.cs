@@ -80,8 +80,9 @@ public class PhaseChager : MonoBehaviour
             openPanel.SetActive(false);
             blockSelectPanel.SetActive(false);
             checkPanel.SetActive(true);
+            settingPanel.SetActive(true);
 
-           // timeManager.OnStart();//test
+            // timeManager.OnStart();//test
         }
     }
     /// <summary>
