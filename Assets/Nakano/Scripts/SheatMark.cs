@@ -9,28 +9,33 @@ using UnityEngine.UI;
 /// </summary>
 public class SheatMark : MonoBehaviour
 {
-    Vector3 markPos;
-    [SerializeField] GameObject markPoint;
+    private Vector3 markPos;
+    [SerializeField] private GameObject markPoint;
 
-    [SerializeField] GameObject anotherMarkPoint;
+    [SerializeField] private GameObject anotherMarkPoint;
 
-    void Start()
-    {
-    }
+    [SerializeField] private float scale;
 
     void Update()
     {
         markPos = markPoint.transform.position;
         GetComponent<RectTransform>().position = markPos;
 
+        transform.localScale = Vector3.one * scale * GetDistance();
+
         float disFromCamera = (markPos - Camera.main.transform.position).magnitude;
         float disAnother = (anotherMarkPoint.transform.position - Camera.main.transform.position).magnitude;
 
         // もう一つのマークよりカメラに近ければ
-        if(disFromCamera < disAnother)
+        if (disFromCamera < disAnother)
         {
             // 一番上に描画する
             this.transform.SetAsLastSibling();
         }
+    }
+
+    private float GetDistance()
+    {
+        return (transform.position - Camera.main.transform.position).magnitude;
     }
 }

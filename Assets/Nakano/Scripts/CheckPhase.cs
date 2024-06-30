@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -61,7 +59,7 @@ public class CheckPhase : MonoBehaviour
         objParent.gameObject.SetActive(true);
 
         // オブジェクト生成
-         StageInstance();
+        StageInstance();
     }
 
     /// <summary>
@@ -107,7 +105,7 @@ public class CheckPhase : MonoBehaviour
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     // 空白マスは生成しない
-                    if(s != ShapeData.Shape.Empty)
+                    if (s != ShapeData.Shape.Empty)
                     {
                         mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
                         mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
