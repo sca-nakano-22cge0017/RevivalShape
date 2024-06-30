@@ -7,57 +7,51 @@ using UnityEngine.UI;
 /// </summary>
 public class PlayPhase : MonoBehaviour
 {
-    [SerializeField] StageController stageController;
-    [SerializeField] ShapeData shapeData;
-    Vibration vibration;
+    [SerializeField] private StageController stageController;
+    [SerializeField] private ShapeData shapeData;
+    [SerializeField] private TapManager tapManager;
+    private Vibration vibration;
 
     // 親オブジェクト
-    [SerializeField] Transform objParent;
+    [SerializeField] private Transform objParent;
 
-    [SerializeField] GameObject playPhaseUI;
+    [SerializeField] private GameObject playPhaseUI;
 
-    Vector3 mapSize = new Vector3(0, 0, 0);
+    private Vector3 mapSize = new Vector3(0, 0, 0);
 
-    ShapeData.Shape[,,] map; // 配置データ
-    GameObject[,,] mapObj;   // GameObject型配列
+    private ShapeData.Shape[,,] map; // 配置データ
+    private GameObject[,,] mapObj;   // GameObject型配列
 
-    ShapeData.Shape[,,] correctAnswer; // 正答
-    ShapeData.Shape[,,] lastAnswer;    // 前の回答
+    private ShapeData.Shape[,,] correctAnswer; // 正答
+    private ShapeData.Shape[,,] lastAnswer;    // 前の回答
 
-    bool isFalling = false;
+    private bool isFalling = false;
 
     // 落下スキップ
-    bool isSkip = false;
-    int skipTapCount = 0;
-    float skipTime = 0f;
-    bool canJudgement = false;
+    private bool isSkip = false;
 
     // 早送り
     public bool IsFastForward { get; private set; } = false;
-    float longTapTime = 0;
-    bool countStart = false;
     [field: SerializeField, Header("早送りの倍率")] public float FastForwardRatio { get; private set; }
 
-    [SerializeField, Header("落下時の振動の長さ(秒) 通常")] float fallVibrateTime_Normal;
-    [SerializeField, Header("落下時の振動の長さ(秒) 早送り")] float fallVibrateTime_FastForward;
-    [SerializeField, Header("クリア時の振動の長さ(秒)")] float clearVibrateTime;
+    [SerializeField, Header("落下時の振動の長さ(秒) 通常")] private float fallVibrateTime_Normal;
+    [SerializeField, Header("落下時の振動の長さ(秒) 早送り")] private float fallVibrateTime_FastForward;
+    [SerializeField, Header("クリア時の振動の長さ(秒)")] private float clearVibrateTime;
 
-    [SerializeField, Header("落下速度")] float fallSpeed;
-    [SerializeField, Header("オブジェクトを落とす高さ")] int fallPos;
-    [SerializeField, Header("オブジェクトを落とす間隔(sec)")] float fallInterval;
+    [SerializeField, Header("落下速度")] private float fallSpeed;
+    [SerializeField, Header("オブジェクトを落とす高さ")] private int fallPos;
+    [SerializeField, Header("オブジェクトを落とす間隔(sec)")] private float fallInterval;
     [SerializeField, Tooltip("オブジェクトが全て落下してから一致率表示までの時間(sec)")]
-    float fallToMatchdispTime;
+    private float fallToMatchdispTime;
 
     // 一致率計算
-    float matchRateTroutTotal = 0; // 1マスあたりの一致率の和
-    int hasBlockTrout = 0; // 1つ以上ブロックがあるマスの数
-    int matchRate = 0; // 一致率
+    private float matchRateTroutTotal = 0; // 1マスあたりの一致率の和
+    private int hasBlockTrout = 0; // 1つ以上ブロックがあるマスの数
+    private int matchRate = 0; // 一致率
 
-    [SerializeField] Text matchRateText;
+    [SerializeField] private Text matchRateText;
 
-    [SerializeField] GameObject clearWindow;
-
-    [SerializeField] Text debug;
+    [SerializeField] private GameObject clearWindow;
 
     /// <summary>
     /// 確認中か
@@ -66,7 +60,6 @@ public class PlayPhase : MonoBehaviour
 
     private void Awake()
     {
-        // UI等を消しておく
         playPhaseUI.SetActive(false);
         clearWindow.SetActive(false);
 
@@ -115,54 +108,11 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void Skip()
     {
-        // 1回目のタップ
-        if (Input.touchCount == 1 && skipTapCount == 0)
-        {
-            Touch t = Input.GetTouch(0);
-
-            if (t.phase == TouchPhase.Began)
-            {
-                // 範囲外は無効
-                if (!stageController.TapOrDragRange(t.position)) return;
-
-                skipTapCount++;
-                canJudgement = true;
-            }
-        }
-
-        if (canJudgement) skipTime += Time.deltaTime;
-
-        if (skipTime <= 0.2f && skipTime >= 0.05f)
-        {
-            // 2回目のタップ
-            if (Input.touchCount == 1)
-            {
-                Touch t = Input.GetTouch(0);
-
-                if (t.phase == TouchPhase.Began)
-                {
-                    // 範囲外は無効
-                    if (!stageController.TapOrDragRange(t.position)) return;
-
-                    skipTapCount++;
-                }
-            }
-        }
-        else if (skipTime > 0.2f)
-        {
-            canJudgement = false;
-            skipTapCount = 0;
-            skipTime = 0f;
-        }
-
-        if (skipTapCount >= 2)
+        tapManager.DoubleTap(() =>
         {
             isSkip = true;
             IsFastForward = false;
-            canJudgement = false;
-            skipTime = 0f;
-        }
-        else isSkip = false;
+        });
     }
 
     /// <summary>
@@ -170,45 +120,14 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     void FastForward()
     {
-        if (Input.touchCount == 1 && !IsFastForward)
-        {
-            Touch t = Input.GetTouch(0);
-
-            if (t.phase == TouchPhase.Began)
+        tapManager.LongTap(() =>
             {
-                // 範囲外は無効
-                if (!stageController.TapOrDragRange(t.position)) return;
-
-                countStart = true;
-                longTapTime = 0;
-            }
-        }
-
-        if (countStart)
-        {
-            longTapTime += Time.deltaTime;
-        }
-
-        if (longTapTime >= 0.5f)
-        {
-            IsFastForward = true;
-            isSkip = false;
-        }
-
-        if (Input.touchCount == 1 && (IsFastForward || countStart))
-        {
-            Touch t = Input.GetTouch(0);
-
-            if (t.phase == TouchPhase.Ended)
+                IsFastForward = true;
+                isSkip = false;
+            }, () =>
             {
-                // 範囲外は無効
-                if (!stageController.TapOrDragRange(t.position)) return;
-
-                longTapTime = 0;
                 IsFastForward = false;
-                countStart = false;
-            }
-        }
+            }, 0.5f);
     }
 
     /// <summary>
@@ -232,21 +151,13 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        // 一致率 初期化
         matchRateTroutTotal = 0;
         hasBlockTrout = 0;
         matchRate = 0;
+        isSkip = false;
+        IsFastForward = false;
 
         AnswerInstance();
-
-        isSkip = false;
-        skipTapCount = 0;
-        skipTime = 0f;
-        canJudgement = false;
-
-        IsFastForward = false;
-        longTapTime = 0;
-        countStart = false;
     }
 
     /// <summary>
@@ -254,6 +165,7 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     public void PlayPhaseEnd()
     {
+        StopAllCoroutines();
         matchRateText.enabled = false;
         playPhaseUI.SetActive(false);
         clearWindow.SetActive(false);
@@ -296,11 +208,11 @@ public class PlayPhase : MonoBehaviour
 
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
-                    
+
                     // 前の解答と異なっていたら生成し直す
-                    if(map[x, y, z] != lastAnswer[x, y, z])
+                    if (map[x, y, z] != lastAnswer[x, y, z])
                     {
-                        if(mapObj[x, y, z]) Destroy(mapObj[x, y, z]);
+                        if (mapObj[x, y, z]) Destroy(mapObj[x, y, z]);
 
                         // 空白部分は生成しない
                         if (map[x, y, z] != ShapeData.Shape.Empty) mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
@@ -390,7 +302,7 @@ public class PlayPhase : MonoBehaviour
                         mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
                         mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
                         mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true; // 振動オン
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true;
                     }
 
                     if (!isSkip)
@@ -400,26 +312,16 @@ public class PlayPhase : MonoBehaviour
         }
 
         isFalling = false;
-        
-        yield return new WaitForSeconds(fallToMatchdispTime);
-        MatchRateDisp();
 
+        yield return new WaitForSeconds(fallToMatchdispTime);
         isSkip = false;
         IsFastForward = false;
-    }
 
-    /// <summary>
-    /// プレイヤーの解答と正答の一致率を確認・表示
-    /// </summary>
-    void MatchRateDisp()
-    {
-        // 一致率算出
+        // 全体の一致率算出
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
-
         matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
 
-        // 100%でクリア
         if (matchRate >= 100)
         {
             clearWindow.SetActive(true);
@@ -431,11 +333,12 @@ public class PlayPhase : MonoBehaviour
         else
         {
             StartCoroutine(MatchTextBlinking());
+            stageController.IsRetry = true;
         }
     }
 
-    float unDispTime = 0.3f;
-    float dispTime = 0.5f;
+    const float unDispTime = 0.3f;
+    const float dispTime = 0.5f;
 
     /// <summary>
     /// パーセンテージ点滅演出
@@ -449,8 +352,6 @@ public class PlayPhase : MonoBehaviour
             yield return new WaitForSeconds(unDispTime);
             matchRateText.enabled = true;
         }
-
-        stageController.IsRetry = true;
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using System;
 
 /// <summary>
 /// メインゲーム制御
@@ -79,7 +79,7 @@ public class StageController : MonoBehaviour
 
     private void Awake()
     {
-        if(SelectButton.SelectStage != null)
+        if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
         dataGot = false;
@@ -99,11 +99,11 @@ public class StageController : MonoBehaviour
         if (!stageDataLoader.stageDataLoadComlete) return;
 
         // データを変数として取得していなければ
-        if(!dataGot)
+        if (!dataGot)
         {
             // マップサイズ取得
             MapSize = stageDataLoader.LoadStageSize();
-            
+
             // 配列 要素数指定
             ShapeType = new ShapeData.Shape[System.Enum.GetValues(typeof(ShapeData.Shape)).Length];
             CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
@@ -127,7 +127,7 @@ public class StageController : MonoBehaviour
                 ShapeType[i] = ShapeData.Shape.Empty;
             }
 
-            cameraRotate.TargetSet();
+            cameraRotate.CameraSetting();
 
             // 正答取得
             CorrectAnswer = stageDataLoader.LoadStageMap(MapSize);
@@ -151,7 +151,7 @@ public class StageController : MonoBehaviour
         // クリア時の遷移処理
         if (IsClear && Input.GetMouseButton(0))
         {
-            if (!TapOrDragRange(Input.mousePosition)) return;
+            if (!TapCheck.TapOrDragRange(Input.mousePosition)) return;
 
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
@@ -167,7 +167,7 @@ public class StageController : MonoBehaviour
             {
                 testButton.BackToggle();
             }
-                
+
             IsRetry = false;
         }
     }
@@ -258,58 +258,15 @@ public class StageController : MonoBehaviour
         playPhase.PlayPhaseStart();
     }
 
-    /// <summary>
-    /// タップ/ドラッグできるかを判定する　範囲外をタップしているならfalse
-    /// </summary>
-    /// <param name="_pos">タップ位置</param>
-    /// <returns></returns>
-    public bool TapOrDragRange(Vector3 _pos)
+    public IEnumerator DelayCoroutine(float seconds, Action action)
     {
-        // 原点が違うので調整
-        _pos.y *= -1;
-        _pos.y += Screen.height;
-
-        bool canTap = false;
-
-        var p = _pos;
-        if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
-            canTap = false;
-        else canTap = true;
-
-        return canTap;
-    }
-
-    /// <summary>
-    /// タップ/ドラッグできるかを判定する　範囲外をタップしているならfalse
-    /// </summary>
-    /// <param name="_pos">タップ位置</param>
-    /// <param name="_minPos">範囲　最小値</param>
-    /// <param name="_maxPos">範囲　最大値</param>
-    /// <returns></returns>
-    public bool TapOrDragRange(Vector3 _pos, Vector3 _minPos, Vector3 _maxPos)
-    {
-        bool canTap = false;
-
-        if (_pos.x <= _minPos.x || _pos.x > _maxPos.x || _pos.y <= _minPos.y || _pos.y > _maxPos.y)
-            canTap = false;
-        else canTap = true;
-
-        return canTap;
-    }
-
-    /// <summary>
-    /// タップ/ドラッグできる範囲を取得
-    /// </summary>
-    /// <returns>範囲の最小/最大の座標が返ってくる</returns>
-    public Vector2[] GetTapOrDragRange()
-    {
-        Vector2[] r = {dragRangeMin, dragRangeMax};
-        return r;
+        yield return new WaitForSeconds(seconds);
+        action?.Invoke();
     }
 
     private void OnGUI()
     {
-        if(isDragRangeDraw)
+        if (isDragRangeDraw)
         {
             var rect = new Rect(dragRangeMin.x, dragRangeMin.y, dragRangeMax.x - dragRangeMin.x, dragRangeMax.y - dragRangeMin.y);
             GUI.DrawTexture(rect, _texture);

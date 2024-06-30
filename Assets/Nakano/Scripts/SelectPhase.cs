@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using UnityEngine;
-using System;
 using UnityEngine.UI;
 
 namespace select
@@ -84,7 +84,7 @@ public class SelectPhase : MonoBehaviour
                 Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
 
                 if (t.phase == TouchPhase.Began &&
-                    !stageController.TapOrDragRange(t.position, min, max))
+                    !TapCheck.TapOrDragRange(t.position, min, max))
                 {
                     if (IsEraser) IsEraser = false;
                     if (IsCheck) IsCheck = false;
@@ -106,7 +106,7 @@ public class SelectPhase : MonoBehaviour
 
     public void Initialize()
     {
-        if(!stageController) return;
+        if (!stageController) return;
 
         // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
@@ -345,7 +345,7 @@ public class SelectPhase : MonoBehaviour
             // 画像変更
             foreach (var ui in shapesUI)
             {
-                if(ui.shape == shape)
+                if (ui.shape == shape)
                 {
                     steps[i].sprite = ui.sprite;
                 }
@@ -353,7 +353,7 @@ public class SelectPhase : MonoBehaviour
         }
 
         // ウィンドウの表示と非表示が一瞬で行われるので表示後一定時間待ってから、非表示にできるようにする
-        StartCoroutine(DelayCoroutine(0.1f, () => 
+        StartCoroutine(stageController.DelayCoroutine(0.1f, () =>
         {
             canCheckWindowUnDisp = true;
         }));
@@ -459,11 +459,5 @@ public class SelectPhase : MonoBehaviour
                 break;
             }
         }
-    }
-
-    private IEnumerator DelayCoroutine(float seconds, Action action)
-    {
-        yield return new WaitForSeconds(seconds);
-        action?.Invoke();
     }
 }

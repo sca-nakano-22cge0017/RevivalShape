@@ -1006,10 +1006,10 @@ MonoBehaviour:
   selectPhaseUI: {fileID: 1705620357}
   shapesUI:
   - shape: 0
-    sprite: {fileID: 21300000, guid: f8e0ac9ab61a7a64586b9627e81e0647, type: 3}
+    sprite: {fileID: 21300000, guid: 4ef3d93f5e3a74f4ab961eee51d85a0e, type: 3}
     button: {fileID: 0}
   - shape: 1
-    sprite: {fileID: 21300000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
+    sprite: {fileID: 21300000, guid: cc2b264b150fb4a46beb8461aff8b554, type: 3}
     button: {fileID: 1527151162}
   - shape: 2
     sprite: {fileID: 21300000, guid: 2a6f6b362198c8240b0d3917929b68cc, type: 3}
@@ -2665,7 +2665,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8186953127079650067, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8211786934925720015, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3066,6 +3066,9 @@ PrefabInstance:
       addedObject: {fileID: 1553179676}
     - targetCorrespondingSourceObject: {fileID: 2901442862558752047, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       insertIndex: 0
+      addedObject: {fileID: 888350938}
+    - targetCorrespondingSourceObject: {fileID: 2901442862558752047, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
+      insertIndex: 1
       addedObject: {fileID: 1849612943}
     - targetCorrespondingSourceObject: {fileID: 2901442862558752047, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}
       insertIndex: -1
@@ -3663,6 +3666,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageController: {fileID: 1471772881}
   shapeData: {fileID: 1471772877}
+  tapManager: {fileID: 1471772884}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 827930355}
   <FastForwardRatio>k__BackingField: 2
@@ -3675,7 +3679,6 @@ MonoBehaviour:
   fallToMatchdispTime: 2
   matchRateText: {fileID: 1102147358}
   clearWindow: {fileID: 390733757}
-  debug: {fileID: 264243228}
 --- !u!1 &827930355
 GameObject:
   m_ObjectHideFlags: 0
@@ -4028,23 +4031,154 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageController: {fileID: 1471772881}
+  tapManager: {fileID: 1471772884}
   _camera: {fileID: 883029808}
   dir: 12
   adjustAngle: 5
-  sensitivity: 50
+  sensitivity: 85
   rotateCancellRangeMin: {x: 190, y: 800}
   rotateCancellRangeMax: {x: 890, y: 1500}
   vMax: 80
   vMin: 10
   vDefault: 60
   vSpeed: 0.1
-  dragAdjust: 100
+  dragAdjust: 50
   cantDoubleTapRangeMin: {x: 340, y: 950}
   cantDoubleTapRangeMax: {x: 740, y: 1350}
   rotateTime: 1
   play_Angle: 30
-  _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
-  isDragRangeDraw: 0
+--- !u!1 &888350937
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 888350938}
+  - component: {fileID: 888350941}
+  - component: {fileID: 888350940}
+  - component: {fileID: 888350939}
+  m_Layer: 5
+  m_Name: ClosePanel (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &888350938
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888350937}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 509}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1764745800}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -1080, y: 1580.0833}
+  m_SizeDelta: {x: 2160, y: 3862.9}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &888350939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888350937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 0
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 888350940}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1450625746}
+        m_TargetAssemblyTypeName: BlockSelectButton, Assembly-CSharp
+        m_MethodName: OffBlookSelect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &888350940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888350937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &888350941
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888350937}
+  m_CullTransparentMesh: 1
 --- !u!1 &899329202
 GameObject:
   m_ObjectHideFlags: 0
@@ -4516,7 +4650,7 @@ RectTransform:
   m_GameObject: {fileID: 974095012}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 165481809}
@@ -4578,6 +4712,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   markPoint: {fileID: 161642742}
   anotherMarkPoint: {fileID: 237658094}
+  scale: 0.03
 --- !u!1 &988643969
 GameObject:
   m_ObjectHideFlags: 0
@@ -5754,7 +5889,7 @@ RectTransform:
   m_GameObject: {fileID: 1353283566}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 165481809}
@@ -5816,6 +5951,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   markPoint: {fileID: 237658094}
   anotherMarkPoint: {fileID: 161642742}
+  scale: 0.03
 --- !u!1 &1357435983
 GameObject:
   m_ObjectHideFlags: 0
@@ -6034,6 +6170,7 @@ GameObject:
   - component: {fileID: 1471772881}
   - component: {fileID: 1471772882}
   - component: {fileID: 1471772883}
+  - component: {fileID: 1471772884}
   m_Layer: 0
   m_Name: MainController
   m_TagString: Untagged
@@ -6110,7 +6247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Sample
+  stageName: Stage1
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   cameraRotate: {fileID: 883029810}
@@ -6154,6 +6291,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e740fe508ce4264d836a6dda356565d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1471772884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471772876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21719074d5249cb4aa56e32db53183b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dragRangeMin: {x: 0, y: 370}
+  dragRangeMax: {x: 1080, y: 1800}
+  _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
+  isDragRangeDraw: 0
+  doubleTapLimit: 0.2
 --- !u!1 &1500031595
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,18 +7,18 @@ using UnityEngine;
 /// </summary>
 public class SheatCreate : MonoBehaviour
 {
-    [SerializeField] GameObject sheatPrefab;
-    [SerializeField] Transform sheatParent;
-    [SerializeField] GameObject marks;
+    [SerializeField] private GameObject sheatPrefab;
+    [SerializeField] private Transform sheatParent;
+    [SerializeField] private GameObject marks;
 
-    [SerializeField] GameObject frontMark;
-    [SerializeField] GameObject backMark;
+    [SerializeField] private GameObject frontMark;
+    [SerializeField] private GameObject backMark;
 
-    [SerializeField] StageController stageController;
+    [SerializeField] private StageController stageController;
 
-    Vector3 mapSize;
+    private Vector3 mapSize;
 
-    bool isCreated = false;
+    private bool isCreated = false;
 
     /// <summary>
     /// ÉVÅ[ÉgçÏê¨
