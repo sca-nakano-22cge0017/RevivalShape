@@ -6,18 +6,11 @@ public class Billboard : MonoBehaviour
 {
     [SerializeField] private float scale;
 
-    void Start()
-    {
-        
-    }
-
     void Update()
     {
-        transform.localScale = Vector3.one * scale * GetDistance();
-    }
+        var rot = Camera.main.transform.rotation;
 
-    private float GetDistance()
-    {
-        return (transform.position - Camera.main.transform.position).magnitude;
+        if(rot.x <= Quaternion.Euler(90, 0, 0).x) transform.rotation = Camera.main.transform.rotation;
+        transform.localScale = Vector3.one * scale * ((float)Camera.main.fieldOfView / 179.0f);
     }
 }

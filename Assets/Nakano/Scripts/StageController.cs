@@ -17,6 +17,7 @@ public class StageController : MonoBehaviour
 
     [SerializeField] ShapeData shapeData;
     [SerializeField] StageDataLoader stageDataLoader;
+    [SerializeField] private TapManager tapManager;
 
     [SerializeField] CameraRotate cameraRotate;
     [SerializeField] SheatCreate sheatCreate;
@@ -68,17 +69,21 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get; set; } = false;
 
-    [SerializeField, Header("スワイプの範囲 最小")] Vector2 dragRangeMin;
-    [SerializeField, Header("スワイプの範囲 最大")] Vector2 dragRangeMax;
-
     [SerializeField, Header("フレームレート")] int fps = 120;
 
-    // タップ/スワイプ可能範囲を描画
-    [SerializeField] Texture _texture;
-    [SerializeField] bool isDragRangeDraw = false;
+    [Header("図形描画")]
+    [SerializeField, Header("描画範囲 左上")] private Vector2 drawRangeMin = new Vector2(0, 370);
+    [SerializeField, Header("描画範囲 右下")] private Vector2 drawRangeMax = new Vector2(1080, 1700);
+    [SerializeField] private Texture _texture;
+    [SerializeField] private bool isDragRangeDraw = false;
 
     private void Awake()
     {
+        var texture = new Texture2D(1, 1);
+        texture.SetPixel(0, 0, Color.red);
+        texture.Apply();
+        _texture = texture;
+
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
@@ -86,11 +91,6 @@ public class StageController : MonoBehaviour
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
 
         Application.targetFrameRate = fps;
-
-        var texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, Color.red);
-        texture.Apply();
-        _texture = texture;
     }
 
     void Update()
@@ -151,7 +151,7 @@ public class StageController : MonoBehaviour
         // クリア時の遷移処理
         if (IsClear && Input.GetMouseButton(0))
         {
-            if (!TapCheck.TapOrDragRange(Input.mousePosition)) return;
+            if (!tapManager.TapOrDragRange(Input.mousePosition)) return;
 
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
@@ -268,7 +268,7 @@ public class StageController : MonoBehaviour
     {
         if (isDragRangeDraw)
         {
-            var rect = new Rect(dragRangeMin.x, dragRangeMin.y, dragRangeMax.x - dragRangeMin.x, dragRangeMax.y - dragRangeMin.y);
+            var rect = new Rect(drawRangeMin.x, drawRangeMin.y, drawRangeMax.x - drawRangeMin.x, drawRangeMax.y - drawRangeMin.y);
             GUI.DrawTexture(rect, _texture);
         }
     }
