@@ -8,14 +8,10 @@ using System;
 /// </summary>
 public class TapManager : MonoBehaviour
 {
-    [SerializeField, Header("スワイプの範囲 最小")] private Vector2 dragRangeMin;
-    [SerializeField, Header("スワイプの範囲 最大")] private Vector2 dragRangeMax;
+    [SerializeField, Header("スワイプの範囲 左上")] private Vector2 dragRangeMin = new Vector2(0, 370);
+    [SerializeField, Header("スワイプの範囲 右下")] private Vector2 dragRangeMax = new Vector2(1080, 1700);
 
     Dictionary<string, Vector3> vertex = new(); // 操作可能範囲の中心と4頂点
-
-    // タップ/スワイプ可能範囲を描画
-    [SerializeField] private Texture _texture;
-    [SerializeField] private bool isDragRangeDraw = false;
 
     private void Awake()
     {
@@ -67,7 +63,7 @@ public class TapManager : MonoBehaviour
         return s;
     }
 
-
+    [Header("ダブルタップ")]
     private bool isDoubleTapStart = false;
     private float doubleTapTime = 0;
     [SerializeField] private float doubleTapLimit = 0.2f;
@@ -165,6 +161,7 @@ public class TapManager : MonoBehaviour
     }
 
 
+    // 長押し
     private bool countStart = false;
     private float holdingTime = 0;
 
@@ -177,7 +174,7 @@ public class TapManager : MonoBehaviour
             if (t.phase == TouchPhase.Began)
             {
                 // 範囲外は無効
-                if (!TapCheck.TapOrDragRange(t.position)) return;
+                if (!TapOrDragRange(t.position)) return;
 
                 countStart = true;
                 holdingTime = 0;
@@ -186,7 +183,7 @@ public class TapManager : MonoBehaviour
             if (t.phase == TouchPhase.Ended)
             {
                 // 範囲外は無効
-                if (!TapCheck.TapOrDragRange(t.position)) return;
+                if (!TapOrDragRange(t.position)) return;
 
                 countStart = false;
                 holdingTime = 0;
@@ -200,40 +197,17 @@ public class TapManager : MonoBehaviour
         if(holdingTime >= holdTime) complete?.Invoke();
     }
 
-    private void OnGUI()
-    {
-        if (isDragRangeDraw)
-        {
-            var rect = new Rect(dragRangeMin.x, dragRangeMin.y, dragRangeMax.x - dragRangeMin.x, dragRangeMax.y - dragRangeMin.y);
-            GUI.DrawTexture(rect, _texture);
-        }
-    }
-}
-
-public static class TapCheck
-{
     /// <summary>
     /// タップ位置が範囲内か調べる
     /// </summary>
     /// <param name="_pos">タップ位置</param>
     /// <returns>範囲内であればtrue</returns>
-    public static bool TapOrDragRange(Vector3 _pos)
+    public bool TapOrDragRange(Vector3 _pos)
     {
         _pos.y *= -1;
         _pos.y += Screen.height;
-        var p = _pos;
 
-        Vector2 dragRangeMin = Vector2.zero;
-        Vector2 dragRangeMax = Vector2.zero;
-
-        TapManager tapManager = GameObject.FindObjectOfType<TapManager>();
-        if(tapManager)
-        {
-            dragRangeMin = tapManager.DragRangeMin();
-            dragRangeMax = tapManager.DragRangeMax();
-        }
-
-        if (p.x <= dragRangeMin.x || p.x > dragRangeMax.x || p.y <= dragRangeMin.y || p.y > dragRangeMax.y)
+        if (_pos.x <= dragRangeMin.x || _pos.x > dragRangeMax.x || _pos.y <= dragRangeMin.y || _pos.y > dragRangeMax.y)
             return false;
         else return true;
     }
@@ -245,7 +219,7 @@ public static class TapCheck
     /// <param name="_minPos">範囲　最小</param>
     /// <param name="_maxPos">範囲　最大</param>
     /// <returns>範囲内であればtrue</returns>
-    public static bool TapOrDragRange(Vector3 _pos, Vector3 _minPos, Vector3 _maxPos)
+    public bool TapOrDragRange(Vector3 _pos, Vector3 _minPos, Vector3 _maxPos)
     {
         _pos.y *= -1;
         _pos.y += Screen.height;

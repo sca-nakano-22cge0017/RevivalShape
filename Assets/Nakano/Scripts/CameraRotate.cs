@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -12,9 +13,9 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] private TapManager tapManager;
     [SerializeField] private Camera _camera;
     private Vector3 mapSize;
+    private float wid, hei;  // スクリーンサイズ
 
     [SerializeField, Header("オブジェクトとの距離")] private float dir = 12;
-
     private Vector3 target; // 注視位置
     private float range; // カメラが移動できる球の半径
 
@@ -26,8 +27,9 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("ドラッグの感度")] private float sensitivity;
     private Vector2 startPos;    // タップの始点
     private Vector2 lastTapPos;  // 前フレームのタップ位置
-    private float wid, hei;  // スクリーンサイズ
     private float tx, ty;
+    [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")]
+    private float dragAdjust = 10;
 
     // 回転解除
     private bool didSwip; // スワイプで回転させたかどうか
@@ -41,9 +43,6 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("Field of Viewの最大・最低値")] private float vMax, vMin;
     [SerializeField, Header("Field of Viewの初期値")] private float vDefault;
     [SerializeField, Header("基本の拡縮速度")] private float vSpeed;
-
-    [SerializeField, Header("スワイプ 手振れ補正値"), Tooltip("斜め方向へのスワイプをx軸/y軸に真っ直ぐな移動に補正する")]
-    private float dragAdjust = 10;
 
     // ダブルタップ
     private bool is90Rotate = false;
@@ -74,6 +73,8 @@ public class CameraRotate : MonoBehaviour
     /// falseのときは動かない
     /// </summary>
     public bool CanRotate { get; set; } = false;
+
+    [SerializeField] Text debug;
 
     void Awake()
     {
@@ -115,14 +116,14 @@ public class CameraRotate : MonoBehaviour
             if (t.phase == TouchPhase.Began)
             {
                 // 範囲外は無効
-                if (!TapCheck.TapOrDragRange(t.position)) return;
+                if (!tapManager.TapOrDragRange(t.position)) return;
 
                 startPos = t.position;
                 lastTapPos = t.position;
 
                 // シングルタップ時、スワイプによる回転状態をもとに戻す
                 // 判定範囲内だったら処理する
-                if (didSwip && TapCheck.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax))
+                if (didSwip && tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax))
                 {
                     RotateRestore();
                 }
@@ -130,7 +131,7 @@ public class CameraRotate : MonoBehaviour
             else if (t.phase == TouchPhase.Moved)
             {
                 // 範囲外からスワイプしたとき用の調整
-                if (!TapCheck.TapOrDragRange(t.position))
+                if (!tapManager.TapOrDragRange(t.position))
                 {
                     startPos = t.position;
                     lastTapPos = t.position;
@@ -186,7 +187,7 @@ public class CameraRotate : MonoBehaviour
             Touch t2 = Input.GetTouch(1);
 
             // 範囲外は無効
-            if (!TapCheck.TapOrDragRange(t1.position) || !TapCheck.TapOrDragRange(t2.position)) return;
+            if (!tapManager.TapOrDragRange(t1.position) || !tapManager.TapOrDragRange(t2.position)) return;
 
             if (t2.phase == TouchPhase.Began)
             {
@@ -252,8 +253,8 @@ public class CameraRotate : MonoBehaviour
                 Touch t = Input.GetTouch(0);
 
                 // 範囲外は無効
-                if (!TapCheck.TapOrDragRange(t.position) ||
-                    TapCheck.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
+                if (!tapManager.TapOrDragRange(t.position) ||
+                    tapManager.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
                     return;
 
                 // 入力方向を保存
@@ -265,8 +266,8 @@ public class CameraRotate : MonoBehaviour
                 Touch t = Input.GetTouch(0);
 
                 // 範囲外は無効
-                if (!TapCheck.TapOrDragRange(t.position) ||
-                    TapCheck.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
+                if (!tapManager.TapOrDragRange(t.position) ||
+                    tapManager.TapOrDragRange(t.position, cantDoubleTapRangeMin, cantDoubleTapRangeMax))
                     return;
 
                 // 入力方向を保存
@@ -415,6 +416,7 @@ public class CameraRotate : MonoBehaviour
         sequence.OnComplete(() =>
         {
             isRotating = false;
+            isRestoring = false;
             nowCameraPos = nextCameraPos;
         });
     }
@@ -470,13 +472,7 @@ public class CameraRotate : MonoBehaviour
         // 上に戻す
         if (nowCameraPos != CameraPos.UP)
         {
-            // スワイプで回転されてたらもとに戻す
-            if (didSwip)
-            {
-                nowCameraPos = GetCameraToClosest90Point();
-                RotateRestore();
-            }
-
+            nowCameraPos = GetCameraToClosest90Point();
             nextCameraPos = CameraPos.UP;
             Rotate90Degrees();
         }

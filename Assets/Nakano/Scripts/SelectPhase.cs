@@ -23,6 +23,7 @@ namespace select
 public class SelectPhase : MonoBehaviour
 {
     [SerializeField] private StageController stageController;
+    [SerializeField] private TapManager tapManager;
 
     [SerializeField] private GameObject buttonParent;
     [SerializeField] private GameObject buttonPrefab;
@@ -84,7 +85,7 @@ public class SelectPhase : MonoBehaviour
                 Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
 
                 if (t.phase == TouchPhase.Began &&
-                    !TapCheck.TapOrDragRange(t.position, min, max))
+                    !tapManager.TapOrDragRange(t.position, min, max))
                 {
                     if (IsEraser) IsEraser = false;
                     if (IsCheck) IsCheck = false;
