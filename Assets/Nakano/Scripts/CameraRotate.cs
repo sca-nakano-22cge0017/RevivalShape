@@ -22,6 +22,7 @@ public class CameraRotate : MonoBehaviour
     // これらはカメラのY座標を0に補正できるようにするための変数
     [SerializeField, Header("ajustAngle度毎に補正ポイントを置く")] private float adjustAngle;
     private Vector3[] point; // カメラ位置の補正 一定距離まで近付いたらこの座標に移動させる
+    const float MIN_Y = -0.5f; // y座標の下限
 
     // 回転
     [SerializeField, Header("ドラッグの感度")] private float sensitivity;
@@ -73,8 +74,6 @@ public class CameraRotate : MonoBehaviour
     /// falseのときは動かない
     /// </summary>
     public bool CanRotate { get; set; } = false;
-
-    [SerializeField] Text debug;
 
     void Awake()
     {
@@ -161,7 +160,7 @@ public class CameraRotate : MonoBehaviour
                 pos += target;                          // 平行移動
 
 
-                if (pos.y >= -0.5f)
+                if (pos.y >= MIN_Y)
                 {
                     transform.position = pos;
                     transform.LookAt(target, transform.up);
@@ -380,25 +379,40 @@ public class CameraRotate : MonoBehaviour
 
     private void Rotate90Degrees()
     {
-        // 現在位置と目標位置が同じなら動かさない
-        if (nowCameraPos == nextCameraPos) return;
-
         isRotating = true;
         var sequence = DOTween.Sequence();
 
         Vector3[] controllPoint = GetControllPoint(); // 制御点取得
 
-        sequence.Join(transform.DOLocalPath(new[] { adjustPoint[nextCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false));
+        Tween move = transform.DOLocalPath(new[] { adjustPoint[nextCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false);
 
-        // 上←→後ろのときは回転方法を変更
-        if (nowCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP ||
-            nowCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
+        if (nowCameraPos != nextCameraPos)
         {
-            var angle = new Vector3(91.79f, -180.0f, 0.0f);
-            sequence.Join(transform.DORotate(angle, rotateTime, RotateMode.WorldAxisAdd));
+            // 上←→後ろのときは回転方法を変更
+            if (nowCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
+            {
+                var angle1 = new Vector3(91.79f, 0.0f, 0.0f);
+                var angle2 = new Vector3(0.0f, -180.0f, 0.0f);
+                
+                sequence.Join(move)
+                    .Join(transform.DORotate(angle1, rotateTime, RotateMode.WorldAxisAdd))
+                    .Append(transform.DORotate(angle2, rotateTime / 2.0f, RotateMode.WorldAxisAdd));
+            }
+            else if (nowCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
+            {
+                var angle1 = new Vector3(0.0f, -180.0f, 0.0f);
+                var angle2 = new Vector3(-91.79f, 0.0f, 0.0f);
+                
+                sequence.Join(transform.DORotate(angle1, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
+                    .Append(move)
+                    .Join(transform.DORotate(angle2, rotateTime, RotateMode.WorldAxisAdd));
+            }
+            else
+            {
+                sequence.Join(move).Join(transform.DORotateQuaternion(adjustQuaternion[nextCameraPos], rotateTime));
+            }
         }
-        else sequence.Join(transform.DORotateQuaternion(adjustQuaternion[nextCameraPos], rotateTime));
-
+        
         // スワイプで回転されてたらもとに戻す処理を加える
         if (didSwip)
         {
@@ -430,7 +444,7 @@ public class CameraRotate : MonoBehaviour
         else relay.x = (Mathf.Abs(target.x - adjustPoint[nowCameraPos].x) >= 1f) ? adjustPoint[nowCameraPos].x : adjustPoint[nextCameraPos].x;
 
         if (adjustPoint[nowCameraPos].y == adjustPoint[nextCameraPos].y) relay.y = adjustPoint[nowCameraPos].y;
-        else relay.y = (Mathf.Abs(target.y - (adjustPoint[nowCameraPos].y + 0.5f)) >= 1f) ? adjustPoint[nowCameraPos].y : adjustPoint[nextCameraPos].y;
+        else relay.y = (Mathf.Abs(target.y - (adjustPoint[nowCameraPos].y - MIN_Y)) >= 1f) ? adjustPoint[nowCameraPos].y : adjustPoint[nextCameraPos].y;
 
         if (adjustPoint[nowCameraPos].z == adjustPoint[nextCameraPos].z) relay.z = adjustPoint[nowCameraPos].z;
         else relay.z = (Mathf.Abs(target.z - adjustPoint[nowCameraPos].z) >= 1f) ? adjustPoint[nowCameraPos].z : adjustPoint[nextCameraPos].z;
@@ -469,13 +483,13 @@ public class CameraRotate : MonoBehaviour
     {
         if (isRotating || isRestoring) return;
 
-        // 上に戻す
         if (nowCameraPos != CameraPos.UP)
         {
             nowCameraPos = GetCameraToClosest90Point();
-            nextCameraPos = CameraPos.UP;
-            Rotate90Degrees();
         }
+
+        nextCameraPos = CameraPos.UP;
+        Rotate90Degrees();
 
         _camera.fieldOfView = vDefault;
     }
@@ -545,7 +559,7 @@ public class CameraRotate : MonoBehaviour
         target += new Vector3(0.5f, 0, -0.5f);
 
         // サンプルのサイズに応じてカメラの初期位置を調整
-        transform.position = new Vector3(target.x, mapSize.x + dir - 0.5f, target.z);
+        transform.position = new Vector3(target.x, mapSize.x + dir + MIN_Y, target.z);
 
         // 注視
         transform.LookAt(target, transform.up);
@@ -553,7 +567,7 @@ public class CameraRotate : MonoBehaviour
         // 補正ポイントの生成
         range = (target - transform.position).magnitude;
 
-        Vector3 firstPos = new Vector3(range, -0.5f, 0);
+        Vector3 firstPos = new Vector3(range, MIN_Y, 0);
         for (int i = 0; i < point.Length; i++)
         {
             point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;

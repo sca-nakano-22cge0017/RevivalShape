@@ -5,21 +5,22 @@ using UnityEngine;
 /// </summary>
 public class CheckPhase : MonoBehaviour
 {
-    [SerializeField] ShapeData shapeData;
-    [SerializeField] StageController stageController;
+    [SerializeField] private ShapeData shapeData;
+    [SerializeField] private StageController stageController;
+    [SerializeField] private MeshCombiner meshCombiner;
 
     // サンプルの親オブジェクト
-    [SerializeField] Transform objParent;
+    [SerializeField] private Transform objParent;
 
-    [SerializeField] GameObject checkPhaseUI;
+    [SerializeField] private GameObject checkPhaseUI;
 
-    Vector3 mapSize;
+    private Vector3 mapSize;
 
-    ShapeData.Shape[,,] map; // 配置データ
-    GameObject[,,] mapObj;   // サンプルのGameObject型配列
+    private ShapeData.Shape[,,] map; // 配置データ
+    private GameObject[,,] mapObj;   // サンプルのGameObject型配列
 
     // サンプル生成済みかどうか
-    bool sampleCreated = false;
+    private bool sampleCreated = false;
 
     private void Awake()
     {
@@ -75,7 +76,7 @@ public class CheckPhase : MonoBehaviour
     /// <summary>
     /// サンプル生成
     /// </summary>
-    void StageInstance()
+    private void StageInstance()
     {
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
@@ -115,5 +116,9 @@ public class CheckPhase : MonoBehaviour
         }
 
         sampleCreated = true;
+
+        // メッシュ結合
+        meshCombiner.SetParent(objParent);
+        meshCombiner.Combine();
     }
 }

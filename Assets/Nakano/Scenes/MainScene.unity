@@ -3520,6 +3520,7 @@ MonoBehaviour:
   stageController: {fileID: 1471772881}
   shapeData: {fileID: 1471772877}
   tapManager: {fileID: 1471772884}
+  meshCombiner: {fileID: 1471772885}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 827930355}
   <FastForwardRatio>k__BackingField: 2
@@ -3934,7 +3935,6 @@ MonoBehaviour:
   cantDoubleTapRangeMax: {x: 740, y: 1350}
   rotateTime: 1
   play_Angle: 30
-  debug: {fileID: 264243228}
 --- !u!114 &883029811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5887,6 +5887,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeData: {fileID: 1471772877}
   stageController: {fileID: 1471772881}
+  meshCombiner: {fileID: 1471772885}
   objParent: {fileID: 1312685051}
   checkPhaseUI: {fileID: 1981610085}
 --- !u!4 &1395020501
@@ -5916,7 +5917,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79c08abf7865fdc4f934ff6407feb0fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fieldParent: {fileID: 1312685051}
   combinedMat: {fileID: 2100000, guid: c438209ae34c3544c93f480d4f97c4f9, type: 2}
 --- !u!114 &1450625746 stripped
 MonoBehaviour:
@@ -6024,6 +6024,7 @@ GameObject:
   - component: {fileID: 1471772882}
   - component: {fileID: 1471772883}
   - component: {fileID: 1471772884}
+  - component: {fileID: 1471772885}
   m_Layer: 0
   m_Name: MainController
   m_TagString: Untagged
@@ -6160,6 +6161,19 @@ MonoBehaviour:
   dragRangeMin: {x: 0, y: 370}
   dragRangeMax: {x: 1080, y: 1700}
   doubleTapLimit: 0.2
+--- !u!114 &1471772885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471772876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79c08abf7865fdc4f934ff6407feb0fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  combinedMat: {fileID: 2100000, guid: c438209ae34c3544c93f480d4f97c4f9, type: 2}
 --- !u!1 &1500031595
 GameObject:
   m_ObjectHideFlags: 0

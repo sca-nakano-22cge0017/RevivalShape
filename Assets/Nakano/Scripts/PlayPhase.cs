@@ -10,10 +10,10 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] private StageController stageController;
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private TapManager tapManager;
+    [SerializeField] private MeshCombiner meshCombiner;
     private Vibration vibration;
 
-    // 親オブジェクト
-    [SerializeField] private Transform objParent;
+    [SerializeField] private Transform objParent; // 親オブジェクト
 
     [SerializeField] private GameObject playPhaseUI;
 
@@ -290,7 +290,7 @@ public class PlayPhase : MonoBehaviour
                 {
                     if (map[x, y, z] == ShapeData.Shape.Empty) continue;
 
-                    // 透明ブロックなら演出を飛ばす
+                    // 透明ブロックなら落下演出を飛ばす
                     if (map[x, y, z] == ShapeData.Shape.Alpha)
                     {
                         mapObj[x, y, z].transform.position = new Vector3(-x, y, z);
@@ -313,7 +313,11 @@ public class PlayPhase : MonoBehaviour
 
         isFalling = false;
 
-        yield return new WaitForSeconds(fallToMatchdispTime);
+        Invoke("ResultDisp", fallToMatchdispTime);
+    }
+
+    void ResultDisp()
+    {
         isSkip = false;
         IsFastForward = false;
 
@@ -333,12 +337,13 @@ public class PlayPhase : MonoBehaviour
         else
         {
             StartCoroutine(MatchTextBlinking());
+
             stageController.IsRetry = true;
         }
     }
 
-    const float unDispTime = 0.3f;
-    const float dispTime = 0.5f;
+    const float UN_DISP_TIME = 0.3f;
+    const float DISP_TIME = 0.5f;
 
     /// <summary>
     /// パーセンテージ点滅演出
@@ -347,9 +352,9 @@ public class PlayPhase : MonoBehaviour
     {
         for (int i = 0; i < 2; i++)
         {
-            yield return new WaitForSeconds(dispTime);
+            yield return new WaitForSeconds(DISP_TIME);
             matchRateText.enabled = false;
-            yield return new WaitForSeconds(unDispTime);
+            yield return new WaitForSeconds(UN_DISP_TIME);
             matchRateText.enabled = true;
         }
     }

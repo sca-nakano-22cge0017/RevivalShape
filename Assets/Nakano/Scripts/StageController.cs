@@ -1,7 +1,7 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
-using System;
 
 /// <summary>
 /// メインゲーム制御
@@ -48,26 +48,29 @@ public class StageController : MonoBehaviour
     /// </summary>
     public ShapeData.Shape[] ShapeType { get; private set; }
 
+    private ShapeData.Shape[,,] correctAnswer;
     /// <summary>
     /// 正しい答え
     /// </summary>
-    public ShapeData.Shape[,,] CorrectAnswer { get; set; }
+    public ShapeData.Shape[,,] CorrectAnswer { get { return correctAnswer; } set { correctAnswer = value; } }
 
     private ShapeData.Shape[,,] playerAnswer;
     /// <summary>
     /// プレイヤーの答え
     /// </summary>
-    public ShapeData.Shape[,,] PlayerAnswer { get; set; }
+    public ShapeData.Shape[,,] PlayerAnswer { get { return playerAnswer; } set { playerAnswer = value; } }
 
+    private bool isClear = false;
     /// <summary>
     /// trueでステージクリア
     /// </summary>
-    public bool IsClear { get; set; } = false;
+    public bool IsClear { get{ return isClear; } set{ isClear = value;} }
 
+    private bool isRetry = false;
     /// <summary>
     /// trueのときリトライ
     /// </summary>
-    public bool IsRetry { get; set; } = false;
+    public bool IsRetry { get{ return isRetry; } set{ isRetry = value; } }
 
     [SerializeField, Header("フレームレート")] int fps = 120;
 
