@@ -13,7 +13,6 @@ public class SelectButtonController : MonoBehaviour
     [SerializeField, Header("ステージ数"), Tooltip("エクストラ・チュートリアルを除く")]
     private int stageAmount;
 
-    [SerializeField] GameObject secondSelectPanel;
     [SerializeField] private SelectButton selectButton;
     [SerializeField, Header("各ステージの選択ボタン")] private Button[] buttons_SecondSelect;
 
@@ -49,30 +48,32 @@ public class SelectButtonController : MonoBehaviour
         for(int i = 0; i < buttons_SecondSelect.Length; i++)
         {
             string stageName = "";
+            string stageName_JP = "";
 
-            if (num == 0)
+            if (i == 0)
             {
-                if(i == 0) stageName = "Tutorial";
-                else if(i == buttons_SecondSelect.Length - 1)
+                if(num == 0)
                 {
-                    stageName = "Extra" + (num + 1).ToString();
-                    buttons_SecondSelect[i].gameObject.SetActive(false);
+                    stageName = "Tutorial";
+                    stageName_JP = "チュートリアル";
                 }
-                else stageName = "Stage" + (num * 10 + i).ToString();
+                else buttons_SecondSelect[i].gameObject.SetActive(false);
+            }
+            else if (i == buttons_SecondSelect.Length - 1)
+            {
+                stageName = "Extra" + (num + 1).ToString();
+                stageName_JP = "エクストラステージ";
+                buttons_SecondSelect[i].gameObject.SetActive(false);
             }
             else
             {
-                if (i == buttons_SecondSelect.Length - 2)
-                {
-                    stageName = "Extra" + (num + 1).ToString();
-                    buttons_SecondSelect[i].gameObject.SetActive(false);
-                }
-                else stageName = "Stage" + (num * 10 + i + 1).ToString();
+                stageName = "Stage" + (num * 10 + i).ToString();
+                stageName_JP = "ステージ" + (num * 10 + i).ToString();
             }
 
             // Textコンポーネント取得
             var child = buttons_SecondSelect[i].transform.GetComponentInChildren<Text>();
-            child.text = stageName;
+            child.text = stageName_JP;
 
             var fsb = buttons_SecondSelect[i].GetComponent<SecondSelectButton>();
             fsb.selectButton = selectButton;
