@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 /// <summary>
 /// 実行フェーズ
@@ -17,6 +18,7 @@ public class PlayPhase : MonoBehaviour
 
     [SerializeField] private GameObject playPhaseUI;
 
+    private string stageName;
     private Vector3 mapSize = new Vector3(0, 0, 0);
 
     private ShapeData.Shape[,,] map; // 配置データ
@@ -50,8 +52,12 @@ public class PlayPhase : MonoBehaviour
     private int matchRate = 0; // 一致率
 
     [SerializeField] private Text matchRateText;
+    [SerializeField] private GameObject matchUI;
 
-    [SerializeField] private GameObject clearWindow;
+    private bool toClearWindow = false;
+    [SerializeField] private GameObject resultWindow;
+    [SerializeField] private GameObject missionWindow;
+    [SerializeField] private MissionScore missionScore;
 
     /// <summary>
     /// 確認中か
@@ -60,9 +66,14 @@ public class PlayPhase : MonoBehaviour
 
     private void Awake()
     {
-        playPhaseUI.SetActive(false);
-        clearWindow.SetActive(false);
+        if (SelectButton.SelectStage != null)
+            stageName = SelectButton.SelectStage;
+        else stageName = stageController.StageName;
 
+        playPhaseUI.SetActive(false);
+        resultWindow.SetActive(false);
+        missionWindow.SetActive(false);
+        matchUI.SetActive(false);
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
@@ -70,6 +81,8 @@ public class PlayPhase : MonoBehaviour
 
     public void Initialize()
     {
+        toClearWindow = false;
+
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
@@ -100,6 +113,31 @@ public class PlayPhase : MonoBehaviour
         {
             Skip();
             FastForward();
+        }
+
+        if(resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1)
+        {
+            // チュートリアルとエクストラステージはミッションないのでリザルトだけ表示
+            if(stageName.Contains("Stage"))
+            {
+                resultWindow.SetActive(false);
+                missionWindow.SetActive(true);
+
+                if(missionWindow.GetComponent<MissionWindow>().DispEnd)
+                {
+                    StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                    {
+                        stageController.IsClear = true;
+                    }));
+                }
+            }
+            else
+            {
+                StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                {
+                    stageController.IsClear = true;
+                }));
+            }
         }
     }
 
@@ -167,8 +205,10 @@ public class PlayPhase : MonoBehaviour
     {
         StopAllCoroutines();
         matchRateText.enabled = false;
+        matchUI.SetActive(false);
         playPhaseUI.SetActive(false);
-        clearWindow.SetActive(false);
+        resultWindow.SetActive(false);
+        missionWindow.SetActive(false);
 
         // ブロック削除
         Transform children = objParent.GetComponentInChildren<Transform>();
@@ -325,14 +365,16 @@ public class PlayPhase : MonoBehaviour
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
         matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
+        matchUI.SetActive(true);
 
         if (matchRate >= 100)
         {
-            clearWindow.SetActive(true);
-
+            resultWindow.SetActive(true);
+            missionScore.ResultDisp();
+            
             vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
 
-            stageController.IsClear = true;
+            toClearWindow = true;
         }
         else
         {

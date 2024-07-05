@@ -189,9 +189,9 @@ public class StageDataLoader : MonoBehaviour
         }
         else isNumberStage = false;
 
-        if (stageName.Contains("EXTRA"))
+        if (stageName.Contains("Extra"))
         {
-            string _stageName = stageName.Replace("EXTRA", "");
+            string _stageName = stageName.Replace("Extra", "");
 
             if (int.TryParse(_stageName, out int n))
             {
