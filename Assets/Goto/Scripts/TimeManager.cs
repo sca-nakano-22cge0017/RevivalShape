@@ -15,7 +15,8 @@ public class TimeManager : MonoBehaviour
     private float startTime;
     private  bool timeActive = true;
     private float nowTime;
-   
+    
+    public float NowTime { get { return nowTime; } private set{ nowTime = value;} }
 
     void Start()
     {

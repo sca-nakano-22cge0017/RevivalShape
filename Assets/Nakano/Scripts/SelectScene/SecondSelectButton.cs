@@ -9,6 +9,6 @@ public class SecondSelectButton : MonoBehaviour
 
     public void OnClick()
     {
-        selectButton.ButtonName(stageName);
+        if(selectButton) selectButton.ButtonName(stageName);
     }
 }

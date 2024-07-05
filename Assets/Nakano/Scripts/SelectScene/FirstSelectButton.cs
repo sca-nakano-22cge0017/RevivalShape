@@ -15,6 +15,6 @@ public class FirstSelectButton : MonoBehaviour
 
     public void OnClick()
     {
-        sbController.FirstSelect(num);
+        if(sbController) sbController.FirstSelect(num);
     }
 }

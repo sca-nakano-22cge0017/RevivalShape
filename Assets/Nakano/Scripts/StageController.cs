@@ -12,26 +12,27 @@ public class StageController : MonoBehaviour
     public enum PHASE { CHECK = 0, SELECT, PLAY, };
     public PHASE phase = PHASE.CHECK;
 
-    [SerializeField, Header("ステージ名")] string stageName;
+    [SerializeField, Header("ステージ名")] private string stageName;
     public string StageName { get { return stageName; } }
 
-    [SerializeField] ShapeData shapeData;
-    [SerializeField] StageDataLoader stageDataLoader;
+    [SerializeField] private ShapeData shapeData;
+    [SerializeField] private StageDataLoader stageDataLoader;
     [SerializeField] private TapManager tapManager;
+    [SerializeField] private MissionScore missionScore;
 
-    [SerializeField] CameraRotate cameraRotate;
-    [SerializeField] SheatCreate sheatCreate;
+    [SerializeField] private CameraRotate cameraRotate;
+    [SerializeField] private SheatCreate sheatCreate;
 
-    [SerializeField] CheckPhase checkPhase;
-    [SerializeField] SelectPhase selectPhase;
-    [SerializeField] PlayPhase playPhase;
+    [SerializeField] private CheckPhase checkPhase;
+    [SerializeField] private SelectPhase selectPhase;
+    [SerializeField] private PlayPhase playPhase;
 
-    [SerializeField] TestButton testButton;
+    [SerializeField] private TestButton testButton;
 
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
     // データ取得完了したかどうか
-    bool dataGot = false;
+    private bool dataGot = false;
 
     /// <summary>
     /// ミス回数
@@ -72,8 +73,6 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get{ return isRetry; } set{ isRetry = value; } }
 
-    [SerializeField, Header("フレームレート")] int fps = 120;
-
     [Header("図形描画")]
     [SerializeField, Header("描画範囲 左上")] private Vector2 drawRangeMin = new Vector2(0, 370);
     [SerializeField, Header("描画範囲 右下")] private Vector2 drawRangeMax = new Vector2(1080, 1700);
@@ -92,8 +91,6 @@ public class StageController : MonoBehaviour
 
         dataGot = false;
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
-
-        Application.targetFrameRate = fps;
     }
 
     void Update()
@@ -152,9 +149,8 @@ public class StageController : MonoBehaviour
         }
 
         // クリア時の遷移処理
-        if (IsClear && Input.GetMouseButton(0))
+        if (IsClear && Input.touchCount >= 1)
         {
-            if (!tapManager.TapOrDragRange(Input.mousePosition)) return;
 
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
@@ -261,12 +257,6 @@ public class StageController : MonoBehaviour
         playPhase.PlayPhaseStart();
     }
 
-    public IEnumerator DelayCoroutine(float seconds, Action action)
-    {
-        yield return new WaitForSeconds(seconds);
-        action?.Invoke();
-    }
-
     private void OnGUI()
     {
         if (isDragRangeDraw)
@@ -274,5 +264,11 @@ public class StageController : MonoBehaviour
             var rect = new Rect(drawRangeMin.x, drawRangeMin.y, drawRangeMax.x - drawRangeMin.x, drawRangeMax.y - drawRangeMin.y);
             GUI.DrawTexture(rect, _texture);
         }
+    }
+
+    public IEnumerator DelayCoroutine(float seconds, Action action)
+    {
+        yield return new WaitForSeconds(seconds);
+        action?.Invoke();
     }
 }

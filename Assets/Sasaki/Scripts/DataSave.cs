@@ -14,8 +14,14 @@ public class PlayerData
 [System.Serializable]
 public class StageData
 {
+    // 追加
+    public string StageName; // ステージ名
+
     public bool IsClear; //クリアしているかどうか
     public int GotStar; //星の数(ミッションクリア状態)
+
+    // 追加
+    public bool[] IsMissionClear = new bool[3]; // 各ミッションクリア状況
 }
 
 public class DataSave : MonoBehaviour
@@ -24,8 +30,17 @@ public class DataSave : MonoBehaviour
 
     PlayerData playerData;
 
+    // 追加
+    [SerializeField] private GameManager gameManager;
+    private int stageAmount = 0; // チュートリアルやエクストラを含めないステージ数
+    private bool didFileChecked = false; // ファイル確認済みか
+    public bool DidFileChecked { get { return didFileChecked; } private set { didFileChecked = value; } }
+
     private void Awake()
     {
+        stageAmount = gameManager.StageAmount; // ステージ数取得
+
+        /*
         //パスを指定して読み込み
         string directoryName = Application.persistentDataPath + "/Resources";
 
@@ -57,7 +72,7 @@ public class DataSave : MonoBehaviour
         else
         {
             Debug.Log("ファイルが存在しません");
-        }
+        }*/
     }
 
     //セーブ
@@ -92,14 +107,87 @@ public class DataSave : MonoBehaviour
     public void Initialize()
     {
         PlayerData data = new PlayerData();
-        StageData stageData = new StageData();
+        //StageData stageData = new StageData();
 
-        stageData.IsClear = false;
-        stageData.GotStar = 0;
+        //stageData.IsClear = false;
+        //stageData.GotStar = 0;
 
-        //リストの中にデータ生成
-        data.DataList.Add(stageData);
+        ////リストの中にデータ生成
+        //data.DataList.Add(stageData);
+
+        // 追加 ステージ総数分初期化
+        data.DataList = new();
+        for (int i = 0; i < stageAmount; i++)
+        {
+            StageData stageData = new StageData();
+
+            if(i == 0) stageData.StageName = "Tutorial"; // 一番最初にチュートリアルのデータを入力
+            else stageData.StageName = "Stage" + i.ToString();
+            
+            stageData.IsClear = false;
+            stageData.GotStar = 0;
+            
+            for (int m = 0; m < 3; m++)
+            {
+                stageData.IsMissionClear[m] = false;
+            }
+
+            data.DataList.Add(stageData);
+        }
+
+        var extraAmount = stageAmount / 10; // エクストラステージの数
+        for (int i = 1; i <= extraAmount; i++)
+        {
+            StageData stageData = new StageData();
+
+            stageData.StageName = "Extra" + i.ToString();
+
+            stageData.IsClear = false;
+            stageData.GotStar = 0;
+
+            for (int m = 0; m < 3; m++)
+            {
+                stageData.IsMissionClear[m] = false;
+            }
+
+            data.DataList.Add(stageData);
+        }
+
+        // Tutorial -> Stage1～100 -> Extra1～20の順で保存
 
         SavePlayerData(data);
+    }
+
+    /// <summary>
+    /// ファイルの存在確認
+    /// </summary>
+    public void FileCheck()
+    {
+        //パスを指定して読み込み
+        string directoryName = Application.persistentDataPath + "/Resources";
+
+        //ディレクトリがなかったら
+        while (!Directory.Exists(directoryName))
+        {
+            Directory.CreateDirectory(directoryName); //生成
+        }
+#if UNITY_EDITOR
+        datapath = Application.dataPath + "/Resources/WinJson.json";
+#endif
+#if UNITY_ANDROID
+        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
+#endif
+
+        //Jsonファイルがなければ生成、初期化
+        // Todo Jsonファイルの形式が正しくなければファイルを生成し直す
+        while (!File.Exists(datapath))
+        {
+            //ファイル生成
+            FileStream fs = File.Create(datapath);
+            fs.Close();
+            Initialize();
+        }
+
+        didFileChecked = true; // ファイル確認完了
     }
 }
