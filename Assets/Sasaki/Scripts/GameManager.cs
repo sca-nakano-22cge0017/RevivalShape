@@ -112,11 +112,10 @@ public class GameManager : MonoBehaviour
         {
             if (_stageName.ToLower() == d.StageName.ToLower())
             {
-                return data;
+                data = d;
             }
         }
 
-        Debug.Log("指定されたステージのデータがありません");
-        return null;
+        return data;
     }
 }

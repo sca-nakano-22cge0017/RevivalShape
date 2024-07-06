@@ -16,7 +16,8 @@ public class TimeManager : MonoBehaviour
     private  bool timeActive = true;
     private float nowTime;
     
-    public float NowTime { get { return nowTime; } private set{ nowTime = value;} }
+    private float totalTime = 0;
+    public float TotalTime { get { return totalTime; } private set{ totalTime = value; } }
 
     void Start()
     {
@@ -33,6 +34,7 @@ public class TimeManager : MonoBehaviour
     {
         if (timeActive)
         {
+            totalTime += Time.deltaTime;
             nowTime += Time.deltaTime;
             if (nowTime >= 60f)
             {
