@@ -384,7 +384,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageController: {fileID: 1776661428}
   shapeData: {fileID: 1776661431}
-  missionCheck: {fileID: 108899505}
+  tapManager: {fileID: 0}
+  meshCombiner: {fileID: 0}
   objParent: {fileID: 474340951}
   playPhaseUI: {fileID: 1558020351}
   <FastForwardRatio>k__BackingField: 2
@@ -396,7 +397,10 @@ MonoBehaviour:
   fallInterval: 0.3
   fallToMatchdispTime: 2
   matchRateText: {fileID: 1930407079}
-  clearWindow: {fileID: 1074713214}
+  matchUI: {fileID: 0}
+  resultWindow: {fileID: 0}
+  missionWindow: {fileID: 0}
+  missionScore: {fileID: 0}
 --- !u!114 &108899505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,14 +413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37de582316c063c4d81470c2a305da70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageController: {fileID: 1776661428}
-  stars:
-  - {fileID: 758364426}
-  - {fileID: 273104363}
-  - {fileID: 507769473}
-  sprites:
-  - {fileID: 21300000, guid: f64026d2e38a80b4592e0647456c9b83, type: 3}
-  - {fileID: 21300000, guid: 2a6f6b362198c8240b0d3917929b68cc, type: 3}
 --- !u!4 &108899506
 Transform:
   m_ObjectHideFlags: 0
@@ -1201,24 +1197,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageController: {fileID: 1776661428}
+  tapManager: {fileID: 0}
   buttonParent: {fileID: 1592372129}
   buttonPrefab: {fileID: 8206769263333299867, guid: 31d5d84f1a9e285488766120f44486a0, type: 3}
   buttonRange: {x: 800, y: 800}
   selectPhaseUI: {fileID: 1593268181}
+  shapesUI: []
   eraserModeButton: {fileID: 1370074173}
   checkModeButton: {fileID: 1868287601}
   checkModeWindow: {fileID: 617808991}
   stepsParent: {fileID: 1770306364}
   stepsPrefab: {fileID: 8422475021457934984, guid: 70964fa05cfefb546bd1a68304ee5b98, type: 3}
-  shapeIcon:
-  - {fileID: 21300000, guid: f8e0ac9ab61a7a64586b9627e81e0647, type: 3}
-  - {fileID: 21300000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
-  - {fileID: 21300000, guid: 2a6f6b362198c8240b0d3917929b68cc, type: 3}
   modeBG: {fileID: 680272076}
   clearBG: {fileID: 80029621}
-  shapeChangeButtons:
-  - {fileID: 0}
-  - {fileID: 0}
+  play: {fileID: 0}
 --- !u!4 &543730552
 Transform:
   m_ObjectHideFlags: 0
@@ -1773,6 +1765,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeData: {fileID: 1776661431}
   stageController: {fileID: 1776661428}
+  meshCombiner: {fileID: 0}
   objParent: {fileID: 1124045936}
   checkPhaseUI: {fileID: 820750667}
 --- !u!4 &769604946
@@ -2956,20 +2949,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcb2fa76abd186a4bad9e4fb3d2b107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sampleCheck: {fileID: 0}
   stageController: {fileID: 1776661428}
+  tapManager: {fileID: 0}
   _camera: {fileID: 1544752575}
+  dir: 12
   adjustAngle: 5
   sensitivity: 50
+  dragAdjust: 100
+  rotateCancellRangeMin: {x: 0, y: 0}
+  rotateCancellRangeMax: {x: 0, y: 0}
   vMax: 80
   vMin: 10
   vDefault: 60
   vSpeed: 0.1
-  dragAdjust: 100
-  dragRangeMin: {x: 150, y: 500}
-  dragRangeMax: {x: 930, y: 1730}
-  _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
-  isDragRangeDraw: 0
+  cantDoubleTapRangeMin: {x: 0, y: 0}
+  cantDoubleTapRangeMax: {x: 0, y: 0}
+  rotateTime: 1
+  play_Angle: 0
 --- !u!20 &1544752575
 Camera:
   m_ObjectHideFlags: 0
@@ -3600,13 +3596,16 @@ MonoBehaviour:
   stageName: Tutorial
   shapeData: {fileID: 1776661431}
   stageDataLoader: {fileID: 1776661430}
+  tapManager: {fileID: 0}
+  missionScore: {fileID: 0}
   cameraRotate: {fileID: 1544752574}
   sheatCreate: {fileID: 1776661429}
   checkPhase: {fileID: 769604945}
   selectPhase: {fileID: 543730551}
   playPhase: {fileID: 108899504}
-  dragRangeMin: {x: 0, y: 350}
-  dragRangeMax: {x: 1080, y: 1880}
+  testButton: {fileID: 0}
+  drawRangeMin: {x: 0, y: 370}
+  drawRangeMax: {x: 1080, y: 1700}
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
   isDragRangeDraw: 0
 --- !u!114 &1776661429
@@ -3621,7 +3620,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 722d7f20c01650347a05f73b40f2326c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sampleCheck: {fileID: 0}
   sheatPrefab: {fileID: 5078242686620595751, guid: 8b2d2f86b8b67f346b8992878c28d21c, type: 3}
   sheatParent: {fileID: 1514961681}
   marks: {fileID: 2098302759}
@@ -3661,10 +3659,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabs:
-  - {fileID: 1190844147244186435, guid: bbcddce7cc9b59d45a2040857fdedb79, type: 3}
-  - {fileID: 5575919980230035458, guid: 2a55709094307f4499b730271fcb3efe, type: 3}
-  - {fileID: 4499706709790762789, guid: a81d524eef089954696d0a2bcca2cfa1, type: 3}
-  - {fileID: 4101068377554009244, guid: 77a3aa811d7e9754c869e0c3b21eae6d, type: 3}
+  - shape: 0
+    obj: {fileID: 0}
+  - shape: 0
+    obj: {fileID: 0}
+  - shape: 0
+    obj: {fileID: 0}
+  - shape: 0
+    obj: {fileID: 0}
 --- !u!114 &1776661432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4095,6 +4097,103 @@ Transform:
   - {fileID: 403707754}
   m_Father: {fileID: 1514961681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2098851097
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6180212236651900027, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821866054150725250, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
+      propertyPath: m_Name
+      value: Canvas 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aa43595c4583cc04ba0e054f8e4e6457, type: 3}
 --- !u!1001 &1356494555555664211
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4179,3 +4278,4 @@ SceneRoots:
   - {fileID: 108899506}
   - {fileID: 543730552}
   - {fileID: 1356494555555664211}
+  - {fileID: 2098851097}
