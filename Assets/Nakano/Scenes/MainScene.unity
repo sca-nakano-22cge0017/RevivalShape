@@ -356,7 +356,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123579503}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
@@ -1085,10 +1085,10 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: cc2b264b150fb4a46beb8461aff8b554, type: 3}
     button: {fileID: 1527151162}
   - shape: 2
-    sprite: {fileID: 21300000, guid: 2a6f6b362198c8240b0d3917929b68cc, type: 3}
+    sprite: {fileID: 21300000, guid: d45758f78de7baf41986d89782b57bcb, type: 3}
     button: {fileID: 943966223}
   - shape: 3
-    sprite: {fileID: 21300000, guid: f8e0ac9ab61a7a64586b9627e81e0647, type: 3}
+    sprite: {fileID: 21300000, guid: 4bf5834d364155845b06f73c3cddf35b, type: 3}
     button: {fileID: 756588223}
   eraserModeButton: {fileID: 837419042}
   checkModeButton: {fileID: 266981971}
@@ -1787,7 +1787,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 511822915}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
@@ -4114,7 +4114,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4ef3d93f5e3a74f4ab961eee51d85a0e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4bf5834d364155845b06f73c3cddf35b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4842,7 +4842,7 @@ GameObject:
   - component: {fileID: 899329205}
   - component: {fileID: 899329204}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5130,7 +5130,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4ef3d93f5e3a74f4ab961eee51d85a0e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d45758f78de7baf41986d89782b57bcb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6545,7 +6545,7 @@ GameObject:
   - component: {fileID: 1313896326}
   - component: {fileID: 1313896325}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7261,7 +7261,6 @@ MonoBehaviour:
   selectPhase: {fileID: 271283359}
   playPhase: {fileID: 798559330}
   testButton: {fileID: 1038271132}
-  fps: 120
   drawRangeMin: {x: 0, y: 370}
   drawRangeMax: {x: 1080, y: 1700}
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
@@ -7951,7 +7950,7 @@ GameObject:
   - component: {fileID: 1661332698}
   - component: {fileID: 1661332697}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

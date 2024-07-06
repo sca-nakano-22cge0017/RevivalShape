@@ -390,8 +390,8 @@ public class SelectPhase : MonoBehaviour
         {
             if (s.shape == ShapeData.Shape.Empty) continue;
 
-            var frame = s.button.transform.GetChild(1).gameObject;
-            var front = s.button.transform.GetChild(2).gameObject;
+            var frame = s.button.transform.Find("Frame").gameObject;
+            var front = s.button.transform.Find("Front").gameObject;
             if (s.shape == selectingShape)
             {
                 frame.SetActive(true);
