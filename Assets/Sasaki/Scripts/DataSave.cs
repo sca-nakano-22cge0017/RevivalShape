@@ -39,40 +39,6 @@ public class DataSave : MonoBehaviour
     private void Awake()
     {
         stageAmount = gameManager.StageAmount; // ステージ数取得
-
-        /*
-        //パスを指定して読み込み
-        string directoryName = Application.persistentDataPath + "/Resources";
-
-        //ディレクトリがなかったら
-        while (!Directory.Exists(directoryName))
-        {
-            Directory.CreateDirectory(directoryName); //生成
-        }
-#if UNITY_EDITOR
-        datapath = Application.dataPath + "/Resources/WinJson.json";
-#endif
-#if UNITY_ANDROID
-        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
-#endif
-        //Jsonファイルがなければ生成、初期化
-        while (!File.Exists(datapath))
-        {
-            //ファイル生成
-            FileStream fs = File.Create(datapath);
-            fs.Close();
-            Initialize();
-        }
-
-        //Jsonファイルがあればロード
-        if (File.Exists(datapath))
-        {
-            playerData = LoadPlayerData();
-        }
-        else
-        {
-            Debug.Log("ファイルが存在しません");
-        }*/
     }
 
     //セーブ
@@ -157,6 +123,17 @@ public class DataSave : MonoBehaviour
 
         SavePlayerData(data);
     }
+
+    //ファイルリセット
+    public void RestartButton()
+    {
+        if (File.Exists(datapath))
+        {
+            //File.Delete(datapath);
+        }
+        FileCheck();
+    }
+
 
     /// <summary>
     /// ファイルの存在確認

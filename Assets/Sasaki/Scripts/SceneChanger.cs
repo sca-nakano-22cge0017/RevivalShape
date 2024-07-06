@@ -5,22 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class SceneChnger : MonoBehaviour
 {
-    void Start()
+    public void TitleSceneButton()
     {
-        
-    }
-
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0) 
-            && SceneManager.GetActiveScene().name == "TitleScene")
-        {
-            SceneManager.LoadScene("SelectScene");
-        }
+        SceneManager.LoadScene("SelectScene");
     }
 
     public void BackTitleButton()
     {
+        
         SceneManager.LoadScene("TitleScene");
     }
 }
