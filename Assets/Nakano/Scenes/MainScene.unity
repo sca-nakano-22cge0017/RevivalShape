@@ -1438,7 +1438,7 @@ RectTransform:
   m_GameObject: {fileID: 395892850}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 471541141}
@@ -1446,7 +1446,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -750, y: -120}
-  m_SizeDelta: {x: 699, y: 931}
+  m_SizeDelta: {x: 127, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &395892852
 MonoBehaviour:
@@ -1468,7 +1468,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c48fcf5a4001c2749831535ac149d013, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 27d6f6a0ce2eb424080c2cddcf842cde, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1584,7 +1584,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &471541139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1663,11 +1663,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d822cbd67c27b1f46857ea3e55903b57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  missionScore: {fileID: 703794914}
   icons:
   - {fileID: 965497066}
   - {fileID: 395892852}
   - {fileID: 1440757181}
   waitTime: 0.5
+  icons_sp:
+  - {fileID: 21300000, guid: 27d6f6a0ce2eb424080c2cddcf842cde, type: 3}
+  - {fileID: 21300000, guid: 9e83759abdb67664ebc8bb4518900db4, type: 3}
 --- !u!1 &502486261
 GameObject:
   m_ObjectHideFlags: 0
@@ -4296,7 +4300,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &827930356
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5277,7 +5281,7 @@ RectTransform:
   m_GameObject: {fileID: 965497064}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 471541141}
@@ -5285,7 +5289,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -750, y: 240}
-  m_SizeDelta: {x: 699, y: 931}
+  m_SizeDelta: {x: 127, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &965497066
 MonoBehaviour:
@@ -5307,7 +5311,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c48fcf5a4001c2749831535ac149d013, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 27d6f6a0ce2eb424080c2cddcf842cde, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7015,7 +7019,7 @@ RectTransform:
   m_GameObject: {fileID: 1440757179}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 471541141}
@@ -7023,7 +7027,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -750, y: -480}
-  m_SizeDelta: {x: 699, y: 931}
+  m_SizeDelta: {x: 127, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1440757181
 MonoBehaviour:
@@ -7045,7 +7049,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c48fcf5a4001c2749831535ac149d013, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 27d6f6a0ce2eb424080c2cddcf842cde, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7250,7 +7254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Tutorial
+  stageName: Stage1
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
@@ -8118,7 +8122,7 @@ MonoBehaviour:
   - {fileID: 1541586855}
   - {fileID: 1900371641}
   - {fileID: 1456469226}
-  waitTime: 0.2
+  waitTime: 0.5
 --- !u!1 &1705620357 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8186953127079650067, guid: 3e16aa3231c5d5a41bb00b71e324bf84, type: 3}

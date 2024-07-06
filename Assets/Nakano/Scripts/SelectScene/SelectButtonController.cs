@@ -118,7 +118,7 @@ public class SelectButtonController : MonoBehaviour
             childText.text = stageName.ToUpper();
 
             // Extra、Tutorial以外はミッションクリアのアイコン表示を変更
-            if(!stageName.Contains("Extra") && stageName != "Tutorial")
+            if(stageName.Contains("Stage"))
             {
                 if (gameManager.GetStageData(stageName) != null)
                 {
@@ -128,6 +128,7 @@ public class SelectButtonController : MonoBehaviour
                 }
             }
             
+            Debug.Log(stageName);
             var fsb = buttons_SecondSelect[i].GetComponent<SecondSelectButton>();
             fsb.selectButton = selectButton;
             fsb.stageName = stageName;
@@ -140,7 +141,7 @@ public class SelectButtonController : MonoBehaviour
 
     void MissionIconDisp(Transform _parent, StageData _data)
     {
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             int spNum = _data.IsMissionClear[i] ? 1 : 0;
             _parent.GetChild(i).GetComponent<Image>().sprite = missionIcons_sp[spNum];

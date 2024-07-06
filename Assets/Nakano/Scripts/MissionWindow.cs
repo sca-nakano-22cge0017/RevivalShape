@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public class MissionWindow : MonoBehaviour
 {
-    [SerializeField] Image[] icons;
-    [SerializeField] float waitTime = 0.2f;
+    [SerializeField] private MissionScore missionScore;
+    [SerializeField] private Image[] icons;
+    [SerializeField] private float waitTime = 0.2f;
+    [SerializeField] private Sprite[] icons_sp;
 
     private bool dispEnd = false;
     public bool DispEnd { get { return dispEnd;} private set { } }
@@ -32,6 +34,8 @@ public class MissionWindow : MonoBehaviour
         for (int i = 0; i < icons.Length; i++)
         {
             yield return new WaitForSeconds(waitTime);
+
+            icons[i].sprite = missionScore.IsMissionClear[i] ? icons_sp[1] : icons_sp[0];
             icons[i].enabled = true;
         }
 

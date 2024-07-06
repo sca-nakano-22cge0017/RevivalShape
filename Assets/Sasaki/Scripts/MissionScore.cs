@@ -37,6 +37,8 @@ public class MissionScore : MonoBehaviour
     [SerializeField] private Text[] missionText_menu;
     [SerializeField] private Image[] icons_menu;
     [SerializeField] private Sprite[] icons_sp;
+    private bool[] isMissionClear = new bool[3];
+    public bool[] IsMissionClear { get { return isMissionClear; } private set { isMissionClear = value; } }
 
     // Start is called before the first frame update
     void Start()
@@ -52,6 +54,11 @@ public class MissionScore : MonoBehaviour
         foreach(var i in icons)
         {
             i.enabled = false;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            isMissionClear[i] = false;
         }
 
         if (SelectButton.SelectStage != null)
@@ -111,8 +118,6 @@ public class MissionScore : MonoBehaviour
     //スコアのカウント
     void clearCheck()
     {
-        bool[] isMissionClear = new bool[3];
-
         //かかった秒数
         //float rt = time - judgeTime;
         float rt = judgeTime - time; // 残り時間が0よりも多かったらに変更
@@ -121,6 +126,7 @@ public class MissionScore : MonoBehaviour
             scoreCount++;
             isMissionClear[0] = true;
         }
+        else isMissionClear[0] = false;
         //再確認の回数
         int rc= reConfirmation - judgeConfirmation;
         if (rc < 0) // ～回以内なので=を削除
@@ -128,6 +134,7 @@ public class MissionScore : MonoBehaviour
             scoreCount++;
             isMissionClear[1] = true;
         }
+        else isMissionClear[1] = false;
         //失敗した回数
         int cm = missCount - judgeMiss;
         if (cm < 0)
@@ -135,16 +142,10 @@ public class MissionScore : MonoBehaviour
             scoreCount++;
             isMissionClear[2] = true;
         }
+        else isMissionClear[2] = false;
+
         totalScore += scoreCount;
         Debug.Log(totalScore);
-
-        for (int i = 0; i < 3; i++)
-        {
-            if(isMissionClear[i] == true)
-            {
-                icons[i].enabled = true;
-            }
-        }
 
         // データ保存
         if(gameManager != null) gameManager.StageDataUpdate(stageName, true, isMissionClear);
@@ -153,11 +154,13 @@ public class MissionScore : MonoBehaviour
     // 追加　UIの表示・数値の入力
     public void ResultDisp()
     {
-        time = Mathf.FloorToInt(timeManager.NowTime);
+        time = Mathf.FloorToInt(timeManager.TotalTime);
+        Debug.Log(time);
         reConfirmation = stageController.Reconfirmation;
         missCount = stageController.Miss;
 
         int min = Mathf.FloorToInt(time / 60.0f);
+        Debug.Log(min);
         int sec = Mathf.FloorToInt(time - (min * 60.0f));
         timeText.text = min.ToString("d2") + ":" + sec.ToString("d2");
         reconfirmationText.text = reConfirmation.ToString();
