@@ -16,7 +16,11 @@ public class AnimationOnFide : MonoBehaviour
 
     public void PlayAnim()
     {
-        anim.SetBool("blRot", true);
+        anim.Play("ChenzPlay");
+    }
+    public void PlayAnim1()
+    {
+        anim.Play("ChenzSelect");
     }
 }
 
