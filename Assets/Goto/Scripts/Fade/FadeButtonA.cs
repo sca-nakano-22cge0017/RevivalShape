@@ -10,8 +10,8 @@ public class FadeButtonA : MonoBehaviour
     public SoundManager soundManager;
     public AnimationOnFide animationOnFide;
     public TimeManager timeManager;
-    public GameObject Panel;
-    public GameObject Panel1;
+    public GameObject FadePanel;
+    public GameObject MainPanel;
     public FadeScript fadeScript;
     public SettingButton settingButton;
 
@@ -58,22 +58,17 @@ public class FadeButtonA : MonoBehaviour
        // Panel1.SetActive(true);
       
         yield return new WaitForSeconds(0.3f);
-      Panel.SetActive(true);
+      FadePanel.SetActive(true);
         yield return new WaitForSeconds(0f);
-     
-      Panel1.SetActive(true);
+      MainPanel.SetActive(true);
         //animationOnFide.PlayAnim();
-        
-
-
         Debug.Log("è≠Çµë“Ç¬");
     }
     IEnumerator FadeOutOff()
     {
-
         yield return new WaitForSeconds(0.2f);
-       Panel.SetActive(false);
-      Panel1.SetActive(false);
+       FadePanel.SetActive(false);
+       MainPanel.SetActive(false);
     
         timeManager.OnStart();
         Debug.Log("è≠Çµë“Ç¬");
