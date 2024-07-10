@@ -34,6 +34,8 @@ public class SelectButtonController : MonoBehaviour
 
     public static int selectNumber = 0; // 選択したステージ番号①
 
+    // Todo Tutorialを選択→クリア後にステージ選択画面①に戻ってくる
+
     void Start()
     {
         if (GameObject.FindObjectOfType<GameManager>() != null)
@@ -66,8 +68,7 @@ public class SelectButtonController : MonoBehaviour
                 // UIの設定
                 FirstButtonsSetting();
 
-                SceneController.SetCurrentSceneName();
-                if (SceneController.GetLastSceneName() == "MainScene")
+                if (SceneName.GetLastSceneName() == "MainScene")
                 {
                     FirstSelect(selectNumber);
                 }
@@ -92,7 +93,7 @@ public class SelectButtonController : MonoBehaviour
             Release(i);
 
             // 解放済みのステージはボタンを押下できるようにする
-            buttons_FirstSelect[i].interactable = stageRelease[i];
+            buttons_FirstSelect[i + 1].interactable = stageRelease[i];
         }
     }
 
@@ -160,10 +161,9 @@ public class SelectButtonController : MonoBehaviour
                 }
             }
             
-            Debug.Log(stageName);
-            var fsb = buttons_SecondSelect[i].GetComponent<SecondSelectButton>();
-            fsb.selectButton = selectButton;
-            fsb.stageName = stageName;
+            var ssb = buttons_SecondSelect[i].GetComponent<SecondSelectButton>();
+            ssb.selectButton = selectButton;
+            ssb.stageName = stageName;
         }
 
         // Contentサイズ調整

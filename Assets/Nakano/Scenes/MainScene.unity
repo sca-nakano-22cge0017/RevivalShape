@@ -5413,6 +5413,7 @@ GameObject:
   - component: {fileID: 1471772883}
   - component: {fileID: 1471772884}
   - component: {fileID: 1471772885}
+  - component: {fileID: 1471772886}
   m_Layer: 0
   m_Name: MainController
   m_TagString: Untagged
@@ -5562,6 +5563,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combinedMat: {fileID: 2100000, guid: c438209ae34c3544c93f480d4f97c4f9, type: 2}
+--- !u!114 &1471772886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471772876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9d5ea1573d93a84d9a837e7622fe5c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1500031595
 GameObject:
   m_ObjectHideFlags: 0
