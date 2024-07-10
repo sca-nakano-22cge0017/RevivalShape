@@ -91,7 +91,7 @@ public class CameraRotate : MonoBehaviour
 
     void Update()
     {
-        if (!CanRotate) return;
+        if (!CanRotate || stageController.IsStop) return;
 
         if (isRestoring) AdjustCameraToTarget();
 

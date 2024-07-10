@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class MissionWindow : MonoBehaviour
 {
+    [SerializeField] private StageController stageController;
     [SerializeField] private MissionScore missionScore;
     [SerializeField] private Image[] icons;
     [SerializeField] private float waitTime = 0.2f;
@@ -13,8 +14,13 @@ public class MissionWindow : MonoBehaviour
     private bool dispEnd = false;
     public bool DispEnd { get { return dispEnd;} private set { } }
 
+    private IEnumerator disp;
+    private bool isDispStart = false;
+
     void Awake()
     {
+        disp = Display();
+
         for (int i = 0; i < icons.Length; i++)
         {
             icons[i].enabled = false;
@@ -24,7 +30,24 @@ public class MissionWindow : MonoBehaviour
     private void OnEnable()
     {
         dispEnd = false;
-        StartCoroutine(Display());
+        //StartCoroutine(Display());
+
+        StartCoroutine(disp);
+        isDispStart = false;
+    }
+
+    private void Update()
+    {
+        if (!stageController.IsStop && isDispStart && disp != null)
+        {
+            isDispStart = false;
+            StartCoroutine(disp);
+        }
+        else if (stageController.IsStop && !isDispStart && disp != null)
+        {
+            isDispStart = true;
+            StopCoroutine(disp);
+        }
     }
 
     IEnumerator Display()

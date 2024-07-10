@@ -73,6 +73,9 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get{ return isRetry; } set{ isRetry = value; } }
 
+    private bool isStop = false;
+    public bool IsStop { get { return isStop; } set { isStop = value; } }
+
     [Header("図形描画")]
     [SerializeField, Header("描画範囲 左上")] private Vector2 drawRangeMin = new Vector2(0, 370);
     [SerializeField, Header("描画範囲 右下")] private Vector2 drawRangeMax = new Vector2(1080, 1700);
@@ -91,6 +94,8 @@ public class StageController : MonoBehaviour
 
         dataGot = false;
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
+
+        SceneController.SetCurrentSceneName();
     }
 
     void Update()
@@ -149,9 +154,8 @@ public class StageController : MonoBehaviour
         }
 
         // クリア時の遷移処理
-        if (IsClear && Input.touchCount >= 1)
+        if (IsClear && Input.touchCount >= 1 && !isStop)
         {
-
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
                 SceneManager.LoadScene("SelectScene");
@@ -159,7 +163,7 @@ public class StageController : MonoBehaviour
         }
 
         // 再挑戦時の処理
-        if (IsRetry && Input.touchCount >= 1)
+        if (IsRetry && Input.touchCount >= 1 && !isStop)
         {
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
@@ -255,6 +259,11 @@ public class StageController : MonoBehaviour
 
         // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();
+    }
+
+    public void Pause()
+    {
+        isStop = !isStop;
     }
 
     private void OnGUI()

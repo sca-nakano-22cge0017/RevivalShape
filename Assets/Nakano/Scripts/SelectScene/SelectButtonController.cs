@@ -8,17 +8,21 @@ using UnityEngine.UI;
 /// </summary>
 public class SelectButtonController : MonoBehaviour
 {
+    // 注釈
+    //「ステージ番号①」：10ステージ毎の番号。0のときはステージ1～10, 1のときはステージ11～20。
+    //「ステージ番号②」：通常ステージに振られている番号。ステージ1～100。
+
     GameManager gameManager = null;
     private int stageAmount = 0;
 
     Dictionary<int, bool> stageRelease = new(); // 解放状態
     Dictionary<int, bool> extraRelease = new();
 
-    [SerializeField] GameObject firstSelectPanel;
-    [SerializeField, Header("10ステージ毎の選択ボタン")] private Button[] buttons_FirstSelect;
+    [SerializeField, Header("ステージ選択画面①")] GameObject firstSelectPanel;
+    [SerializeField, Header("ステージ選択画面①のボタン")] private Button[] buttons_FirstSelect;
     
-    [SerializeField] private SelectButton selectButton;
-    [SerializeField, Header("各ステージの選択ボタン")] private Button[] buttons_SecondSelect;
+    [SerializeField, Header("ステージ選択画面②")] private SelectButton selectButton;
+    [SerializeField, Header("ステージ選択画面②のボタン")] private Button[] buttons_SecondSelect;
     [SerializeField] private Sprite[] missionIcons_sp;
     [SerializeField, Header("Content")] private RectTransform secondContent = null;
 
@@ -28,6 +32,8 @@ public class SelectButtonController : MonoBehaviour
 
     bool loaded = false;
 
+    public static int selectNumber = 0; // 選択したステージ番号①
+
     void Start()
     {
         if (GameObject.FindObjectOfType<GameManager>() != null)
@@ -36,6 +42,8 @@ public class SelectButtonController : MonoBehaviour
             stageAmount = gameManager.StageAmount;
         }
 
+        // ステージの解放状態を初期化　一番最初の10ステージは解放済みにする
+        // i = ステージ番号①
         for (int i = 0; i < stageAmount / 10; i++)
         {
             if (i == 0) stageRelease.Add(i, true);
@@ -50,53 +58,77 @@ public class SelectButtonController : MonoBehaviour
     {
         if(gameManager != null)
         {
+            // セーブデータの読み込み完了後、一度だけ呼び出し
             if (gameManager.DidLoad && !loaded)
             {
                 loaded = true;
+
+                // UIの設定
                 FirstButtonsSetting();
+
+                SceneController.SetCurrentSceneName();
+                if (SceneController.GetLastSceneName() == "MainScene")
+                {
+                    FirstSelect(selectNumber);
+                }
             }
         }
     }
 
+    /// <summary>
+    /// ステージ選択画面①の設定
+    /// </summary>
     void FirstButtonsSetting()
     {
         firstSelectPanel.SetActive(true);
 
         for (int i = 0; i < stageAmount / 10; i++)
         {
+            // 各ボタンの設定
             var fsb = buttons_FirstSelect[i].GetComponent<FirstSelectButton>();
             fsb.sbController = this;
             fsb.num = i;
 
             Release(i);
+
+            // 解放済みのステージはボタンを押下できるようにする
             buttons_FirstSelect[i].interactable = stageRelease[i];
         }
     }
 
+    /// <summary>
+    /// ステージ選択画面①に戻る
+    /// </summary>
+    public void Back()
+    {
+        firstSelectPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ステージ選択画面①のボタン押下時の処理
+    /// </summary>
+    /// <param name="num">押したボタンの番号</param>
     public void FirstSelect(int num)
     {
+        selectNumber = num;
         firstSelectPanel.SetActive(false);
 
         SecondButtonsSetting(num);
     }
 
+    /// <summary>
+    /// ステージ選択画面②の設定
+    /// </summary>
+    /// <param name="num">選択したステージ番号①</param>
     void SecondButtonsSetting(int num)
     {
-        int undispButton = 0;
+        int undispButton = 0; // 非表示にするボタンの数
+
         for (int i = 0; i < buttons_SecondSelect.Length; i++)
         {
             string stageName = "";
             
-            if (i == 0)
-            {
-                stageName = "Tutorial";
-                if (num != 0)
-                {
-                    buttons_SecondSelect[i].gameObject.SetActive(false);
-                    undispButton++;
-                }
-            }
-            else if (i == buttons_SecondSelect.Length - 1)
+            if (i == buttons_SecondSelect.Length - 1)
             {
                 stageName = "Extra" + (num + 1).ToString();
                 buttons_SecondSelect[i].interactable = extraRelease[num];
@@ -110,7 +142,7 @@ public class SelectButtonController : MonoBehaviour
             }
             else
             {
-                stageName = "Stage" + (num * 10 + i).ToString();
+                stageName = "Stage" + (num * 10 + i + 1).ToString();
             }
 
             // Text表示変更
@@ -148,10 +180,15 @@ public class SelectButtonController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ステージ解放状態の変更
+    /// </summary>
+    /// <param name="num">選択したステージ番号①</param>
     void Release(int num)
     {
         int starsAmount = 0;
 
+        // 指定した10ステージの星獲得数を確認
         for(int i = 1; i <= 10; i++)
         {
             string stageName = "Stage" + (i + num).ToString();
@@ -160,10 +197,12 @@ public class SelectButtonController : MonoBehaviour
                 starsAmount += gameManager.GetStageData(stageName).GotStar;
         }
 
+        // 次の10ステージを解放
         if (starsAmount >= 25)
         {
             if(num < stageAmount) stageRelease[num + 1] = true;
         }
+        // エクストラステージを解放
         if (starsAmount >= 30)
         {
             extraRelease[num] = true;

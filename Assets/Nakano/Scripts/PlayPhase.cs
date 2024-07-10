@@ -27,6 +27,8 @@ public class PlayPhase : MonoBehaviour
     private ShapeData.Shape[,,] correctAnswer; // 正答
     private ShapeData.Shape[,,] lastAnswer;    // 前の回答
 
+    private bool isFallStart = false;
+    private IEnumerator fall = null;
     private bool isFalling = false;
 
     // 落下スキップ
@@ -59,6 +61,9 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] private GameObject missionWindow;
     [SerializeField] private MissionScore missionScore;
 
+    private bool isBlinkStart = false;
+    private IEnumerator blink = null;
+
     /// <summary>
     /// 確認中か
     /// </summary>
@@ -77,6 +82,8 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
+
+        fall = null;
     }
 
     public void Initialize()
@@ -109,35 +116,15 @@ public class PlayPhase : MonoBehaviour
 
     private void Update()
     {
+        if(stageController.phase != StageController.PHASE.PLAY) return;
+
+        CoroutinePause();
+        ClearCheck();
+
         if (isFalling)
         {
             Skip();
             FastForward();
-        }
-
-        if(resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1)
-        {
-            // チュートリアルとエクストラステージはミッションないのでリザルトだけ表示
-            if(stageName.Contains("Stage"))
-            {
-                resultWindow.SetActive(false);
-                missionWindow.SetActive(true);
-
-                if(missionWindow.GetComponent<MissionWindow>().DispEnd)
-                {
-                    StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
-                    {
-                        stageController.IsClear = true;
-                    }));
-                }
-            }
-            else
-            {
-                StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
-                {
-                    stageController.IsClear = true;
-                }));
-            }
         }
     }
 
@@ -203,14 +190,19 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     public void PlayPhaseEnd()
     {
+        isFallStart = false;
+        fall = null;
+        isBlinkStart = false;
+        blink = null;
         StopAllCoroutines();
+
         matchRateText.enabled = false;
         matchUI.SetActive(false);
         playPhaseUI.SetActive(false);
         resultWindow.SetActive(false);
         missionWindow.SetActive(false);
 
-        // ブロック削除
+        // ブロック非表示
         Transform children = objParent.GetComponentInChildren<Transform>();
         foreach (Transform obj in children)
         {
@@ -255,7 +247,8 @@ public class PlayPhase : MonoBehaviour
                         if (mapObj[x, y, z]) Destroy(mapObj[x, y, z]);
 
                         // 空白部分は生成しない
-                        if (map[x, y, z] != ShapeData.Shape.Empty) mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+                        if (map[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Alpha) 
+                            mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
                     }
                     else
                     {
@@ -312,7 +305,9 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        StartCoroutine(Fall());
+        fall = Fall();
+        StartCoroutine(fall);
+        isFallStart = false;
     }
 
     /// <summary>
@@ -322,20 +317,15 @@ public class PlayPhase : MonoBehaviour
     {
         isFalling = true;
 
+        GameObject finalObj = mapObj[0, 0, 0]; // 最後のオブジェクト
+
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int y = 0; y < mapSize.y; y++)
             {
                 for (int x = 0; x < mapSize.x; x++)
                 {
-                    if (map[x, y, z] == ShapeData.Shape.Empty) continue;
-
-                    // 透明ブロックなら落下演出を飛ばす
-                    if (map[x, y, z] == ShapeData.Shape.Alpha)
-                    {
-                        mapObj[x, y, z].transform.position = new Vector3(-x, y, z);
-                        continue;
-                    }
+                    if (map[x, y, z] == ShapeData.Shape.Empty || map[x, y, z] == ShapeData.Shape.Alpha) continue;
 
                     if (mapObj[x, y, z])
                     {
@@ -343,6 +333,8 @@ public class PlayPhase : MonoBehaviour
                         mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
                         mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
                         mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true;
+
+                        finalObj = mapObj[x, y, z];
                     }
 
                     if (!isSkip)
@@ -351,8 +343,12 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        isFalling = false;
+        var so = finalObj.GetComponent<ShapeObjects>();
 
+        // 最後のオブジェクトが落ちたら
+        yield return new WaitUntil(() => !so.IsFall);
+
+        isFalling = false;
         Invoke("ResultDisp", fallToMatchdispTime);
     }
 
@@ -378,7 +374,9 @@ public class PlayPhase : MonoBehaviour
         }
         else
         {
-            StartCoroutine(MatchTextBlinking());
+            blink = MatchTextBlinking();
+            StartCoroutine(blink);
+            isBlinkStart = false;
 
             stageController.IsRetry = true;
         }
@@ -398,6 +396,59 @@ public class PlayPhase : MonoBehaviour
             matchRateText.enabled = false;
             yield return new WaitForSeconds(UN_DISP_TIME);
             matchRateText.enabled = true;
+        }
+    }
+
+    void CoroutinePause()
+    {
+        if (!stageController.IsStop && isFallStart && fall != null)
+        {
+            isFallStart = false;
+            StartCoroutine(fall);
+        }
+        else if (stageController.IsStop && !isFallStart && fall != null)
+        {
+            isFallStart = true;
+            StopCoroutine(fall);
+        }
+
+        if (!stageController.IsStop && isBlinkStart && blink != null)
+        {
+            isBlinkStart = false;
+            StartCoroutine(blink);
+        }
+        else if (stageController.IsStop && !isBlinkStart && blink != null)
+        {
+            isBlinkStart = true;
+            StopCoroutine(blink);
+        }
+    }
+
+    void ClearCheck()
+    {
+        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsStop)
+        {
+            // チュートリアルとエクストラステージはミッションないのでリザルトだけ表示
+            if (stageName.Contains("Stage"))
+            {
+                resultWindow.SetActive(false);
+                missionWindow.SetActive(true);
+
+                if (missionWindow.GetComponent<MissionWindow>().DispEnd)
+                {
+                    StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                    {
+                        stageController.IsClear = true;
+                    }));
+                }
+            }
+            else
+            {
+                StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                {
+                    stageController.IsClear = true;
+                }));
+            }
         }
     }
 
