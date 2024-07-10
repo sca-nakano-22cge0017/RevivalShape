@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class ShapeObjects : MonoBehaviour
 {
-    PlayPhase playPhase;
-    Vibration vibration;
+    private PlayPhase playPhase;
+    private Vibration vibration;
+    private StageController stageController;
 
     bool isVibrate = false;
     public bool IsVibrate { get{ return isVibrate; } set{ isVibrate = value; } }
@@ -35,6 +36,7 @@ public class ShapeObjects : MonoBehaviour
     {
         vibration = GameObject.FindObjectOfType<Vibration>();
         playPhase = GameObject.FindObjectOfType<PlayPhase>();
+        stageController = GameObject.FindObjectOfType<StageController>();
 
         // êUìÆéûä‘éÊìæ
         vibrateTime_Normal = playPhase.GetVibrateTime()[0];
@@ -55,7 +57,9 @@ public class ShapeObjects : MonoBehaviour
             vibrateTime = vibrateTime_Normal;
         }
 
-        if(IsFall)
+        if(stageController.phase != StageController.PHASE.PLAY) return;
+
+        if(IsFall && !stageController.IsStop)
         {
             var tmpPos = this.transform;
             tmpPos.Translate(Vector3.down * FallSpeed * fastForwardRatio * Time.deltaTime);

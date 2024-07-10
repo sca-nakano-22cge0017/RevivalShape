@@ -74,6 +74,8 @@ public class SelectPhase : MonoBehaviour
 
     private void Update()
     {
+        if (stageController.phase != StageController.PHASE.SELECT) return;
+
         if (IsEraser || IsCheck)
         {
             // ボタンの外を押したらモード終了

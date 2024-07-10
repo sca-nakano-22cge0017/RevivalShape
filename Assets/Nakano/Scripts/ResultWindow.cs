@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class ResultWindow : MonoBehaviour
 {
+    [SerializeField] private StageController stageController;
     [SerializeField] Text[] resultText;
     [SerializeField] Text[] resultText_num;
     [SerializeField] float waitTime = 0.2f;
