@@ -94,8 +94,6 @@ public class StageController : MonoBehaviour
 
         dataGot = false;
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
-
-        SceneController.SetCurrentSceneName();
     }
 
     void Update()
