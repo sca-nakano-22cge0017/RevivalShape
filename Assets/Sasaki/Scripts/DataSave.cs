@@ -39,6 +39,21 @@ public class DataSave : MonoBehaviour
     private void Awake()
     {
         stageAmount = gameManager.StageAmount; // ステージ数取得
+
+        //パスを指定して読み込み
+        string directoryName = Application.persistentDataPath + "/Resources";
+
+        //ディレクトリがなかったら
+        while (!Directory.Exists(directoryName))
+        {
+            Directory.CreateDirectory(directoryName); //生成
+        }
+#if UNITY_EDITOR
+        datapath = Application.dataPath + "/Resources/WinJson.json";
+#endif
+#if UNITY_ANDROID
+        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
+#endif
     }
 
     //セーブ
@@ -127,10 +142,12 @@ public class DataSave : MonoBehaviour
     //ファイルリセット
     public void RestartButton()
     {
+        Debug.Log("test" + File.Exists(datapath));
         if (File.Exists(datapath))
         {
-            //File.Delete(datapath);
+            File.Delete(datapath);
         }
+
         FileCheck();
     }
 
@@ -140,21 +157,6 @@ public class DataSave : MonoBehaviour
     /// </summary>
     public void FileCheck()
     {
-        //パスを指定して読み込み
-        string directoryName = Application.persistentDataPath + "/Resources";
-
-        //ディレクトリがなかったら
-        while (!Directory.Exists(directoryName))
-        {
-            Directory.CreateDirectory(directoryName); //生成
-        }
-#if UNITY_EDITOR
-        datapath = Application.dataPath + "/Resources/WinJson.json";
-#endif
-#if UNITY_ANDROID
-        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
-#endif
-
         //Jsonファイルがなければ生成、初期化
         // Todo Jsonファイルの形式が正しくなければファイルを生成し直す
         while (!File.Exists(datapath))
