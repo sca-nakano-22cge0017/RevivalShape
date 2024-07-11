@@ -49,24 +49,18 @@ public class GameManager : MonoBehaviour
         {
             while (dataSave.LoadPlayerData() == null)
             {
-                //playerData.DataList = new();
-
                 // ƒf[ƒ^‚ª–³‚¯‚ê‚Î‰Šú‰»
                 dataSave.Initialize();
             }
 
-            while (playerData == null)
-            {
-                playerData = dataSave.LoadPlayerData();
-            }
-
+            playerData = dataSave.LoadPlayerData();
             didLoad = true; // “Ç‚İ‚İŠ®—¹
         }
+    }
 
-        if(Input.GetKeyDown(KeyCode.Delete))
-        {
-            dataSave.Initialize();
-        }
+    public void DataReset()
+    {
+        didLoad = false;
     }
 
     /// <summary>

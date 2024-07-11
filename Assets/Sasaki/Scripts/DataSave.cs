@@ -149,6 +149,8 @@ public class DataSave : MonoBehaviour
         }
 
         FileCheck();
+
+        gameManager.DataReset(); // GameManager“à‚Ìƒf[ƒ^‚ğ‘‚«Š·‚¦
     }
 
 
