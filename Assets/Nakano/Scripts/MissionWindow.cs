@@ -38,6 +38,8 @@ public class MissionWindow : MonoBehaviour
 
     private void Update()
     {
+        if(!stageController) return;
+
         if (!stageController.IsStop && isDispStart && disp != null)
         {
             isDispStart = false;

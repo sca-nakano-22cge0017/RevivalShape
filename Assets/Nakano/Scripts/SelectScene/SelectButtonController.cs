@@ -93,7 +93,7 @@ public class SelectButtonController : MonoBehaviour
             Release(i);
 
             // 解放済みのステージはボタンを押下できるようにする
-            buttons_FirstSelect[i + 1].interactable = stageRelease[i];
+            buttons_FirstSelect[i].interactable = stageRelease[i];
         }
     }
 
