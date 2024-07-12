@@ -802,8 +802,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: -601}
-  m_SizeDelta: {x: 500, y: 500}
+  m_AnchoredPosition: {x: 0, y: -990}
+  m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &264243228
 MonoBehaviour:
@@ -2974,6 +2974,7 @@ MonoBehaviour:
   cantDoubleTapRangeMax: {x: 740, y: 1350}
   rotateTime: 1
   play_Angle: 30
+  debugobj: {fileID: 8393400806011650622, guid: 515ff1b04374f494d98ed71302c167f6, type: 3}
 --- !u!114 &883029811
 MonoBehaviour:
   m_ObjectHideFlags: 0
