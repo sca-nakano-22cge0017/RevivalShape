@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 public class SoundManager : MonoBehaviour
 {
@@ -12,10 +12,26 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource audioSourceSE;
     [SerializeField] private AudioSource audioSourceBGM;
 
+    // public bool DontDestroyEnabled = true;
+    private void Awake()
+    {
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("SaveSoundManager");
+
+        if (objects.Length > 1)
+        {
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+    }
     public void Start()
     {
+        //if (DontDestroyEnabled)
+        //{
+        //    // Sceneを遷移してもオブジェクトが消えないようにする
+        //    DontDestroyOnLoad(this);
+        //}
         //audioSourceBGM.clip = BGM[1];
-       // audioSourceBGM.Play();
+        // audioSourceBGM.Play();
     }
     public void BGMPlay1()
     {

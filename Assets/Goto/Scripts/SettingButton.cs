@@ -45,6 +45,8 @@ public class SettingButton : MonoBehaviour
     }
     public void SelectScene()
     {
+        Panels[2].SetActive(false);
+        Panels[1].SetActive(false);
         SceneManager.LoadScene("SelectScene");
     }
 }
