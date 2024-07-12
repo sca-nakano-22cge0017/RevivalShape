@@ -59,7 +59,7 @@ public class CameraRotate : MonoBehaviour
     private TeleportDir inputDir2 = TeleportDir.NULL; // 二回目に入力した移動方向
 
     private enum CameraPos { UP, BACK, RIGHT, FRONT, LEFT, NULL };
-    private CameraPos nowCameraPos = CameraPos.UP; // 現在のカメラ位置
+    private CameraPos currentCameraPos = CameraPos.UP; // 現在のカメラ位置
     private CameraPos nextCameraPos = CameraPos.NULL; // 次のカメラ位置
 
     // 90度毎の補正位置・回転 画面端をダブルタップでこれらの位置に移動する
@@ -74,6 +74,8 @@ public class CameraRotate : MonoBehaviour
     /// falseのときは動かない
     /// </summary>
     public bool CanRotate { get; set; } = false;
+
+    [SerializeField] GameObject debugobj;
 
     void Awake()
     {
@@ -217,7 +219,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void AdjustCameraToTarget()
     {
-        if (nowCameraPos == CameraPos.UP) transform.LookAt(target, Vector3.back);
+        if (currentCameraPos == CameraPos.UP) transform.LookAt(target, Vector3.back);
         else transform.LookAt(target, Vector3.up);
     }
 
@@ -287,7 +289,7 @@ public class CameraRotate : MonoBehaviour
         if (is90Rotate)
         {
             // 現在のカメラ位置から見た上下左右を求める
-            switch (nowCameraPos)
+            switch (currentCameraPos)
             {
                 case CameraPos.UP:
                     Rotate(CameraPos.BACK, CameraPos.FRONT, CameraPos.RIGHT, CameraPos.LEFT);
@@ -386,53 +388,95 @@ public class CameraRotate : MonoBehaviour
 
         Tween move = transform.DOLocalPath(new[] { adjustPoint[nextCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false);
 
-        if (nowCameraPos != nextCameraPos)
+        if (currentCameraPos != nextCameraPos)
         {
-            // 上←→後ろのときは回転方法を変更
-            if (nowCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
+            if ((currentCameraPos != CameraPos.UP && nextCameraPos != CameraPos.UP) || 
+                (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.FRONT) ||
+                (currentCameraPos == CameraPos.FRONT && nextCameraPos == CameraPos.UP))
             {
-                var angle1 = new Vector3(91.79f, 0.0f, 0.0f);
-                var angle2 = new Vector3(0.0f, -180.0f, 0.0f);
-                
-                sequence.Join(move)
-                    .Join(transform.DORotate(angle1, rotateTime, RotateMode.WorldAxisAdd))
-                    .Append(transform.DORotate(angle2, rotateTime / 2.0f, RotateMode.WorldAxisAdd));
+                sequence
+                    .Join(move)
+                    .Join(transform.DORotateQuaternion(adjustQuaternion[nextCameraPos], rotateTime));
             }
-            else if (nowCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
-            {
-                var angle1 = new Vector3(0.0f, -180.0f, 0.0f);
-                var angle2 = new Vector3(-91.79f, 0.0f, 0.0f);
-                
-                sequence.Join(transform.DORotate(angle1, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
-                    .Append(move)
-                    .Join(transform.DORotate(angle2, rotateTime, RotateMode.WorldAxisAdd));
-            }
+
+            // 上←→左/右/後のときは回転方法を変更
             else
             {
-                sequence.Join(move).Join(transform.DORotateQuaternion(adjustQuaternion[nextCameraPos], rotateTime));
+                var angleXZ = new Vector3(0.0f, 0.0f, 0.0f); // X軸、Z軸の回転
+                var angleY = new Vector3(0.0f, 0.0f, 0.0f); // Y軸の回転
+
+                // 回転角度取得
+                if (currentCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
+                {
+                    angleXZ = new Vector3(91.79f, 0.0f, 0.0f);
+                    angleY = new Vector3(0.0f, -180.0f, 0.0f);
+                }
+                else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
+                {
+                    angleXZ = new Vector3(-91.79f, 0.0f, 0.0f);
+                    angleY = new Vector3(0.0f, -180.0f, 0.0f);
+                }
+
+                else if (currentCameraPos == CameraPos.RIGHT && nextCameraPos == CameraPos.UP)
+                {
+                    angleXZ = new Vector3(0.0f, 0.0f, -91.79f);
+                    angleY = new Vector3(0.0f, 90.0f, 0.0f);
+                }
+                else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.RIGHT)
+                {
+                    angleXZ = new Vector3(0.0f, 0.0f, 91.79f);
+                    angleY = new Vector3(0.0f, -90.0f, 0.0f);
+                }
+
+                else if (currentCameraPos == CameraPos.LEFT && nextCameraPos == CameraPos.UP)
+                {
+                    angleXZ = new Vector3(0.0f, 0.0f, 91.79f);
+                    angleY = new Vector3(0.0f, -90.0f, 0.0f);
+                }
+                else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.LEFT)
+                {
+                    angleXZ = new Vector3(0.0f, 0.0f, -91.79f);
+                    angleY = new Vector3(0.0f, 90.0f, 0.0f);
+                }
+
+                // 回転
+                if (nextCameraPos == CameraPos.UP)
+                {
+                    sequence
+                        .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd))
+                        .Join(move)
+                        .Append(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd));
+                }
+                else
+                {
+                    sequence
+                        .Join(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
+                        .Append(move)
+                        .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd));
+                }
             }
         }
         
-        // スワイプで回転されてたらもとに戻す処理を加える
+        // スワイプで回転されていたらもとに戻す処理を加える
         if (didSwip)
         {
             isRestoring = true;
-            sequence.Prepend(transform.DOLocalPath(new[] { transform.position, adjustPoint[nowCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-                .Join(transform.DORotateQuaternion(adjustQuaternion[nowCameraPos], rotateTime)).OnComplete(() =>
-            {
-                didSwip = false;
-                isRestoring = false;
-                tx = 0;
-                ty = 0;
-            });
+            sequence
+                .Prepend(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
+                .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime));
         }
 
         sequence.OnComplete(() =>
         {
+            didSwip = false;
+            tx = 0;
+            ty = 0;
             isRotating = false;
             isRestoring = false;
-            nowCameraPos = nextCameraPos;
+            currentCameraPos = nextCameraPos;
         });
+
+        sequence = null;
     }
 
     private Vector3[] GetControllPoint()
@@ -440,17 +484,39 @@ public class CameraRotate : MonoBehaviour
         Vector3 relay = Vector3.zero;
         Vector3[] point = new Vector3[2]; // 制御点
 
-        if (adjustPoint[nowCameraPos].x == adjustPoint[nextCameraPos].x) relay.x = adjustPoint[nowCameraPos].x;
-        else relay.x = (Mathf.Abs(target.x - adjustPoint[nowCameraPos].x) >= 1f) ? adjustPoint[nowCameraPos].x : adjustPoint[nextCameraPos].x;
+        if (adjustPoint[currentCameraPos].x == adjustPoint[nextCameraPos].x) relay.x = adjustPoint[currentCameraPos].x;
+        else relay.x = (Mathf.Abs(target.x - adjustPoint[currentCameraPos].x) >= 1f) ? adjustPoint[currentCameraPos].x : adjustPoint[nextCameraPos].x;
 
-        if (adjustPoint[nowCameraPos].y == adjustPoint[nextCameraPos].y) relay.y = adjustPoint[nowCameraPos].y;
-        else relay.y = (Mathf.Abs(target.y - (adjustPoint[nowCameraPos].y - MIN_Y)) >= 1f) ? adjustPoint[nowCameraPos].y : adjustPoint[nextCameraPos].y;
+        if (adjustPoint[currentCameraPos].y == adjustPoint[nextCameraPos].y) relay.y = adjustPoint[currentCameraPos].y;
+        else relay.y = (Mathf.Abs(target.y - (adjustPoint[currentCameraPos].y - MIN_Y)) >= 1f) ? adjustPoint[currentCameraPos].y : adjustPoint[nextCameraPos].y;
 
-        if (adjustPoint[nowCameraPos].z == adjustPoint[nextCameraPos].z) relay.z = adjustPoint[nowCameraPos].z;
-        else relay.z = (Mathf.Abs(target.z - adjustPoint[nowCameraPos].z) >= 1f) ? adjustPoint[nowCameraPos].z : adjustPoint[nextCameraPos].z;
+        if (adjustPoint[currentCameraPos].z == adjustPoint[nextCameraPos].z) relay.z = adjustPoint[currentCameraPos].z;
+        else relay.z = (Mathf.Abs(target.z - adjustPoint[currentCameraPos].z) >= 1f) ? adjustPoint[currentCameraPos].z : adjustPoint[nextCameraPos].z;
 
-        point[0] = Vector3.Lerp(adjustPoint[nowCameraPos], relay, 0.5f);
+        point[0] = Vector3.Lerp(adjustPoint[currentCameraPos], relay, 0.5f);
         point[1] = Vector3.Lerp(adjustPoint[nextCameraPos], relay, 0.5f);
+
+        return point;
+    }
+
+    private Vector3[] CalcControllPoint()
+    {
+        float angle = Vector3.Angle(adjustPoint[currentCameraPos], transform.position) * Mathf.Deg2Rad;
+
+        Vector3[] point = new Vector3[2]; // 制御点
+
+        var diff = (4.0f / 3.0f) * Mathf.Tan(angle / 4.0f) * range;
+        var dir = (adjustPoint[currentCameraPos] - transform.position).normalized;
+
+        var pointOneVec = new Vector3(transform.up.x, dir.y, transform.up.z);
+
+        point[0] = transform.position;
+        point[0].y = (diff * pointOneVec + transform.position).y;
+
+        point[1] = diff * dir + adjustPoint[currentCameraPos];
+
+        Instantiate(debugobj, point[0], Quaternion.identity);
+        Instantiate(debugobj, point[1], Quaternion.identity);
 
         return point;
     }
@@ -464,9 +530,12 @@ public class CameraRotate : MonoBehaviour
         isRestoring = true;
 
         var sequence = DOTween.Sequence();
+        //Vector3[] controllPoint = CalcControllPoint(); // 制御点取得
 
-        sequence.Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[nowCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-            .Join(transform.DORotateQuaternion(adjustQuaternion[nowCameraPos], rotateTime))
+        sequence
+            .Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
+            //.Join(transform.DOLocalPath(new[] { adjustPoint[currentCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false))
+            .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime))
             .OnComplete(() =>
             {
                 didSwip = false;
@@ -483,9 +552,9 @@ public class CameraRotate : MonoBehaviour
     {
         if (isRotating || isRestoring) return;
 
-        if (nowCameraPos != CameraPos.UP)
+        if (currentCameraPos != CameraPos.UP)
         {
-            nowCameraPos = GetCameraToClosest90Point();
+            currentCameraPos = GetCameraToClosest90Point();
         }
 
         nextCameraPos = CameraPos.UP;
@@ -535,7 +604,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void Restore()
     {
-        nowCameraPos = CameraPos.UP;
+        currentCameraPos = CameraPos.UP;
 
         RotateRestore();
     }
@@ -545,7 +614,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void CameraSetting()
     {
-        nowCameraPos = CameraPos.UP;
+        currentCameraPos = CameraPos.UP;
         nextCameraPos = CameraPos.NULL;
 
         // サイズ代入

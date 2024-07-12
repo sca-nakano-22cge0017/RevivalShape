@@ -71,20 +71,13 @@ public class ShapeObjects : MonoBehaviour
             }
             else
             {
+                vibration.PluralVibrate(1, (long)(vibrateTime * 1000));
+
                 var pos = transform.position;
                 pos.y = TargetHeight;
                 transform.position = pos;
                 IsFall = false;
             }
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        // Õ“Ë ‚©‚Â –Ú•WˆÊ’u‚Ü‚Å—ˆ‚Ä‚¢‚½‚çU“®
-        if (Mathf.Abs(transform.position.y - TargetHeight) <= 0.1f && isVibrate)
-        {
-            vibration.PluralVibrate(1, (long)(vibrateTime * 1000));
         }
     }
 }
