@@ -14,19 +14,24 @@ public class Audio : MonoBehaviour
     [SerializeField] Slider SESlider;
     [SerializeField] Slider MasterSlider;
 
-    public bool DontDestroyEnabled = true;
+   
     private void Start()
     {
         InitializeSliders();
         AttachSliderListeners();
-        if (DontDestroyEnabled)
-        {
-            // Sceneを遷移してもオブジェクトが消えないようにする
-            DontDestroyOnLoad(this);
-        }
+      
 
     }
+    private void Awake()
+    {
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("SaveSoundSetingManager");
 
+        if (objects.Length > 1)
+        {
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+    }
     private void InitializeSliders()
     {
         float maxSound = 20f;
