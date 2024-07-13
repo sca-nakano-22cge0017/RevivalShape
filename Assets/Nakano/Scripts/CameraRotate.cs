@@ -76,6 +76,7 @@ public class CameraRotate : MonoBehaviour
     public bool CanRotate { get; set; } = false;
 
     [SerializeField] GameObject debugobj;
+    [SerializeField] Text debugText;
 
     void Awake()
     {
@@ -89,10 +90,25 @@ public class CameraRotate : MonoBehaviour
         adjustQuaternion[CameraPos.RIGHT] = Quaternion.Euler(181.79f, -90, 180);
         adjustQuaternion[CameraPos.FRONT] = Quaternion.Euler(181.79f, 0, 180);
         adjustQuaternion[CameraPos.LEFT] = Quaternion.Euler(181.79f, 90, 180);
+
+        tx = 0;
+        ty = 0;
+
+        isRestoring = false;
+        isRotating = false;
+        is90Rotate = false;
+
+        inputDir1 = TeleportDir.NULL;
+        inputDir2 = TeleportDir.NULL;
+        teleportDir = TeleportDir.NULL;
+        currentCameraPos = CameraPos.UP;
+        nextCameraPos = CameraPos.NULL;
     }
 
     void Update()
     {
+        debugText.text = "current: " + currentCameraPos + " next: " + nextCameraPos; 
+
         if (!CanRotate || stageController.IsStop) return;
 
         if (isRestoring) AdjustCameraToTarget();
@@ -259,7 +275,8 @@ public class CameraRotate : MonoBehaviour
                     return;
 
                 // 入力方向を保存
-                inputDir1 = DoubleTapPosJudgement(t.position);
+                if(inputDir1 == TeleportDir.NULL)
+                    inputDir1 = DoubleTapPosJudgement(t.position);
             },
 
             () =>
@@ -272,10 +289,16 @@ public class CameraRotate : MonoBehaviour
                     return;
 
                 // 入力方向を保存
-                inputDir2 = DoubleTapPosJudgement(t.position);
+                if (inputDir2 == TeleportDir.NULL)
+                    inputDir2 = DoubleTapPosJudgement(t.position);
 
                 if (inputDir1 == inputDir2 && inputDir1 != TeleportDir.NULL && inputDir2 != TeleportDir.NULL)
                     teleportDir = inputDir1;
+                else
+                {
+                    inputDir1 = TeleportDir.NULL;
+                    inputDir2 = TeleportDir.NULL;
+                }
 
                 is90Rotate = true;
             },
@@ -442,6 +465,7 @@ public class CameraRotate : MonoBehaviour
                 // 回転
                 if (nextCameraPos == CameraPos.UP)
                 {
+                    Debug.Log("test ToUp" + angleXZ + " / " + angleY);
                     sequence
                         .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd))
                         .Join(move)
@@ -449,6 +473,7 @@ public class CameraRotate : MonoBehaviour
                 }
                 else
                 {
+                    Debug.Log("test FromUp" + angleXZ + " / " + angleY);
                     sequence
                         .Join(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
                         .Append(move)
@@ -456,24 +481,31 @@ public class CameraRotate : MonoBehaviour
                 }
             }
         }
-        
+
+        // Todo メインゲーム→選択画面→メインの後、スワイプ→ダブルタップすると挙動がおかしくなる
         // スワイプで回転されていたらもとに戻す処理を加える
         if (didSwip)
         {
             isRestoring = true;
             sequence
                 .Prepend(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-                .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime));
+                .Prepend(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime)).OnComplete(() =>
+                {
+                    didSwip = false;
+                    tx = 0;
+                    ty = 0;
+                    isRestoring = false;
+                });
         }
 
         sequence.OnComplete(() =>
         {
+            currentCameraPos = nextCameraPos;
             didSwip = false;
             tx = 0;
             ty = 0;
             isRotating = false;
             isRestoring = false;
-            currentCameraPos = nextCameraPos;
         });
 
         sequence = null;
