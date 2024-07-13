@@ -785,7 +785,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &264243227
 RectTransform:
   m_ObjectHideFlags: 0
@@ -802,8 +802,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -990}
-  m_SizeDelta: {x: 1000, y: 200}
+  m_AnchoredPosition: {x: -467, y: -990}
+  m_SizeDelta: {x: 500, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &264243228
 MonoBehaviour:
@@ -2975,6 +2975,7 @@ MonoBehaviour:
   rotateTime: 1
   play_Angle: 30
   debugobj: {fileID: 8393400806011650622, guid: 515ff1b04374f494d98ed71302c167f6, type: 3}
+  debugText: {fileID: 264243228}
 --- !u!114 &883029811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5502,6 +5503,7 @@ MonoBehaviour:
   selectPhase: {fileID: 271283359}
   playPhase: {fileID: 798559330}
   testButton: {fileID: 1038271132}
+  optionButton: {fileID: 6055395185063718471}
   drawRangeMin: {x: 0, y: 370}
   drawRangeMax: {x: 1080, y: 1700}
   _texture: {fileID: 2800000, guid: 77326fc272e83e044a4369f2a04a9019, type: 3}
@@ -11296,7 +11298,6 @@ MonoBehaviour:
   BGMSlider: {fileID: 5018821924962356509}
   SESlider: {fileID: 3338143496017797992}
   MasterSlider: {fileID: 7478981731623898698}
-  DontDestroyEnabled: 1
 --- !u!224 &5280777613814841135
 RectTransform:
   m_ObjectHideFlags: 0

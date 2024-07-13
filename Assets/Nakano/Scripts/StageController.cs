@@ -28,6 +28,7 @@ public class StageController : MonoBehaviour
     [SerializeField] private PlayPhase playPhase;
 
     [SerializeField] private TestButton testButton;
+    [SerializeField] private GameObject optionButton;
 
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
@@ -194,6 +195,8 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.CHECK;
 
+        optionButton.SetActive(true);
+
         // カメラの回転ができるようにする
         cameraRotate.CanRotate = true;
 
@@ -222,6 +225,8 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.SELECT;
 
+        optionButton.SetActive(true);
+
         // カメラ
         cameraRotate.CanRotate = false;
 
@@ -249,6 +254,8 @@ public class StageController : MonoBehaviour
         }
 
         phase = PHASE.PLAY;
+
+        optionButton.SetActive(false);
 
         // シート
         sheatCreate.SheatDisp(true, false);

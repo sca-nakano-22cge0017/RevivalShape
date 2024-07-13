@@ -318,6 +318,7 @@ public class PlayPhase : MonoBehaviour
         isFalling = true;
 
         GameObject finalObj = mapObj[0, 0, 0]; // 最後のオブジェクト
+        bool isWait = true; // 落下終了を待つ
 
         for (int z = 0; z < mapSize.z; z++)
         {
@@ -343,10 +344,16 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        var so = finalObj.GetComponent<ShapeObjects>();
+        if(finalObj)
+        {
+            var so = finalObj.GetComponent<ShapeObjects>();
 
-        // 最後のオブジェクトが落ちたら
-        yield return new WaitUntil(() => !so.IsFall);
+            if(so != null)
+            {
+                // 最後のオブジェクトが落ちたら
+                yield return new WaitUntil(() => !so.IsFall);
+            }
+        }
 
         isFalling = false;
         Invoke("ResultDisp", fallToMatchdispTime);

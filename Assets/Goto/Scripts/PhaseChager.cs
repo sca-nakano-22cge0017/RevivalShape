@@ -31,6 +31,10 @@ public class PhaseChager : MonoBehaviour
     void Start()
     {
         timerText = GetComponentInChildren<Text>();
+
+        //実行フェーズのtoggleを押せないようにする
+        toggles[1].interactable = true;
+        toggles[2].interactable = false;
     }
 
     // Update is called once per frame
@@ -65,7 +69,6 @@ public class PhaseChager : MonoBehaviour
     /// </summary>
     public void Oncheck()
     {
-     
         if (toggles[0].isOn)// && sc.phase != StageController.PHASE.PLAY)
         {
             
@@ -98,7 +101,7 @@ public class PhaseChager : MonoBehaviour
 
             //実行フェーズのtoggleを押せないようにする
             toggles[0].interactable = true;
-            toggles[2].interactable = false;
+            toggles[2].interactable = true;
 
             //ブロック選択画面を出す
             openPanel.SetActive(true);

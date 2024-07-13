@@ -13,6 +13,15 @@ public class TapManager : MonoBehaviour
 
     Dictionary<string, Vector3> vertex = new(); // 操作可能範囲の中心と4頂点
 
+    [Header("ダブルタップ")]
+    private bool isDoubleTapStart = false;
+    private float doubleTapTime = 0;
+    [SerializeField] private float doubleTapLimit = 0.2f;
+
+    // 長押し
+    private bool countStart = false;
+    private float holdingTime = 0;
+
     private void Awake()
     {
         vertex.Add("center", new Vector2((dragRangeMax.x + dragRangeMin.x) / 2, (dragRangeMax.y + dragRangeMin.y) / 2));
@@ -20,6 +29,12 @@ public class TapManager : MonoBehaviour
         vertex.Add("right_up", new Vector2(dragRangeMax.x, dragRangeMin.y));
         vertex.Add("left_down", new Vector2(dragRangeMin.x, dragRangeMax.y));
         vertex.Add("right_down", new Vector2(dragRangeMax.x, dragRangeMax.y));
+
+        isDoubleTapStart = false;
+        doubleTapTime = 0;
+
+        countStart = false;
+        holdingTime = 0;
     }
 
     public Vector2 DragRangeMin()
@@ -63,11 +78,6 @@ public class TapManager : MonoBehaviour
         return s;
     }
 
-    [Header("ダブルタップ")]
-    private bool isDoubleTapStart = false;
-    private float doubleTapTime = 0;
-    [SerializeField] private float doubleTapLimit = 0.2f;
-
     /// <summary>
     /// ダブルタップ
     /// </summary>
@@ -85,7 +95,7 @@ public class TapManager : MonoBehaviour
                 {
                     Touch t = Input.GetTouch(0);
 
-                    if (Input.GetTouch(0).phase == TouchPhase.Began)
+                    if (t.phase == TouchPhase.Began)
                     {
                         secondTap?.Invoke();
 
@@ -160,10 +170,6 @@ public class TapManager : MonoBehaviour
         }
     }
 
-
-    // 長押し
-    private bool countStart = false;
-    private float holdingTime = 0;
 
     public void LongTap(Action complete, Action cancel, float holdTime)
     {
