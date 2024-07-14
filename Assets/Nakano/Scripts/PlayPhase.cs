@@ -318,7 +318,6 @@ public class PlayPhase : MonoBehaviour
         isFalling = true;
 
         GameObject finalObj = mapObj[0, 0, 0]; // 最後のオブジェクト
-        bool isWait = true; // 落下終了を待つ
 
         for (int z = 0; z < mapSize.z; z++)
         {
@@ -408,23 +407,23 @@ public class PlayPhase : MonoBehaviour
 
     void CoroutinePause()
     {
-        if (!stageController.IsStop && isFallStart && fall != null)
+        if (!stageController.IsPause && isFallStart && fall != null)
         {
             isFallStart = false;
             StartCoroutine(fall);
         }
-        else if (stageController.IsStop && !isFallStart && fall != null)
+        else if (stageController.IsPause && !isFallStart && fall != null)
         {
             isFallStart = true;
             StopCoroutine(fall);
         }
 
-        if (!stageController.IsStop && isBlinkStart && blink != null)
+        if (!stageController.IsPause && isBlinkStart && blink != null)
         {
             isBlinkStart = false;
             StartCoroutine(blink);
         }
-        else if (stageController.IsStop && !isBlinkStart && blink != null)
+        else if (stageController.IsPause && !isBlinkStart && blink != null)
         {
             isBlinkStart = true;
             StopCoroutine(blink);
@@ -433,7 +432,7 @@ public class PlayPhase : MonoBehaviour
 
     void ClearCheck()
     {
-        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsStop)
+        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsPause)
         {
             // チュートリアルとエクストラステージはミッションないのでリザルトだけ表示
             if (stageName.Contains("Stage"))

@@ -18,6 +18,7 @@ public class TimeManager : MonoBehaviour
     
     private float totalTime = 0;
     public float TotalTime { get { return totalTime; } private set{ totalTime = value; } }
+    public bool TimeActive { get { return timeActive; } private set { timeActive = value; } }
 
     void Start()
     {

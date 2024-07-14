@@ -40,12 +40,12 @@ public class MissionWindow : MonoBehaviour
     {
         if(!stageController) return;
 
-        if (!stageController.IsStop && isDispStart && disp != null)
+        if (!stageController.IsPause && isDispStart && disp != null)
         {
             isDispStart = false;
             StartCoroutine(disp);
         }
-        else if (stageController.IsStop && !isDispStart && disp != null)
+        else if (stageController.IsPause && !isDispStart && disp != null)
         {
             isDispStart = true;
             StopCoroutine(disp);
