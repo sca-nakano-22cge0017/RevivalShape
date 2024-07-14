@@ -11,9 +11,9 @@ public class SensChenz : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        float maxSens = 100f;
-        float minSens = 0;
-        float nowSens = 50;
+        float maxSens = 130f;
+        float minSens = 50;
+        float nowSens = 80;
 
 
         SensSlider.maxValue = maxSens;

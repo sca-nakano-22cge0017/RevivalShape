@@ -1,8 +1,12 @@
 using DG.Tweening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+// Todo カメラ移動中に設定画面を開いたら止める
+// Todo 画面中央押して戻る機能の削除検討
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -25,7 +29,8 @@ public class CameraRotate : MonoBehaviour
     const float MIN_Y = -0.5f; // y座標の下限
 
     // 回転
-    [SerializeField, Header("ドラッグの感度")] private float sensitivity;
+    private float sensitivity;
+    [SerializeField] private SensChenz sensChenger;
     private Vector2 startPos;    // タップの始点
     private Vector2 lastTapPos;  // 前フレームのタップ位置
     private float tx, ty;
@@ -76,7 +81,6 @@ public class CameraRotate : MonoBehaviour
     public bool CanRotate { get; set; } = false;
 
     [SerializeField] GameObject debugobj;
-    [SerializeField] Text debugText;
 
     void Awake()
     {
@@ -107,9 +111,9 @@ public class CameraRotate : MonoBehaviour
 
     void Update()
     {
-        debugText.text = "current: " + currentCameraPos + " next: " + nextCameraPos; 
+        sensitivity = sensChenger.sensitivity;
 
-        if (!CanRotate || stageController.IsStop) return;
+        if (!CanRotate || stageController.IsPause) return;
 
         if (isRestoring) AdjustCameraToTarget();
 
@@ -142,7 +146,7 @@ public class CameraRotate : MonoBehaviour
                 // 判定範囲内だったら処理する
                 if (didSwip && tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax))
                 {
-                    RotateRestore();
+                    StartCoroutine(RotateRestore());
                 }
             }
             else if (t.phase == TouchPhase.Moved)
@@ -399,11 +403,18 @@ public class CameraRotate : MonoBehaviour
 
         if (nextCameraPos == CameraPos.NULL) return;
 
-        Rotate90Degrees();
+        StartCoroutine(Rotate90Degrees());
     }
 
-    private void Rotate90Degrees()
+    private IEnumerator Rotate90Degrees()
     {
+        if(didSwip)
+        {
+            isRestoring = true;
+            StartCoroutine(RotateRestore());
+            yield return new WaitUntil(() => !isRestoring);
+        }
+
         isRotating = true;
         var sequence = DOTween.Sequence();
 
@@ -465,7 +476,6 @@ public class CameraRotate : MonoBehaviour
                 // 回転
                 if (nextCameraPos == CameraPos.UP)
                 {
-                    Debug.Log("test ToUp" + angleXZ + " / " + angleY);
                     sequence
                         .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd))
                         .Join(move)
@@ -473,29 +483,12 @@ public class CameraRotate : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("test FromUp" + angleXZ + " / " + angleY);
                     sequence
                         .Join(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
                         .Append(move)
                         .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd));
                 }
             }
-        }
-
-        // Todo メインゲーム→選択画面→メインの後、スワイプ→ダブルタップすると挙動がおかしくなる
-        // スワイプで回転されていたらもとに戻す処理を加える
-        if (didSwip)
-        {
-            isRestoring = true;
-            sequence
-                .Prepend(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-                .Prepend(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime)).OnComplete(() =>
-                {
-                    didSwip = false;
-                    tx = 0;
-                    ty = 0;
-                    isRestoring = false;
-                });
         }
 
         sequence.OnComplete(() =>
@@ -509,6 +502,7 @@ public class CameraRotate : MonoBehaviour
         });
 
         sequence = null;
+        yield return null;
     }
 
     private Vector3[] GetControllPoint()
@@ -557,7 +551,7 @@ public class CameraRotate : MonoBehaviour
     /// スワイプによるカメラの移動を元の位置に戻す
     /// </summary>
     /// <returns></returns>
-    private void RotateRestore()
+    private IEnumerator RotateRestore()
     {
         isRestoring = true;
 
@@ -575,6 +569,8 @@ public class CameraRotate : MonoBehaviour
                 tx = 0;
                 ty = 0;
             });
+
+        yield return null;
     }
 
     /// <summary>
@@ -590,7 +586,7 @@ public class CameraRotate : MonoBehaviour
         }
 
         nextCameraPos = CameraPos.UP;
-        Rotate90Degrees();
+        StartCoroutine(Rotate90Degrees());
 
         _camera.fieldOfView = vDefault;
     }
@@ -638,7 +634,7 @@ public class CameraRotate : MonoBehaviour
     {
         currentCameraPos = CameraPos.UP;
 
-        RotateRestore();
+        StartCoroutine(RotateRestore());
     }
 
     /// <summary>

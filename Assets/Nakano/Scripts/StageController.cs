@@ -18,6 +18,7 @@ public class StageController : MonoBehaviour
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageDataLoader stageDataLoader;
     [SerializeField] private TapManager tapManager;
+    [SerializeField] private TimeManager timeManager;
     [SerializeField] private MissionScore missionScore;
 
     [SerializeField] private CameraRotate cameraRotate;
@@ -74,8 +75,8 @@ public class StageController : MonoBehaviour
     /// </summary>
     public bool IsRetry { get{ return isRetry; } set{ isRetry = value; } }
 
-    private bool isStop = false;
-    public bool IsStop { get { return isStop; } set { isStop = value; } }
+    private bool isPause = false;
+    public bool IsPause { get { return isPause; } set { isPause = value; } }
 
     [Header("図形描画")]
     [SerializeField, Header("描画範囲 左上")] private Vector2 drawRangeMin = new Vector2(0, 370);
@@ -99,6 +100,8 @@ public class StageController : MonoBehaviour
 
     void Update()
     {
+        isPause = !timeManager.TimeActive;
+
         // ロードが終わっていなければ次の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
 
@@ -153,7 +156,7 @@ public class StageController : MonoBehaviour
         }
 
         // クリア時の遷移処理
-        if (IsClear && Input.touchCount >= 1 && !isStop)
+        if (IsClear && Input.touchCount >= 1 && !isPause)
         {
             // ステージ選択画面に戻る
             if (!playPhase.IsDebug)
@@ -162,7 +165,7 @@ public class StageController : MonoBehaviour
         }
 
         // 再挑戦時の処理
-        if (IsRetry && Input.touchCount >= 1 && !isStop)
+        if (IsRetry && Input.touchCount >= 1 && !isPause)
         {
             // 確認フェーズに戻る
             if (!playPhase.IsDebug)
@@ -264,11 +267,6 @@ public class StageController : MonoBehaviour
 
         // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();
-    }
-
-    public void Pause()
-    {
-        isStop = !isStop;
     }
 
     private void OnGUI()

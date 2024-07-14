@@ -59,7 +59,7 @@ public class ShapeObjects : MonoBehaviour
 
         if(stageController.phase != StageController.PHASE.PLAY) return;
 
-        if(IsFall && !stageController.IsStop)
+        if(IsFall && !stageController.IsPause)
         {
             var tmpPos = this.transform;
             tmpPos.Translate(Vector3.down * FallSpeed * fastForwardRatio * Time.deltaTime);

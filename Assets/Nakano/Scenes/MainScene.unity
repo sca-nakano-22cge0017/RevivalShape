@@ -2962,7 +2962,7 @@ MonoBehaviour:
   _camera: {fileID: 883029808}
   dir: 12
   adjustAngle: 5
-  sensitivity: 85
+  sensChenger: {fileID: 8479405632822147068}
   dragAdjust: 50
   rotateCancellRangeMin: {x: 190, y: 800}
   rotateCancellRangeMax: {x: 890, y: 1500}
@@ -2975,7 +2975,6 @@ MonoBehaviour:
   rotateTime: 1
   play_Angle: 30
   debugobj: {fileID: 8393400806011650622, guid: 515ff1b04374f494d98ed71302c167f6, type: 3}
-  debugText: {fileID: 264243228}
 --- !u!114 &883029811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5496,6 +5495,7 @@ MonoBehaviour:
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
+  timeManager: {fileID: 7731844378942465002}
   missionScore: {fileID: 703794914}
   cameraRotate: {fileID: 883029810}
   sheatCreate: {fileID: 1471772882}
@@ -11180,7 +11180,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1616077950255193125}
   - component: {fileID: 7009867673641617140}
-  - component: {fileID: 9070307620386678807}
   m_Layer: 5
   m_Name: SensSlider
   m_TagString: Untagged
@@ -11760,6 +11759,7 @@ GameObject:
   - component: {fileID: 8479405632822147067}
   - component: {fileID: 5697991593005887161}
   - component: {fileID: 5904100822873545280}
+  - component: {fileID: 8479405632822147068}
   m_Layer: 0
   m_Name: SettingMenuManager
   m_TagString: Untagged
@@ -12520,18 +12520,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1471772881}
-        m_TargetAssemblyTypeName: StageController, Assembly-CSharp
-        m_MethodName: Pause
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!222 &6897152632347360595
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12611,7 +12599,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -12733,18 +12721,6 @@ MonoBehaviour:
       - m_Target: {fileID: 8019060696386041239}
         m_TargetAssemblyTypeName: FadeButtonA, Assembly-CSharp
         m_MethodName: FadeOut
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1471772881}
-        m_TargetAssemblyTypeName: StageController, Assembly-CSharp
-        m_MethodName: Pause
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14117,6 +14093,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4743510794194677387}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8479405632822147068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5951174285983258573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f91bf94e8760c45a507579e565049b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SensSlider: {fileID: 7009867673641617140}
 --- !u!222 &8479816671866763427
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -14648,19 +14637,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &9070307620386678807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5206802231926721680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f91bf94e8760c45a507579e565049b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SensSlider: {fileID: 7009867673641617140}
 --- !u!224 &9115823219018994796
 RectTransform:
   m_ObjectHideFlags: 0
