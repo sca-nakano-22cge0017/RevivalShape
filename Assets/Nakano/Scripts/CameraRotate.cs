@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Todo カメラ移動中に設定画面を開いたら止める
-// Todo 画面中央押して戻る機能の削除検討
+// Todo 画面中央押してカメラ位置を戻す機能の削除検討
+// Todo リセット→ゆっくりスワイプするとき、がくつく
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -40,6 +40,8 @@ public class CameraRotate : MonoBehaviour
     // 回転解除
     private bool didSwip; // スワイプで回転させたかどうか
     private bool isRestoring = false;
+    private Tween restoreTween = null;
+    private bool isRestoreStart = false;
     [SerializeField, Header("スワイプ回転解除範囲　最小")] private Vector2 rotateCancellRangeMin;
     [SerializeField, Header("スワイプ回転解除範囲　最大")] private Vector2 rotateCancellRangeMax;
 
@@ -56,6 +58,9 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("ダブルタップ除外範囲　最大")] private Vector2 cantDoubleTapRangeMax;
     [SerializeField, Header("ダブルタップ時の回転にかかる時間")] private float rotateTime = 1.0f;
     private bool isRotating = false;
+    private Tween rotateTween = null;
+    private IEnumerator rotateCor = null;
+    private bool isRotateStart = false;
 
     // 移動方向
     private enum TeleportDir { UP, DOWN, RIGHT, LEFT, NULL };
@@ -112,6 +117,7 @@ public class CameraRotate : MonoBehaviour
     void Update()
     {
         sensitivity = sensChenger.sensitivity;
+        TweenPause();
 
         if (!CanRotate || stageController.IsPause) return;
 
@@ -146,7 +152,8 @@ public class CameraRotate : MonoBehaviour
                 // 判定範囲内だったら処理する
                 if (didSwip && tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax))
                 {
-                    StartCoroutine(RotateRestore());
+                    RotateRestore();
+                    isRestoreStart = true;
                 }
             }
             else if (t.phase == TouchPhase.Moved)
@@ -403,18 +410,12 @@ public class CameraRotate : MonoBehaviour
 
         if (nextCameraPos == CameraPos.NULL) return;
 
-        StartCoroutine(Rotate90Degrees());
+        Rotate90Degrees();
+        isRotateStart = true;
     }
 
-    private IEnumerator Rotate90Degrees()
+    private void Rotate90Degrees()
     {
-        if(didSwip)
-        {
-            isRestoring = true;
-            StartCoroutine(RotateRestore());
-            yield return new WaitUntil(() => !isRestoring);
-        }
-
         isRotating = true;
         var sequence = DOTween.Sequence();
 
@@ -499,10 +500,37 @@ public class CameraRotate : MonoBehaviour
             ty = 0;
             isRotating = false;
             isRestoring = false;
+            rotateTween = null;
         });
 
-        sequence = null;
-        yield return null;
+        rotateTween = sequence;
+    }
+
+    /// <summary>
+    /// スワイプによるカメラの移動を元の位置に戻す
+    /// </summary>
+    /// <returns></returns>
+    private void RotateRestore()
+    {
+        isRestoring = true;
+
+        var sequence = DOTween.Sequence();
+        //Vector3[] controllPoint = CalcControllPoint(); // 制御点取得
+
+        sequence
+            .Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
+            //.Join(transform.DOLocalPath(new[] { adjustPoint[currentCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false))
+            .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime))
+            .OnComplete(() =>
+            {
+                didSwip = false;
+                isRestoring = false;
+                tx = 0;
+                ty = 0;
+                restoreTween = null;
+            });
+
+        restoreTween = sequence;
     }
 
     private Vector3[] GetControllPoint()
@@ -548,32 +576,6 @@ public class CameraRotate : MonoBehaviour
     }
 
     /// <summary>
-    /// スワイプによるカメラの移動を元の位置に戻す
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator RotateRestore()
-    {
-        isRestoring = true;
-
-        var sequence = DOTween.Sequence();
-        //Vector3[] controllPoint = CalcControllPoint(); // 制御点取得
-
-        sequence
-            .Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-            //.Join(transform.DOLocalPath(new[] { adjustPoint[currentCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false))
-            .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime))
-            .OnComplete(() =>
-            {
-                didSwip = false;
-                isRestoring = false;
-                tx = 0;
-                ty = 0;
-            });
-
-        yield return null;
-    }
-
-    /// <summary>
     /// カメラの位置・回転を初期状態に戻す
     /// </summary>
     public void RotateReset()
@@ -586,9 +588,25 @@ public class CameraRotate : MonoBehaviour
         }
 
         nextCameraPos = CameraPos.UP;
-        StartCoroutine(Rotate90Degrees());
-
         _camera.fieldOfView = vDefault;
+
+        StartCoroutine(RotateResetCoroutine());
+    }
+
+    private IEnumerator RotateResetCoroutine()
+    {
+        if(didSwip)
+        {
+            RotateRestore();
+            isRestoreStart = true;
+            yield return new WaitUntil(() => !isRestoring);
+        }
+
+        if(currentCameraPos != CameraPos.UP)
+        {
+            Rotate90Degrees();
+            isRotateStart = true;
+        }
     }
 
     private CameraPos GetCameraToClosest90Point()
@@ -634,7 +652,8 @@ public class CameraRotate : MonoBehaviour
     {
         currentCameraPos = CameraPos.UP;
 
-        StartCoroutine(RotateRestore());
+        RotateRestore();
+        isRestoreStart = true;
     }
 
     /// <summary>
@@ -677,6 +696,40 @@ public class CameraRotate : MonoBehaviour
         {
             CameraPos c = (CameraPos)Enum.ToObject(typeof(CameraPos), i);
             adjustPoint.Add(c, Quaternion.Euler(0, i * 90, 0) * firstPos + target);
+        }
+    }
+
+    /// <summary>
+    /// Tweenの一時停止/再開
+    /// </summary>
+    private void TweenPause()
+    {
+        if (rotateTween != null)
+        {
+            if (!stageController.IsPause && isRotateStart)
+            {
+                isRotateStart = false;
+                rotateTween.Play();
+            }
+            else if (stageController.IsPause && !isRotateStart)
+            {
+                isRotateStart = true;
+                rotateTween.Pause();
+            }
+        }
+        
+        if(restoreTween != null)
+        {
+            if (!stageController.IsPause && isRestoreStart)
+            {
+                isRestoreStart = false;
+                restoreTween.Play();
+            }
+            else if (stageController.IsPause && !isRestoreStart)
+            {
+                isRestoreStart = true;
+                restoreTween.Pause();
+            }
         }
     }
 }

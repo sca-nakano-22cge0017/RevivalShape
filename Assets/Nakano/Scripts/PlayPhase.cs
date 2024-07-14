@@ -405,7 +405,7 @@ public class PlayPhase : MonoBehaviour
         }
     }
 
-    void CoroutinePause()
+    private void CoroutinePause()
     {
         if (!stageController.IsPause && isFallStart && fall != null)
         {
