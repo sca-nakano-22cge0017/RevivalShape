@@ -170,6 +170,12 @@ public class TapManager : MonoBehaviour
         }
     }
 
+    public void DoubleTapReset()
+    {
+        isDoubleTapStart = false;
+        doubleTapTime = 0;
+    }
+
 
     public void LongTap(Action complete, Action cancel, float holdTime)
     {
@@ -200,7 +206,16 @@ public class TapManager : MonoBehaviour
 
         if(countStart) holdingTime += Time.deltaTime;
 
-        if(holdingTime >= holdTime) complete?.Invoke();
+        if(holdingTime >= holdTime)
+        {
+            complete?.Invoke();
+        }
+    }
+
+    public void LongTapReset()
+    {
+        countStart = false;
+        holdingTime = 0;
     }
 
     /// <summary>
