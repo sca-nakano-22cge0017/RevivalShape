@@ -100,7 +100,8 @@ public class StageController : MonoBehaviour
 
     void Update()
     {
-        isPause = !timeManager.TimeActive;
+        if(phase != PHASE.PLAY) isPause = !timeManager.TimeActive;
+        else isPause = false;
 
         // ロードが終わっていなければ次の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
@@ -192,7 +193,7 @@ public class StageController : MonoBehaviour
             case PHASE.PLAY:
                 playPhase.PlayPhaseEnd();
                 Miss++;
-                cameraRotate.Restore();
+                cameraRotate.FromPlayPhase();
                 break;
         }
 
@@ -263,7 +264,7 @@ public class StageController : MonoBehaviour
         // シート
         sheatCreate.SheatDisp(true, false);
 
-        cameraRotate.PlayPhaseCamera();
+        cameraRotate.ToPlayPhase();
 
         // 実行フェーズ開始処理
         playPhase.PlayPhaseStart();

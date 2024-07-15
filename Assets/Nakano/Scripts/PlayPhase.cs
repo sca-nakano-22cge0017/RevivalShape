@@ -27,8 +27,6 @@ public class PlayPhase : MonoBehaviour
     private ShapeData.Shape[,,] correctAnswer; // 正答
     private ShapeData.Shape[,,] lastAnswer;    // 前の回答
 
-    private bool isFallStart = false;
-    private IEnumerator fall = null;
     private bool isFalling = false;
 
     // 落下スキップ
@@ -61,9 +59,6 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] private GameObject missionWindow;
     [SerializeField] private MissionScore missionScore;
 
-    private bool isBlinkStart = false;
-    private IEnumerator blink = null;
-
     /// <summary>
     /// 確認中か
     /// </summary>
@@ -82,8 +77,6 @@ public class PlayPhase : MonoBehaviour
         matchRateText.enabled = false;
 
         vibration = GameObject.FindObjectOfType<Vibration>();
-
-        fall = null;
     }
 
     public void Initialize()
@@ -116,16 +109,15 @@ public class PlayPhase : MonoBehaviour
 
     private void Update()
     {
-        if(stageController.phase != StageController.PHASE.PLAY) return;
+        if (stageController.phase != StageController.PHASE.PLAY) return;
 
-        CoroutinePause();
-        ClearCheck();
-
-        if (isFalling)
+        if(isFalling)
         {
             Skip();
             FastForward();
         }
+
+        ClearCheck();
     }
 
     /// <summary>
@@ -135,8 +127,11 @@ public class PlayPhase : MonoBehaviour
     {
         tapManager.DoubleTap(() =>
         {
-            isSkip = true;
-            IsFastForward = false;
+            if (isFalling)
+            {
+                isSkip = true;
+                IsFastForward = false;
+            }
         });
     }
 
@@ -190,10 +185,6 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     public void PlayPhaseEnd()
     {
-        isFallStart = false;
-        fall = null;
-        isBlinkStart = false;
-        blink = null;
         StopAllCoroutines();
 
         matchRateText.enabled = false;
@@ -201,6 +192,9 @@ public class PlayPhase : MonoBehaviour
         playPhaseUI.SetActive(false);
         resultWindow.SetActive(false);
         missionWindow.SetActive(false);
+
+        tapManager.LongTapReset();
+        tapManager.DoubleTapReset();
 
         // ブロック非表示
         Transform children = objParent.GetComponentInChildren<Transform>();
@@ -305,9 +299,7 @@ public class PlayPhase : MonoBehaviour
             }
         }
 
-        fall = Fall();
-        StartCoroutine(fall);
-        isFallStart = false;
+        StartCoroutine(Fall());
     }
 
     /// <summary>
@@ -360,9 +352,6 @@ public class PlayPhase : MonoBehaviour
 
     void ResultDisp()
     {
-        isSkip = false;
-        IsFastForward = false;
-
         // 全体の一致率算出
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
         matchRateText.enabled = true;
@@ -380,9 +369,7 @@ public class PlayPhase : MonoBehaviour
         }
         else
         {
-            blink = MatchTextBlinking();
-            StartCoroutine(blink);
-            isBlinkStart = false;
+            StartCoroutine(MatchTextBlinking());
 
             stageController.IsRetry = true;
         }
@@ -402,31 +389,6 @@ public class PlayPhase : MonoBehaviour
             matchRateText.enabled = false;
             yield return new WaitForSeconds(UN_DISP_TIME);
             matchRateText.enabled = true;
-        }
-    }
-
-    private void CoroutinePause()
-    {
-        if (!stageController.IsPause && isFallStart && fall != null)
-        {
-            isFallStart = false;
-            StartCoroutine(fall);
-        }
-        else if (stageController.IsPause && !isFallStart && fall != null)
-        {
-            isFallStart = true;
-            StopCoroutine(fall);
-        }
-
-        if (!stageController.IsPause && isBlinkStart && blink != null)
-        {
-            isBlinkStart = false;
-            StartCoroutine(blink);
-        }
-        else if (stageController.IsPause && !isBlinkStart && blink != null)
-        {
-            isBlinkStart = true;
-            StopCoroutine(blink);
         }
     }
 
