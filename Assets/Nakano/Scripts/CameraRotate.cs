@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Todo 画面中央押してカメラ位置を戻す機能の削除検討
-
 /// <summary>
 /// 確認フェーズ　カメラ制御
 /// </summary>
@@ -42,7 +40,6 @@ public class CameraRotate : MonoBehaviour
     private bool isRestoreStart = false;
     [SerializeField, Header("スワイプ回転解除範囲　最小")] private Vector2 rotateCancellRangeMin;
     [SerializeField, Header("スワイプ回転解除範囲　最大")] private Vector2 rotateCancellRangeMax;
-    float restoreAngleLR = 0, restoreAngleTB = 0;
 
     // 拡縮
     private float sDist = 0.0f, nDist = 0.0f;  //距離変数
@@ -58,7 +55,6 @@ public class CameraRotate : MonoBehaviour
     [SerializeField, Header("ダブルタップ時の回転にかかる時間")] private float rotateTime = 1.0f;
     private bool isRotating = false;
     private Tween rotateTween = null;
-    private IEnumerator rotateCor = null;
     private bool isRotateStart = false;
 
     // 移動方向
@@ -125,29 +121,6 @@ public class CameraRotate : MonoBehaviour
         if (isRestoring)
         {
             AdjustCameraToTarget();
-
-            //var nextPos = adjustPoint[currentCameraPos];
-
-            //var angleAxisLR = Quaternion.AngleAxis(restoreAngleLR * (Time.deltaTime / rotateTime), transform.up); // 左右方向
-            //var angleAxisTB = Quaternion.AngleAxis(restoreAngleTB * (Time.deltaTime / rotateTime), transform.right); // 上下方向
-
-            //restoreAngleLR -= restoreAngleLR * (Time.deltaTime / rotateTime);
-            //restoreAngleTB -= restoreAngleTB * (Time.deltaTime / rotateTime);
-
-            //var pos = transform.position;
-            //pos -= target;
-            //pos = angleAxisLR * angleAxisTB * pos; // 回転移動
-            //pos += target;                          // 平行移動
-
-            //if ((nextPos - pos).magnitude <= 5.0f)
-            //{
-            //    transform.position = adjustPoint[GetCameraToClosest90Point()];
-            //    isRestoring = false;
-            //}
-            //else
-            //{
-            //    transform.position = pos;
-            //}
         }
 
         if (!isRotating && !isRestoring)
@@ -437,12 +410,19 @@ public class CameraRotate : MonoBehaviour
 
         if (nextCameraPos == CameraPos.NULL) return;
 
-        Rotate90Degrees();
+        StartCoroutine(Rotate90Degrees());
         isRotateStart = true;
     }
 
-    private void Rotate90Degrees()
+    private IEnumerator Rotate90Degrees()
     {
+        if (didSwip)
+        {
+            RotateRestore();
+            isRestoreStart = true;
+            yield return new WaitUntil(() => !isRestoring);
+        }
+
         isRotating = true;
         var sequence = DOTween.Sequence();
 
@@ -542,11 +522,9 @@ public class CameraRotate : MonoBehaviour
         isRestoring = true;
 
         var sequence = DOTween.Sequence();
-        //Vector3[] controllPoint = CalcControllPoint(); // 制御点取得
 
         sequence
             .Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-            //.Join(transform.DOLocalPath(new[] { adjustPoint[currentCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false))
             .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime))
             .OnComplete(() =>
             {
@@ -558,20 +536,6 @@ public class CameraRotate : MonoBehaviour
             });
 
         restoreTween = sequence;
-
-        //var pos = transform.position;
-        //pos -= target;
-        //var nextPos = adjustPoint[currentCameraPos];
-        //nextPos -= target;
-
-        //// ベクトルを平面に投影してから角度を出す
-        //Vector3 planeToLR = Vector3.ProjectOnPlane(pos, transform.right);
-        //Vector3 planeFromLR = Vector3.ProjectOnPlane(nextPos, transform.right);
-        //restoreAngleLR = Vector3.SignedAngle(planeFromLR, planeToLR, transform.right);
-
-        //Vector3 planeToTB = Vector3.ProjectOnPlane(pos, Vector3.up);
-        //Vector3 planeFromTB = Vector3.ProjectOnPlane(nextPos, Vector3.up);
-        //restoreAngleTB = Vector3.SignedAngle(planeFromTB, planeToTB, transform.up);
     }
 
     private Vector3[] GetControllPoint()
@@ -590,28 +554,6 @@ public class CameraRotate : MonoBehaviour
 
         point[0] = Vector3.Lerp(adjustPoint[currentCameraPos], relay, 0.5f);
         point[1] = Vector3.Lerp(adjustPoint[nextCameraPos], relay, 0.5f);
-
-        return point;
-    }
-
-    private Vector3[] CalcControllPoint()
-    {
-        float angle = Vector3.Angle(adjustPoint[currentCameraPos], transform.position) * Mathf.Deg2Rad;
-
-        Vector3[] point = new Vector3[2]; // 制御点
-
-        var diff = (4.0f / 3.0f) * Mathf.Tan(angle / 4.0f) * range;
-        var dir = (adjustPoint[currentCameraPos] - transform.position).normalized;
-
-        var pointOneVec = new Vector3(transform.up.x, dir.y, transform.up.z);
-
-        point[0] = transform.position;
-        point[0].y = (diff * pointOneVec + transform.position).y;
-
-        point[1] = diff * dir + adjustPoint[currentCameraPos];
-
-        Instantiate(debugobj, point[0], Quaternion.identity);
-        Instantiate(debugobj, point[1], Quaternion.identity);
 
         return point;
     }
@@ -646,7 +588,7 @@ public class CameraRotate : MonoBehaviour
 
         if (currentCameraPos != CameraPos.UP)
         {
-            Rotate90Degrees();
+            StartCoroutine(Rotate90Degrees());
             isRotateStart = true;
         }
     }
