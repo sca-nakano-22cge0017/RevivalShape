@@ -80,9 +80,9 @@ public class PhaseChager : MonoBehaviour
             toggles[2].interactable = false;
 
             //ブロック選択画面消す
-            openPanel.SetActive(false);
+            //openPanel.SetActive(false);
             blockSelectPanel.SetActive(false);
-            checkPanel.SetActive(true);
+            //checkPanel.SetActive(true);
             //settingPanel.SetActive(true);
 
             // timeManager.OnStart();//test
@@ -104,9 +104,9 @@ public class PhaseChager : MonoBehaviour
             toggles[2].interactable = true;
 
             //ブロック選択画面を出す
-            openPanel.SetActive(true);
+            //openPanel.SetActive(true);
             blockSelectPanel.SetActive(false);
-            checkPanel.SetActive(false);
+            //checkPanel.SetActive(false);
             //settingPanel.SetActive(true);
 
             //timeManager.OnStop();//test
@@ -135,7 +135,7 @@ public class PhaseChager : MonoBehaviour
             
 
             //ブロック選択画面消す
-            openPanel.SetActive(false);
+            //openPanel.SetActive(false);
             blockSelectPanel.SetActive(false);
             //settingPanel.SetActive(false);
         }

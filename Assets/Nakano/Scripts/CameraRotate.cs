@@ -627,6 +627,8 @@ public class CameraRotate : MonoBehaviour
 
         transform.position = new Vector3(target.x, buttom, height);
         transform.LookAt(target, transform.up);
+
+        currentCameraPos = CameraPos.UP;
     }
 
     /// <summary>
