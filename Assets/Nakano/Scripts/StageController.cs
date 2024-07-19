@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// メインゲーム制御
@@ -30,6 +31,12 @@ public class StageController : MonoBehaviour
 
     [SerializeField] private TestButton testButton;
     [SerializeField] private GameObject optionButton;
+    [SerializeField] private Toggle[] toggles = null;
+
+    private bool canToCheckPhase = true;
+    public bool CanToCheckPhase { get { return canToCheckPhase; } private set { canToCheckPhase = value; } }
+    [SerializeField, Header("選択→確認移行時の確認ウィンドウ")] private GameObject confirmWindow;
+    [SerializeField] private Text numberOfReconfirmation;
 
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
@@ -40,7 +47,7 @@ public class StageController : MonoBehaviour
     /// ミス回数
     /// </summary>
     public int Miss { get; private set; } = 0;
-
+    
     /// <summary>
     /// 再確認回数
     /// </summary>
@@ -96,6 +103,9 @@ public class StageController : MonoBehaviour
 
         dataGot = false;
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
+
+        canToCheckPhase = true;
+        confirmWindow.SetActive(false);
     }
 
     void Update()
@@ -187,8 +197,6 @@ public class StageController : MonoBehaviour
         switch (phase)
         {
             case PHASE.SELECT:
-                selectPhase.SelectPhaseEnd();
-                Reconfirmation++;
                 break;
             case PHASE.PLAY:
                 playPhase.PlayPhaseEnd();
@@ -197,18 +205,58 @@ public class StageController : MonoBehaviour
                 break;
         }
 
-        phase = PHASE.CHECK;
+        if (canToCheckPhase)
+        {
+            phase = PHASE.CHECK;
 
-        optionButton.SetActive(true);
+            optionButton.SetActive(true);
 
-        // カメラの回転ができるようにする
-        cameraRotate.CanRotate = true;
+            // カメラの回転ができるようにする
+            cameraRotate.CanRotate = true;
 
-        // シートの表示設定
-        sheatCreate.SheatDisp(true, true);
+            // シートの表示設定
+            sheatCreate.SheatDisp(true, true);
 
-        // 確認フェーズ開始処理
-        checkPhase.CheckPhaseStart();
+            // 確認フェーズ開始処理
+            checkPhase.CheckPhaseStart();
+
+            canToCheckPhase = false;
+        }
+    }
+
+    /// <summary>
+    /// 確認ウィンドウの表示
+    /// </summary>
+    public void ConfirmDisp()
+    {
+        if(phase == PHASE.SELECT)
+        {
+            numberOfReconfirmation.text = "現在の回数：" + Reconfirmation.ToString() + "回";
+            confirmWindow.SetActive(true);
+            timeManager.OnStop();
+        }
+    }
+
+    /// <summary>
+    ///  選択フェーズから確認フェーズへ移行
+    /// </summary>
+    /// <param name="_canToCheckPhase"></param>
+    public void Confirm(bool _canToCheckPhase)
+    {
+        if(phase == PHASE.SELECT)
+        {
+            canToCheckPhase = _canToCheckPhase;
+            confirmWindow.SetActive(false);
+
+            if (canToCheckPhase)
+            {
+                selectPhase.SelectPhaseEnd();
+                ToCheckPhase();
+                Reconfirmation++;
+                testButton.BackToggle();
+                timeManager.OnStart();
+            }
+        }
     }
 
     /// <summary>
@@ -228,6 +276,8 @@ public class StageController : MonoBehaviour
         }
 
         phase = PHASE.SELECT;
+
+        canToCheckPhase = false;
 
         optionButton.SetActive(true);
 
@@ -259,6 +309,7 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.PLAY;
 
+        canToCheckPhase = true;
         optionButton.SetActive(false);
 
         // シート
