@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 /// <summary>
 /// 選択フェーズで使用するボタン
 /// </summary>
 public class SelectPhaseButton : MonoBehaviour
 {
+    private Animator anim;
+
     public SelectPhase selectPhase{ get; set;}
 
     /// <summary>
@@ -46,6 +49,8 @@ public class SelectPhaseButton : MonoBehaviour
         // ボタンの子オブジェクトのTextを取得
         thisText = transform.GetChild(0).gameObject.GetComponent<Text>();
         flame.enabled = false;
+
+        anim = transform.GetChild(0).gameObject.GetComponent<Animator>();
     }
 
     private void Update()
@@ -81,16 +86,8 @@ public class SelectPhaseButton : MonoBehaviour
             {
                 tapStartTime = 0;
 
-                if(!isEraserMode && InputNum < Input_max)
-                {
-                    InputNum++;
-                    selectPhase.ShapeInput(Position);  // 図形追加
-                }
-                else if (isEraserMode && InputNum > 0)
-                {
-                    InputNum--;
-                    selectPhase.ShapeDelete(Position); // 図形消去
-                }
+                anim.SetFloat("Speed", 5);
+                NumChange();
             }
         }
 
@@ -144,16 +141,8 @@ public class SelectPhaseButton : MonoBehaviour
             return;
         }
 
-        if (!isEraserMode && InputNum < Input_max)
-        {
-            InputNum++;
-            selectPhase.ShapeInput(Position);  // 図形追加
-        }
-        else if (isEraserMode && InputNum > 0)
-        {
-            InputNum--;
-            selectPhase.ShapeDelete(Position); // 図形消去
-        }
+        anim.SetFloat("Speed", 1);
+        NumChange();
 
         if(selectPhase.CanSwipInput) return;
 
@@ -169,5 +158,42 @@ public class SelectPhaseButton : MonoBehaviour
         isLongTap = false;
         isCountForLongTap = false;
         tapStartTime = 0;
+    }
+
+    void NumChange()
+    {
+        if (!isEraserMode && InputNum < Input_max)
+        {
+            StartCoroutine(CountUpAnim());
+        }
+        else if (isEraserMode && InputNum > 0)
+        {
+            StartCoroutine(CountDownAnim());
+        }
+    }
+
+    IEnumerator CountUpAnim()
+    {
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
+        anim.SetBool("CountUp", true);
+        
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("SlideIn"));
+        InputNum++;
+        selectPhase.ShapeInput(Position);  // 図形追加
+
+        anim.SetBool("CountUp", false);
+    }
+
+    IEnumerator CountDownAnim()
+    {
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
+        anim.SetBool("CountDown", true);
+
+        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("SlideIn_down"));
+
+        InputNum--;
+        selectPhase.ShapeDelete(Position); // 図形消去
+
+        anim.SetBool("CountDown", false);
     }
 }
