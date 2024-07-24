@@ -21,6 +21,7 @@ public class StageController : MonoBehaviour
     [SerializeField] private TapManager tapManager;
     [SerializeField] private TimeManager timeManager;
     [SerializeField] private MissionScore missionScore;
+    [SerializeField] private Tutorial tutorial;
 
     [SerializeField] private CameraRotate cameraRotate;
     [SerializeField] private SheatCreate sheatCreate;
@@ -31,7 +32,9 @@ public class StageController : MonoBehaviour
 
     [SerializeField] private TestButton testButton;
     [SerializeField] private GameObject optionButton;
-    [SerializeField] private Toggle[] toggles = null;
+
+    private bool isTutorial = false;
+    public bool IsTutorial { get { return isTutorial;} private set { isTutorial = value; } }
 
     private bool canToCheckPhase = true;
     public bool CanToCheckPhase { get { return canToCheckPhase; } private set { canToCheckPhase = value; } }
@@ -106,6 +109,12 @@ public class StageController : MonoBehaviour
 
         canToCheckPhase = true;
         confirmWindow.SetActive(false);
+
+        bool tuto = false;
+        if (stageName == "Tutorial") tuto = true;
+        else tuto = false;
+        tutorial.gameObject.SetActive(tuto);
+        isTutorial = tuto;
     }
 
     void Update()
