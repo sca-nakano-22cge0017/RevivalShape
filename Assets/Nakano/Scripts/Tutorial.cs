@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using System;
 
 [System.Serializable]
 public class Windows
@@ -27,6 +27,9 @@ public class Tutorial : MonoBehaviour
     delegate void PlayFunc();
     PlayFunc playFunc;
 
+    private string methodName = "";
+    public string MethodName { get { return methodName; } private set { methodName = value; } }
+
     private void OnEnable()
     {
         tutorialCanvas.SetActive(true);
@@ -39,7 +42,14 @@ public class Tutorial : MonoBehaviour
         if(playFunc != null)
         {
             playFunc();
+
+            methodName = playFunc.Method.Name;
         }
+    }
+
+    void TentativeFunc()
+    {
+
     }
 
     void CheckA()
@@ -98,12 +108,14 @@ public class Tutorial : MonoBehaviour
         }
     }
 
+    private bool isCheckC = false;
+    public bool IsCheckC { get { return isCheckC; } set { isCheckC = value; } }
     private bool toCheckD = false;
-    public bool ToCheckD { get { return toCheckD; } private set { toCheckD = value; } }
+    public bool ToCheckD { get { return toCheckD; } set { toCheckD = value; } }
 
     public void GoToCheckD()
     {
-        toCheckD = true;
+        isCheckC = true;
     }
 
     void CheckC()
@@ -113,13 +125,20 @@ public class Tutorial : MonoBehaviour
             checkPhase[2].order.SetActive(true);
         }
 
-        if (toCheckD)
+        if(isCheckC)
         {
             checkPhase[2].order.SetActive(false);
+        }
+
+        // 回転演出が終わったら次へ
+        if (toCheckD)
+        {
             playFunc = CheckD;
         }
     }
 
+    private bool isCheckD = false;
+    public bool IsCheckD { get { return isCheckD; } set { isCheckD = value; } }
     private bool toCheckE = false;
     public bool ToCheckE { get { return toCheckE; } set { toCheckE = value; } }
 
@@ -130,9 +149,14 @@ public class Tutorial : MonoBehaviour
             checkPhase[3].order.SetActive(true);
         }
 
-        if (toCheckE)
+        if (isCheckD)
         {
             checkPhase[3].order.SetActive(false);
+        }
+
+        // 回転演出が終わったら次へ
+        if (toCheckE)
+        {
             playFunc = CheckE;
         }
     }
@@ -164,7 +188,8 @@ public class Tutorial : MonoBehaviour
                 checkPhase[4].order.SetActive(false);
                 tapCount = 0;
                 isCheckTutorialEnd = true;
-                playFunc = null;
+
+                playFunc = TentativeFunc;
             }
         }
     }

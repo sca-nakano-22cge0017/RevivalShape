@@ -396,8 +396,7 @@ public class PlayPhase : MonoBehaviour
     {
         if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsPause)
         {
-            // チュートリアルとエクストラステージはミッションないのでリザルトだけ表示
-            if (stageName.Contains("Stage"))
+            if (stageName.Contains("Stage") || stageName.ToLower() == "tutorial")
             {
                 resultWindow.SetActive(false);
                 missionWindow.SetActive(true);
