@@ -18,6 +18,8 @@ public class SelectButtonController : MonoBehaviour
     Dictionary<int, bool> stageRelease = new(); // 解放状態
     Dictionary<int, bool> extraRelease = new();
 
+    [SerializeField] private GameObject tutorialButton;
+
     [SerializeField, Header("ステージ選択画面①")] GameObject firstSelectPanel;
     [SerializeField, Header("ステージ選択画面①のボタン")] private Button[] buttons_FirstSelect;
     
@@ -33,8 +35,6 @@ public class SelectButtonController : MonoBehaviour
     bool loaded = false;
 
     public static int selectNumber = 0; // 選択したステージ番号①
-
-    // Todo Tutorialを選択→クリア後にステージ選択画面①に戻ってくる
 
     void Start()
     {
@@ -70,7 +70,8 @@ public class SelectButtonController : MonoBehaviour
 
                 if (SceneName.GetLastSceneName() == "MainScene")
                 {
-                    FirstSelect(selectNumber);
+                    if(selectNumber > 0)
+                        FirstSelect(selectNumber);
                 }
             }
         }
@@ -95,6 +96,18 @@ public class SelectButtonController : MonoBehaviour
             // 解放済みのステージはボタンを押下できるようにする
             buttons_FirstSelect[i].interactable = stageRelease[i];
         }
+
+        // Tutorial
+        if (gameManager.GetStageData("Tutorial") != null)
+        {
+            StageData data = gameManager.GetStageData("Tutorial");
+            var imageParent = tutorialButton.transform.Find("Mission");
+            MissionIconDisp(imageParent, data);
+        }
+
+        var ssb = tutorialButton.GetComponent<SecondSelectButton>();
+        ssb.selectButton = selectButton;
+        ssb.stageName = "Tutorial";
     }
 
     /// <summary>
@@ -169,6 +182,11 @@ public class SelectButtonController : MonoBehaviour
         // Contentサイズ調整
         var height = maxHeight - (undispButton * contentHeight);
         secondContent.sizeDelta = new Vector2(width, height);
+    }
+
+    public void TutorialSelect()
+    {
+        selectNumber = -1;
     }
 
     void MissionIconDisp(Transform _parent, StageData _data)

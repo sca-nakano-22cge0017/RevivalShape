@@ -113,6 +113,22 @@ public class MissionScore : MonoBehaviour
                 missionText_menu[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
             }
         }
+
+        if(selectStage.ToLower() == "tutorial")
+        {
+            judgeTime = missionTime[0];
+            judgeConfirmation = missionConfirmation[0];
+            judgeMiss = missionMiss[0];
+
+            // 追加 ミッション内容の表示
+            missionText[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
+            missionText[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+            missionText[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
+
+            missionText_menu[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
+            missionText_menu[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+            missionText_menu[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
+        }
     }
 
     //スコアのカウント
@@ -139,6 +155,7 @@ public class MissionScore : MonoBehaviour
         int cm = missCount - judgeMiss;
         if (cm < 0)
         {
+            Debug.Log("test");
             scoreCount++;
             isMissionClear[2] = true;
         }

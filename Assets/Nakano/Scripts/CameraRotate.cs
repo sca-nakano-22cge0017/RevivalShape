@@ -137,6 +137,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void Swip()
     {
+        if (stageController.IsTutorial && tutorial.MethodName != "CheckB" && !tutorial.IsCheckTutorialEnd) return;
+
         if (Input.touchCount == 1)
         {
             Touch t = Input.GetTouch(0);
@@ -171,6 +173,11 @@ public class CameraRotate : MonoBehaviour
                 // スワイプ量
                 tx = t.position.x - lastTapPos.x;
                 ty = t.position.y - lastTapPos.y;
+
+                if (stageController.IsTutorial && tutorial.MethodName == "CheckB")
+                {
+                    ty = 0;
+                }
 
                 // 移動量から回転角度を求める
                 // 始点からの移動量の絶対値が、dragAjustより小さかったら0にし、水平/垂直の移動にする
@@ -341,7 +348,7 @@ public class CameraRotate : MonoBehaviour
             {
                 if((tutorial.ToCheckD && !tutorial.ToCheckE && teleportDir == TeleportDir.RIGHT) || tutorial.IsCheckTutorialEnd)
                 {
-                    tutorial.ToCheckE = true;
+                    tutorial.IsCheckD = true;
                 }
                 else
                 {
@@ -538,6 +545,11 @@ public class CameraRotate : MonoBehaviour
             isRotating = false;
             isRestoring = false;
             rotateTween = null;
+
+            if (stageController.IsTutorial && tutorial.IsCheckD)
+            {
+                tutorial.ToCheckE = true;
+            }
         });
 
         rotateTween = sequence;
@@ -563,6 +575,11 @@ public class CameraRotate : MonoBehaviour
                 tx = 0;
                 ty = 0;
                 restoreTween = null;
+
+                if (stageController.IsTutorial && tutorial.IsCheckC)
+                {
+                    tutorial.ToCheckD = true;
+                }
             });
 
         restoreTween = sequence;
