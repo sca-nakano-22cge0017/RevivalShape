@@ -10,6 +10,7 @@ using UnityEngine;
 public class CameraRotate : MonoBehaviour
 {
     [SerializeField] private StageController stageController;
+    [SerializeField] private Tutorial tutorial;
     [SerializeField] private TapManager tapManager;
     [SerializeField] private Camera _camera;
     private Vector3 mapSize;
@@ -150,7 +151,9 @@ public class CameraRotate : MonoBehaviour
 
                 // シングルタップ時、スワイプによる回転状態をもとに戻す
                 // 判定範囲内だったら処理する
-                if (didSwip && tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax))
+                if (didSwip &&
+                    tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax) &&
+                    !stageController.IsTutorial)
                 {
                     RotateRestore();
                     isRestoreStart = true;
@@ -200,6 +203,18 @@ public class CameraRotate : MonoBehaviour
                 }
 
                 lastTapPos = t.position;
+            }
+
+            else if (t.phase == TouchPhase.Ended)
+            {
+                if (stageController.IsTutorial)
+                {
+                    // 右ドラッグで次へ
+                    if (!tutorial.ToCheckB_2 && tx > 0) tutorial.ToCheckB_2 = true;
+
+                    // 左ドラッグで次へ
+                    if (tutorial.ToCheckB_2 && !tutorial.ToCheckC && tx < 0) tutorial.ToCheckC = true;
+                }
             }
         }
     }
@@ -322,6 +337,21 @@ public class CameraRotate : MonoBehaviour
 
         if (is90Rotate)
         {
+            if(stageController.IsTutorial)
+            {
+                if((tutorial.ToCheckD && !tutorial.ToCheckE && teleportDir == TeleportDir.RIGHT) || tutorial.IsCheckTutorialEnd)
+                {
+                    tutorial.ToCheckE = true;
+                }
+                else
+                {
+                    is90Rotate = false;
+                    inputDir1 = TeleportDir.NULL;
+                    inputDir2 = TeleportDir.NULL;
+                    return;
+                }
+            }
+
             // 現在のカメラ位置から見た上下左右を求める
             switch (currentCameraPos)
             {
