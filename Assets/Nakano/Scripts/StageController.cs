@@ -110,11 +110,12 @@ public class StageController : MonoBehaviour
         canToCheckPhase = true;
         confirmWindow.SetActive(false);
 
-        bool tuto = false;
-        if (stageName == "Tutorial") tuto = true;
-        else tuto = false;
-        tutorial.gameObject.SetActive(tuto);
-        isTutorial = tuto;
+        // チュートリアルなら
+        if(stageName == "Tutorial")
+        {
+            isTutorial = true;
+            tutorial.TutorialStart();
+        }
     }
 
     void Update()
@@ -125,6 +126,16 @@ public class StageController : MonoBehaviour
         // ロードが終わっていなければ次の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
 
+        Initialize();
+        MainGameManage();
+        ClearOrRetry();
+    }
+
+    /// <summary>
+    /// 変数/各フェーズの初期化　確認フェーズへの移行
+    /// </summary>
+    private void Initialize()
+    {
         // データを変数として取得していなければ
         if (!dataGot)
         {
@@ -174,6 +185,33 @@ public class StageController : MonoBehaviour
 
             dataGot = true;
         }
+    }
+
+    private void MainGameManage()
+    {
+        if (IsTutorial) tutorial.TutorialUpdate();
+
+        switch (phase)
+        {
+            case PHASE.CHECK:
+                break;
+            
+            case PHASE.SELECT:
+                break;
+
+            case PHASE.PLAY:
+                break;
+        }
+
+        // Todo 各フェーズのUpdata内の処理をここで呼ぶ
+    }
+
+    /// <summary>
+    /// クリア/リトライ時の処理
+    /// </summary>
+    private void ClearOrRetry()
+    {
+        if(isTutorial && !tutorial.IsTutorialComplete) return;
 
         // クリア時の遷移処理
         if (IsClear && Input.touchCount >= 1 && !isPause)
@@ -286,8 +324,9 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.SELECT;
 
-        canToCheckPhase = false;
+        if(isTutorial) tutorial.ToSelectA();
 
+        canToCheckPhase = false;
         optionButton.SetActive(true);
 
         // カメラ
@@ -317,6 +356,8 @@ public class StageController : MonoBehaviour
         }
 
         phase = PHASE.PLAY;
+
+        if (isTutorial) tutorial.ToPlayA();
 
         canToCheckPhase = true;
         optionButton.SetActive(false);

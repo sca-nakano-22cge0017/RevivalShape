@@ -137,7 +137,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void Swip()
     {
-        if (stageController.IsTutorial && tutorial.MethodName != "CheckB" && !tutorial.IsCheckTutorialEnd) return;
+        if (stageController.IsTutorial && tutorial.MethodName != "CheckB" && !tutorial.TutorialCompleteByPhase) return;
 
         if (Input.touchCount == 1)
         {
@@ -231,6 +231,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void Scaling()
     {
+        if (stageController.IsTutorial && !tutorial.TutorialCompleteByPhase) return;
+
         if (Input.touchCount == 2)
         {
             Touch t1 = Input.GetTouch(0);
@@ -297,6 +299,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void DoubleTap()
     {
+        if (stageController.IsTutorial && tutorial.MethodName != "CheckD" && !tutorial.TutorialCompleteByPhase) return;
+
         tapManager.DoubleTap(
             () =>
             {
@@ -346,7 +350,7 @@ public class CameraRotate : MonoBehaviour
         {
             if(stageController.IsTutorial)
             {
-                if((tutorial.ToCheckD && !tutorial.ToCheckE && teleportDir == TeleportDir.RIGHT) || tutorial.IsCheckTutorialEnd)
+                if((tutorial.ToCheckD && !tutorial.ToCheckE && teleportDir == TeleportDir.RIGHT) || tutorial.TutorialCompleteByPhase)
                 {
                     tutorial.IsCheckD = true;
                 }
@@ -546,7 +550,7 @@ public class CameraRotate : MonoBehaviour
             isRestoring = false;
             rotateTween = null;
 
-            if (stageController.IsTutorial && tutorial.IsCheckD)
+            if (stageController.IsTutorial && tutorial.MethodName == "CheckD")
             {
                 tutorial.ToCheckE = true;
             }
