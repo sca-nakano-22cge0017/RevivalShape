@@ -56,7 +56,7 @@ public class SelectPhase : MonoBehaviour
     [SerializeField] private GameObject stepsParent;
     [SerializeField] private GameObject stepsPrefab;
     private Image[] steps;
-    public bool IsCheck { get; set; } = false;
+    public bool IsCheck { get; private set; } = false;
     private Vector2 checkPos = new Vector2(0, 0); // 確認するマス
 
     // 確認カメラモードのウィンドウを消去できるか
@@ -103,7 +103,7 @@ public class SelectPhase : MonoBehaviour
             checkModeWindow.SetActive(false);
             canCheckWindowUnDisp = false;
 
-            selectButtons[(int)checkPos.x, (int)checkPos.y].IsCheck = false;
+            selectButtons[(int)checkPos.x, (int)checkPos.y].ShapeCheckEnd();
         }
     }
 
@@ -153,7 +153,7 @@ public class SelectPhase : MonoBehaviour
 
                 selectButtons[x, z] = button.GetComponent<SelectPhaseButton>();
                 selectButtons[x, z].Position = new Vector2(x, z);
-                selectButtons[x, z].Input_max = (int)mapSize.y;
+                selectButtons[x, z].InputMax = (int)mapSize.y;
                 selectButtons[x, z].selectPhase = this;
             }
         }
@@ -306,8 +306,10 @@ public class SelectPhase : MonoBehaviour
     /// <summary>
     /// 確認カメラモード 指定したマスの図形を表示する
     /// </summary>
-    public void CheckWindowDisp()
+    public void CheckWindowDisp(Vector2 _checkPos)
     {
+        checkPos = _checkPos;
+
         // ウィンドウ表示
         checkModeWindow.SetActive(true);
 
@@ -319,26 +321,6 @@ public class SelectPhase : MonoBehaviour
         }
 
         InputNumSave();
-
-        checkPos = new Vector2(0, 0); // 確認するマス
-        bool isSearchEnd = false;
-
-        // 確認するマスがどれかを調べる
-        for (int z = 0; z < (int)mapSize.z; z++)
-        {
-            for (int x = 0; x < (int)mapSize.x; x++)
-            {
-                // 確認するマスが見つかったらfor文を抜ける
-                if (selectButtons[x, z].IsCheck)
-                {
-                    checkPos = new Vector2(x, z);
-                    isSearchEnd = true;
-                    break;
-                }
-            }
-
-            if (isSearchEnd) break;
-        }
 
         for (int i = 0; i < steps.Length; i++)
         {

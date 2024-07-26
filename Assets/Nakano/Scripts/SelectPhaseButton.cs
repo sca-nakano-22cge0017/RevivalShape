@@ -7,57 +7,69 @@ using System.Collections;
 /// </summary>
 public class SelectPhaseButton : MonoBehaviour
 {
-    private Animator anim;
+    private StageController stageController;
+    private Tutorial tutorial;
+
+    [SerializeField] private Animator textMoveAnim;
+    [SerializeField] private Text currentText;
+    [SerializeField] private Text nextText;
 
     public SelectPhase selectPhase{ get; set;}
 
+    private int inputNum = 0;
     /// <summary>
     /// 各ボタンに入力された数
     /// </summary>
-    public int InputNum { get; set; } = 0;
+    public int InputNum { get{ return inputNum; } set{ inputNum = value; } }
 
+    private Vector2 position = new Vector2(0, 0);
     /// <summary>
     /// ボタンの位置
     /// </summary>
-    public Vector2 Position { get; set; } = new Vector2(0, 0);
+    public Vector2 Position { get { return position; } set { position = value;  } }
 
-    Text thisText;
-
+    private int max = 10;
     /// <summary>
     /// 入力できる最大値
     /// </summary>
-    public int Input_max { get; set; } = 10;
+    public int InputMax { get{ return max; } set { max = value; } }
 
     // 長押し
-    bool isCountForLongTap = false; // ロングタップ用のカウントを開始するフラグ
-    bool isLongTap = false;         // 長押し中かどうか
-    [SerializeField, Header("長押し中 数値が1上がるまでの時間")] float interval = 0.5f;
-    [SerializeField, Header("長押し成立までの時間")] float longTapTime = 2.0f;
-    float tapStartTime = 0;
+    private bool isCountForLongTap = false; // ロングタップ用のカウントを開始するフラグ
+    private bool isLongTap = false;         // 長押し中かどうか
+    [SerializeField, Header("長押し中 数値が1上がるまでの時間")] private float interval = 0.5f;
+    [SerializeField, Header("長押し成立までの時間")] private float longTapTime = 2.0f;
+    private float tapStartTime = 0;
 
     // 消去モード
-    bool isEraserMode = false; // 消去モードかどうか
+    private bool isEraserMode = false; // 消去モードかどうか
 
     // 確認モード
-    bool isCheckMode = false; // 確認モードかどうか
-    [SerializeField] Image flame; // 確認カメラモード時の発光
+    private bool isCheckMode = false; // 確認モードかどうか
+    [SerializeField] private Image flame; // 確認カメラモード時の発光
 
-    public bool IsCheck{ get; set; } = false; // 確認するマスのボタンか
+    private bool isCheck = false;
+    public bool IsCheck{ get { return isCheck; } set { isCheck = value; } } // 確認するマスのボタンか
+
+    private bool isInAnimation = false; // アニメーション中か
 
     private void Awake()
     {
-        // ボタンの子オブジェクトのTextを取得
-        thisText = transform.GetChild(0).gameObject.GetComponent<Text>();
-        flame.enabled = false;
+        Initialize();
+    }
 
-        anim = transform.GetChild(0).gameObject.GetComponent<Animator>();
+    public void Initialize()
+    {
+        stageController = GameObject.FindObjectOfType<StageController>();
+        tutorial = GameObject.FindObjectOfType<Tutorial>();
+
+        var rt = GetComponent<RectTransform>();
+        flame.GetComponent<RectTransform>().sizeDelta = rt.sizeDelta;
+        flame.enabled = false;
     }
 
     private void Update()
     {
-        // 表示変更
-        thisText.text = InputNum.ToString();
-
         isEraserMode = selectPhase.IsEraser;
         isCheckMode = selectPhase.IsCheck;
 
@@ -86,8 +98,7 @@ public class SelectPhaseButton : MonoBehaviour
             {
                 tapStartTime = 0;
 
-                anim.SetFloat("Speed", 5);
-                NumChange();
+                NumberChange();
             }
         }
 
@@ -96,14 +107,11 @@ public class SelectPhaseButton : MonoBehaviour
             IsCheck = false;
             flame.enabled = false;
         }
+    }
 
-        if (IsCheck)
-        {
-            var rt = GetComponent<RectTransform>();
-            flame.GetComponent<RectTransform>().sizeDelta = rt.sizeDelta;
-            flame.enabled = true;
-        }
-        else flame.enabled = false;
+    public void ShapeCheckEnd()
+    {
+        flame.enabled = false;
     }
 
     public void PointerDown()
@@ -133,16 +141,21 @@ public class SelectPhaseButton : MonoBehaviour
     /// </summary>
     void CountUp()
     {
+        if(stageController.IsTutorial)
+        {
+            tutorial.ToSelectC = true;
+        }
+
         // 確認モードのときに押されたらボタンに応じたマスに配置された図形を表示する
         if (isCheckMode)
         {
             IsCheck = true;
-            selectPhase.CheckWindowDisp();
+            selectPhase.CheckWindowDisp(position);
+            flame.enabled = true;
             return;
         }
-
-        anim.SetFloat("Speed", 1);
-        NumChange();
+        
+        NumberChange();
 
         if(selectPhase.CanSwipInput) return;
 
@@ -160,40 +173,47 @@ public class SelectPhaseButton : MonoBehaviour
         tapStartTime = 0;
     }
 
-    void NumChange()
+    void NumberChange()
     {
-        if (!isEraserMode && InputNum < Input_max)
+        // アニメーション中ならスキップ
+        if(isInAnimation) return;
+
+        if (!isEraserMode && inputNum < max)
         {
-            StartCoroutine(CountUpAnim());
+            StartCoroutine(CountAnimation(true));
         }
-        else if (isEraserMode && InputNum > 0)
+        else if (isEraserMode && inputNum > 0)
         {
-            StartCoroutine(CountDownAnim());
+            StartCoroutine(CountAnimation(false));
         }
     }
 
-    IEnumerator CountUpAnim()
+    /// <summary>
+    /// 演出処理
+    /// </summary>
+    /// <param name="isCountUp">trueのとき増加　falseのとき減少</param>
+    /// <returns></returns>
+    IEnumerator CountAnimation(bool isCountUp)
     {
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
-        anim.SetBool("CountUp", true);
-        
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("SlideIn"));
-        InputNum++;
+        isInAnimation = true;
+
+        int add = isCountUp ? 1 : -1;
+        string animBoolName = isCountUp ? "CountUp" : "CountDown";
+
+        currentText.text = inputNum.ToString();
+        nextText.text = (inputNum + add).ToString();
+
+        // アニメーション中の場合は終わるまで待機
+        yield return new WaitUntil(() => textMoveAnim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
+        textMoveAnim.SetTrigger(animBoolName);
+
+        inputNum += add;
         selectPhase.ShapeInput(Position);  // 図形追加
 
-        anim.SetBool("CountUp", false);
-    }
+        // アニメーション終了後、テキストを更新
+        yield return new WaitUntil(() => textMoveAnim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
+        currentText.text = inputNum.ToString();
 
-    IEnumerator CountDownAnim()
-    {
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
-        anim.SetBool("CountDown", true);
-
-        yield return new WaitUntil(() => anim.GetCurrentAnimatorStateInfo(0).IsName("SlideIn_down"));
-
-        InputNum--;
-        selectPhase.ShapeDelete(Position); // 図形消去
-
-        anim.SetBool("CountDown", false);
+        isInAnimation = false;
     }
 }

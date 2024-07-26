@@ -9,6 +9,7 @@ using System;
 public class PlayPhase : MonoBehaviour
 {
     [SerializeField] private StageController stageController;
+    [SerializeField] private Tutorial tutorial;
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private TapManager tapManager;
     [SerializeField] private MeshCombiner meshCombiner;
@@ -307,6 +308,11 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     IEnumerator Fall()
     {
+        if(stageController.IsTutorial)
+        {
+            yield return new WaitUntil (() => tutorial.EndPlayA);
+        }
+
         isFalling = true;
 
         GameObject finalObj = mapObj[0, 0, 0]; // 最後のオブジェクト
@@ -347,6 +353,14 @@ public class PlayPhase : MonoBehaviour
         }
 
         isFalling = false;
+        
+        if (stageController.IsTutorial)
+        {
+            tutorial.ToPlayB = true;
+
+            yield return new WaitUntil(() => tutorial.EndPlayB);
+        }
+
         Invoke("ResultDisp", fallToMatchdispTime);
     }
 
@@ -361,6 +375,8 @@ public class PlayPhase : MonoBehaviour
         if (matchRate >= 100)
         {
             resultWindow.SetActive(true);
+
+            if (stageController.IsTutorial) tutorial.ToPlayC = true;
             missionScore.ResultDisp();
             
             vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
@@ -390,13 +406,15 @@ public class PlayPhase : MonoBehaviour
             yield return new WaitForSeconds(UN_DISP_TIME);
             matchRateText.enabled = true;
         }
+
+        if (stageController.IsTutorial) tutorial.ToPlayC = true;
     }
 
     void ClearCheck()
     {
-        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsPause)
+        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsPause && tutorial.IsTutorialComplete)
         {
-            if (stageName.Contains("Stage") || stageName.ToLower() == "tutorial")
+            if (stageName.Contains("Stage") || stageName == "Tutorial")
             {
                 resultWindow.SetActive(false);
                 missionWindow.SetActive(true);
