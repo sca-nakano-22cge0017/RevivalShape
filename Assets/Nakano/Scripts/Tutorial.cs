@@ -23,6 +23,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Windows[] playPhase;
 
     [SerializeField, Header("UI操作不可にする用Image")] GameObject obstruct;
+    [SerializeField, Header("タップしてから次にタップできるようになるまでの時間")] float tapCoolTime = 0.5f;
 
     private int tapCount = 0;
     private bool tutorialCompleteByPhase = false;
@@ -33,16 +34,15 @@ public class Tutorial : MonoBehaviour
 
     delegate void PlayFunc();
     PlayFunc playFunc;
-    private bool isFirstSelectPhase = true;
-    private bool isFirstPlayPhase = true;
 
     private bool isTutorialComplete = false;
+    /// <summary>
+    ///  チュートリアルが全て終了しているか
+    /// </summary>
     public bool IsTutorialComplete { get { return isTutorialComplete; } private set { } }
 
     private string methodName = "";
     public string MethodName { get { return methodName; } private set { methodName = value; } }
-
-    [SerializeField, Header("タップしてから次にタップできるようになるまでの時間")] float tapCoolTime = 0.5f;
 
     public void TutorialStart()
     {
@@ -63,15 +63,25 @@ public class Tutorial : MonoBehaviour
     // 確認フェーズの説明
     void CheckA()
     {
-        NextWindowDisplayByTap(checkPhase[0], CheckB, () =>{ });
+        NextWindowDisplayByTap(checkPhase[0], CheckB, () => 
+        {
+            // 右移動指示
+            if (!checkPhase[1].order.activeSelf)
+            {
+                checkPhase[1].order.SetActive(true);
+                checkPhase[1].objects[0].SetActive(true);
+            }
+        });
     }
 
     // 右方向へスワイプしたか
     private bool toCheckB_2 = false;
     public bool ToCheckB_2 { 
         get { return toCheckB_2;} 
-        set { 
-            toCheckB_2 = true;
+        set {
+            if(toCheckB_2) return;
+
+            toCheckB_2 = value;
 
             // 左スワイプ指示
             if (!checkPhase[1].objects[1].activeSelf)
@@ -81,29 +91,9 @@ public class Tutorial : MonoBehaviour
             }
         } 
     }
-
-    // 左方向へスワイプしたか
-    private bool toCheckC = false;
-    public bool ToCheckC { 
-        get { return toCheckC; } 
-        set { 
-            toCheckC = true;
-
-            // 次の処理へ
-            checkPhase[1].order.SetActive(false);
-            checkPhase[1].objects[1].SetActive(false);
-            playFunc = CheckC;
-        }
-    }
     // ドラッグ操作の説明
     void CheckB()
     {
-        // 右移動指示
-        if (!checkPhase[1].order.activeSelf)
-        {
-            checkPhase[1].order.SetActive(true);
-            checkPhase[1].objects[0].SetActive(true);
-        }
     }
 
     // リセットボタンを押したか
@@ -117,17 +107,32 @@ public class Tutorial : MonoBehaviour
             checkPhase[2].order.SetActive(false);
         }
     }
+    // 左方向へスワイプしたか
+    private bool toCheckC = false;
+    public bool ToCheckC
+    {
+        get { return toCheckC; }
+        set
+        {
+            if (toCheckC) return;
+            toCheckC = true;
 
-    // カメラを初期位置に戻す演出が終わったか
-    private bool toCheckD = false;
-    public bool ToCheckD { 
-        get { return toCheckD; } 
-        set { 
-            toCheckD = value;
+            // 次の処理へ
+            checkPhase[1].order.SetActive(false);
+            checkPhase[1].objects[1].SetActive(false);
 
-            // 回転演出が終わったら次へ
-            playFunc = CheckD;
-        } 
+            playFunc = CheckC;
+
+            if (!checkPhase[2].order.activeSelf && isCheckC)
+            {
+                checkPhase[2].order.SetActive(true);
+            }
+        }
+    }
+
+    // リセットボタンの説明
+    void CheckC()
+    {
     }
 
     // リセットボタンを押す
@@ -136,12 +141,17 @@ public class Tutorial : MonoBehaviour
         IsCheckC = true;
     }
 
-    // リセットボタンの説明
-    void CheckC()
+    // カメラを初期位置に戻す演出が終わったか
+    private bool toCheckD = false;
+    public bool ToCheckD
     {
-        if (!checkPhase[2].order.activeSelf && !isCheckC)
+        get { return toCheckD; }
+        set
         {
-            checkPhase[2].order.SetActive(true);
+            toCheckD = value;
+
+            // 回転演出が終わったら次へ
+            playFunc = CheckD;
         }
     }
 
@@ -157,27 +167,29 @@ public class Tutorial : MonoBehaviour
         } 
     }
 
+    // ダブルタップの説明
+    void CheckD()
+    {
+    }
+
     // ダブルタップの回転演出が終わったか
     private bool toCheckE = false;
-    public bool ToCheckE { 
-        get { return toCheckE; } 
-        set { 
+    public bool ToCheckE
+    {
+        get { return toCheckE; }
+        set
+        {
             toCheckE = value;
 
             // 回転演出が終わったら次へ
             playFunc = CheckE;
+
+            if (!checkPhase[3].order.activeSelf && !isCheckD)
+            {
+                checkPhase[3].order.SetActive(true);
+            }
         }
     }
-
-    // ダブルタップの説明
-    void CheckD()
-    {
-        if (!checkPhase[3].order.activeSelf && !isCheckD)
-        {
-            checkPhase[3].order.SetActive(true);
-        }
-    }
-
     // 次のフェーズへの移行ボタンの説明
     void CheckE()
     {
@@ -199,9 +211,18 @@ public class Tutorial : MonoBehaviour
     // 選択フェーズの説明
     void SelectA()
     {
-        if(!isFirstSelectPhase) return;
+        NextWindowDisplayByTap(selectPhase[0], SelectB, () => 
+        {
+            if (!selectPhase[1].order.activeSelf)
+            {
+                selectPhase[1].order.SetActive(true);
+            }
+        });
+    }
 
-        NextWindowDisplayByTap(selectPhase[0], SelectB, () => { });
+    // シートの説明
+    void SelectB()
+    {
     }
 
     // シートに数字を入力したか
@@ -214,89 +235,81 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if(toSelectC) return;
+            if (toSelectC) return;
 
             toSelectC = value;
 
             // 入力されたら
-            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () => 
+            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
             {
-                playFunc = SelectC;
                 selectPhase[1].order.SetActive(false);
+
+                playFunc = SelectC;
+
+                if (!selectPhase[2].order.activeSelf)
+                {
+                    selectPhase[2].order.SetActive(true);
+
+                    StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                    {
+                        toSelectD = true;
+                    }));
+                }
             }));
         }
     }
-
-    // シートの説明
-    void SelectB()
-    {
-        if (!selectPhase[1].order.activeSelf)
-        {
-            selectPhase[1].order.SetActive(true);
-        }
-    }
-
-    private bool toSelectD = false;
-
     // 消しゴムの説明
     void SelectC()
     {
-        if (!selectPhase[2].order.activeSelf)
+        if(toSelectD) NextFunctionByTap(selectPhase[2], SelectD, () => 
         {
-            selectPhase[2].order.SetActive(true);
-
-            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+            if (!selectPhase[3].order.activeSelf)
             {
-                toSelectD = true;
-            }));
-        }
+                selectPhase[3].order.SetActive(true);
 
-        if(toSelectD) NextFunctionByTap(selectPhase[2], SelectD);
+                StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                {
+                    toSelectE = true;
+                }));
+            }
+        });
     }
 
-    private bool toSelectE = false;
-
+    private bool toSelectD = false;
     // 虫眼鏡の説明
     void SelectD()
     {
-        if (!selectPhase[3].order.activeSelf)
+        if (toSelectE) NextFunctionByTap(selectPhase[3], SelectE, () => 
         {
-            selectPhase[3].order.SetActive(true);
-
-            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+            if (!selectPhase[4].order.activeSelf)
             {
-                toSelectE = true;
-            }));
-        }
+                selectPhase[4].order.SetActive(true);
 
-        if (toSelectE) NextFunctionByTap(selectPhase[3], SelectE);
+                StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                {
+                    toSelectF = true;
+                }));
+            }
+        });
     }
 
-    private bool toSelectF = false;
-
+    private bool toSelectE = false;
     // タブの説明
     void SelectE()
     {
-        if (!selectPhase[4].order.activeSelf)
+        if (toSelectF) NextFunctionByTap(selectPhase[4], SelectF, () => 
         {
-            selectPhase[4].order.SetActive(true);
-
-            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
-            {
-                toSelectF = true;
-            }));
-        }
-
-        if (toSelectF) NextFunctionByTap(selectPhase[4], SelectF);
+            if (!selectPhase[5].order.activeSelf) selectPhase[5].order.SetActive(true);
+        });
     }
 
+    private bool toSelectF = false;
     // 次のフェーズへの移行ボタンの説明
     void SelectF()
     {
         NextWindowDisplayByTap(selectPhase[5], () => { }, () => 
         {
             ExplainDisplaing(false);
-            isFirstSelectPhase = false;
         });
     }
 
@@ -307,6 +320,15 @@ public class Tutorial : MonoBehaviour
     {
         playFunc = PlayA;
         ExplainDisplaing(true);
+    }
+
+    // 実行フェーズの説明
+    void PlayA()
+    {
+        NextWindowDisplayByTap(playPhase[0], () => { }, () =>
+        {
+            endPlayA = true;
+        });
     }
 
     // 実行フェーズの説明が終わったか
@@ -323,21 +345,19 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if(toPlayB) return;
+            if (toPlayB) return;
             toPlayB = value;
 
             playFunc = PlayB;
         }
     }
 
-    // 実行フェーズの説明
-    void PlayA()
+    // クリア条件の説明
+    void PlayB()
     {
-        if (!isFirstPlayPhase) return;
-
-        NextWindowDisplayByTap(playPhase[0], () => { }, () =>
+        NextWindowDisplayByTap(playPhase[1], () => { }, () => 
         {
-            endPlayA = true;
+            endPlayB = true;
         });
     }
 
@@ -362,22 +382,12 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    // クリア条件の説明
-    void PlayB()
-    {
-        NextWindowDisplayByTap(playPhase[1], () => { }, () => 
-        {
-            endPlayB = true;
-        });
-    }
-
     // ミッションの説明、チュートリアルの終了
     void PlayC()
     {
         NextWindowDisplayByTap(playPhase[2], () => { }, () => 
         {
             ExplainDisplaing(false);
-            isFirstPlayPhase = false;
             isTutorialComplete = true;
         });
     }
@@ -387,16 +397,17 @@ public class Tutorial : MonoBehaviour
     /// </summary>
     /// <param name="_unDispWindow">非表示にするウィンドウ</param>
     /// <param name="_nextFunc">次の関数</param>
-    void NextFunctionByTap(Windows _unDispWindow, PlayFunc _nextFunc)
+    void NextFunctionByTap(Windows _unDispWindow, PlayFunc _nextFunc, Action _lastFunc)
     {
         if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            playFunc = _nextFunc;
-
             if (_unDispWindow.order.activeSelf)
             {
                 _unDispWindow.order.SetActive(false);
             }
+
+            playFunc = _nextFunc;
+            _lastFunc?.Invoke();
         }
     }
 
@@ -405,11 +416,13 @@ public class Tutorial : MonoBehaviour
     /// </summary>
     /// <param name="_windows">対象ウィンドウ</param>
     /// <param name="_nextFunc">次に呼ぶ関数</param>
-    /// <param name="_lastFunc">処理終了時に行う特殊処理</param>
+    /// <param name="_lastFunc">ウィンドウを閉じるときに行う処理</param>
     void NextWindowDisplayByTap(Windows _windows, PlayFunc _nextFunc, Action _lastFunc)
     {
+        // ウィンドウの親を表示
         if(!_windows.order.activeSelf) _windows.order.SetActive(true);
 
+        // タップで次の説明へ
         if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             tapCount++;
@@ -441,7 +454,10 @@ public class Tutorial : MonoBehaviour
     /// <param name="_isDisplaing">trueのとき、説明中　操作に制限を掛ける + 設定ボタン使用不可</param>
     void ExplainDisplaing(bool _isDisplaing)
     {
+        // 自由に操作できるかを設定
         tutorialCompleteByPhase = !_isDisplaing;
+
+        // 設定ボタンを押せるかを設定
         obstruct.SetActive(_isDisplaing);
     }
 }

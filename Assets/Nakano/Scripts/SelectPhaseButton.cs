@@ -180,11 +180,11 @@ public class SelectPhaseButton : MonoBehaviour
 
         if (!isEraserMode && inputNum < max)
         {
-            StartCoroutine(CountAnimation(true));
+            StartCoroutine(CountAnimation());
         }
         else if (isEraserMode && inputNum > 0)
         {
-            StartCoroutine(CountAnimation(false));
+            StartCoroutine(CountAnimation());
         }
     }
 
@@ -193,12 +193,12 @@ public class SelectPhaseButton : MonoBehaviour
     /// </summary>
     /// <param name="isCountUp">trueのとき増加　falseのとき減少</param>
     /// <returns></returns>
-    IEnumerator CountAnimation(bool isCountUp)
+    IEnumerator CountAnimation()
     {
         isInAnimation = true;
 
-        int add = isCountUp ? 1 : -1;
-        string animBoolName = isCountUp ? "CountUp" : "CountDown";
+        int add = isEraserMode ? -1 : 1;
+        string animBoolName = isEraserMode ? "CountDown" : "CountUp";
 
         currentText.text = inputNum.ToString();
         nextText.text = (inputNum + add).ToString();
@@ -208,7 +208,9 @@ public class SelectPhaseButton : MonoBehaviour
         textMoveAnim.SetTrigger(animBoolName);
 
         inputNum += add;
-        selectPhase.ShapeInput(Position);  // 図形追加
+
+        if(!isEraserMode) selectPhase.ShapeInput(Position); // 図形追加
+        else selectPhase.ShapeDelete(Position); // 図形削除
 
         // アニメーション終了後、テキストを更新
         yield return new WaitUntil(() => textMoveAnim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
