@@ -359,9 +359,9 @@ public class PlayPhase : MonoBehaviour
             tutorial.ToPlayB = true;
 
             yield return new WaitUntil(() => tutorial.EndPlayB);
+            ResultDisp();
         }
-
-        Invoke("ResultDisp", fallToMatchdispTime);
+        else Invoke("ResultDisp", fallToMatchdispTime);
     }
 
     void ResultDisp()
