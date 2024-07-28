@@ -100,7 +100,8 @@ public class Tutorial : MonoBehaviour
     private bool isCheckC = false;
     public bool IsCheckC { 
         get { return isCheckC; } 
-        set { 
+        set {
+            if(isCheckC) return;
             isCheckC = value;
 
             // リセットボタンが押されたらウィンドウの表示を消す
@@ -117,13 +118,13 @@ public class Tutorial : MonoBehaviour
             if (toCheckC) return;
             toCheckC = true;
 
-            // 次の処理へ
+            // スワイプ指示非表示
             checkPhase[1].order.SetActive(false);
             checkPhase[1].objects[1].SetActive(false);
 
             playFunc = CheckC;
 
-            if (!checkPhase[2].order.activeSelf && isCheckC)
+            if (!checkPhase[2].order.activeSelf)
             {
                 checkPhase[2].order.SetActive(true);
             }
@@ -152,6 +153,11 @@ public class Tutorial : MonoBehaviour
 
             // 回転演出が終わったら次へ
             playFunc = CheckD;
+
+            if (!checkPhase[3].order.activeSelf)
+            {
+                checkPhase[3].order.SetActive(true);
+            }
         }
     }
 
@@ -159,7 +165,8 @@ public class Tutorial : MonoBehaviour
     private bool isCheckD = false;
     public bool IsCheckD { 
         get { return isCheckD; } 
-        set { 
+        set {
+            if (isCheckD) return;
             isCheckD = value;
 
             // ダブルタップしたらウィンドウを非表示にする
@@ -184,9 +191,9 @@ public class Tutorial : MonoBehaviour
             // 回転演出が終わったら次へ
             playFunc = CheckE;
 
-            if (!checkPhase[3].order.activeSelf && !isCheckD)
+            if (!checkPhase[4].order.activeSelf)
             {
-                checkPhase[3].order.SetActive(true);
+                checkPhase[4].order.SetActive(true);
             }
         }
     }
