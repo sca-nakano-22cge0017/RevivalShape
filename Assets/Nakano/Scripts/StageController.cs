@@ -326,7 +326,7 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.SELECT;
 
-        if(isTutorial) tutorial.ToSelectA();
+        if(isTutorial) tutorial.ToSelectA = true;
 
         canToCheckPhase = false;
 

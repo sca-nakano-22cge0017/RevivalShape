@@ -219,15 +219,23 @@ public class Tutorial : MonoBehaviour
         });
     }
 
-    /// <summary>
-    /// 選択フェーズの説明を始める
-    /// </summary>
-    public void ToSelectA()
+    private bool toSelectA = false;
+    public bool ToSelectA
     {
-        playFunc = SelectA;
-        ExplainDisplaing(true);
+        get
+        {
+            return toSelectA;
+        }
+        set
+        {
+            if(toSelectA) return;
+            toSelectA = value;
 
-        obstruct.SetActive(false);
+            playFunc = SelectA;
+            ExplainDisplaing(true);
+
+            obstruct.SetActive(false);
+        }
     }
 
     // 選択フェーズの説明
