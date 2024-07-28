@@ -2954,7 +2954,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &291439860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3535,7 +3535,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &383710905
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3625,6 +3625,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageController: {fileID: 1471772881}
+  timeManager: {fileID: 0}
   tutorialCanvas: {fileID: 291439859}
   checkPhase:
   - order: {fileID: 807125092}
@@ -6358,10 +6359,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 291439863}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -278, y: 1344}
-  m_SizeDelta: {x: 300, y: 300}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &737672336
 MonoBehaviour:
@@ -7118,6 +7119,7 @@ MonoBehaviour:
   shapeData: {fileID: 1471772877}
   tapManager: {fileID: 1471772884}
   meshCombiner: {fileID: 1471772885}
+  vibration: {fileID: 1471772883}
   objParent: {fileID: 1894742054}
   playPhaseUI: {fileID: 827930355}
   <FastForwardRatio>k__BackingField: 2
@@ -7964,13 +7966,14 @@ MonoBehaviour:
   stageController: {fileID: 1471772881}
   tutorial: {fileID: 385809803}
   tapManager: {fileID: 883029811}
-  _camera: {fileID: 883029808}
+  m_camera: {fileID: 883029808}
   dir: 12
   adjustAngle: 5
   sensChenger: {fileID: 8479405632822147068}
   dragAdjust: 50
   rotateCancellRangeMin: {x: 190, y: 800}
   rotateCancellRangeMax: {x: 890, y: 1500}
+  restoreTime: 0.5
   vMax: 80
   vMin: 10
   vDefault: 60
@@ -7979,7 +7982,6 @@ MonoBehaviour:
   cantDoubleTapRangeMax: {x: 740, y: 1350}
   rotateTime: 1
   play_Angle: 30
-  debugobj: {fileID: 8393400806011650622, guid: 515ff1b04374f494d98ed71302c167f6, type: 3}
 --- !u!114 &883029811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13045,7 +13047,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Tutorial
+  stageName: Stage1
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
@@ -13970,7 +13972,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1546870840
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15863,7 +15865,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1842642346
 RectTransform:
   m_ObjectHideFlags: 0
@@ -23346,6 +23348,18 @@ MonoBehaviour:
       - m_Target: {fileID: 9168076634275677127}
         m_TargetAssemblyTypeName: FadeButton, Assembly-CSharp
         m_MethodName: FadeIn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 883029810}
+        m_TargetAssemblyTypeName: CameraRotate, Assembly-CSharp
+        m_MethodName: SetSensitivity
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -72,41 +72,6 @@ public class SelectPhase : MonoBehaviour
 
     [SerializeField] private PlayPhase play;
 
-    private void Update()
-    {
-        if (stageController.phase != StageController.PHASE.SELECT) return;
-
-        if (IsEraser || IsCheck)
-        {
-            // ボタンの外を押したらモード終了
-            if (Input.touchCount >= 1)
-            {
-                Touch t = Input.GetTouch(0);
-
-                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
-                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
-
-                if (t.phase == TouchPhase.Began &&
-                    !tapManager.TapOrDragRange(t.position, min, max))
-                {
-                    if (IsEraser) IsEraser = false;
-                    if (IsCheck) IsCheck = false;
-                }
-
-                ModeUIDispSet();
-            }
-        }
-
-        // 画面タップで確認カメラモードのウィンドウを閉じる
-        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
-        {
-            checkModeWindow.SetActive(false);
-            canCheckWindowUnDisp = false;
-
-            selectButtons[(int)checkPos.x, (int)checkPos.y].ShapeCheckEnd();
-        }
-    }
-
     public void Initialize()
     {
         if (!stageController) return;
@@ -224,6 +189,41 @@ public class SelectPhase : MonoBehaviour
         }
     }
 
+    public void SelectPhaseUpdate()
+    {
+        if (stageController.phase != StageController.PHASE.SELECT) return;
+
+        if (IsEraser || IsCheck)
+        {
+            // ボタンの外を押したらモード終了
+            if (Input.touchCount >= 1)
+            {
+                Touch t = Input.GetTouch(0);
+
+                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
+                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
+
+                if (t.phase == TouchPhase.Began &&
+                    !tapManager.TapOrDragRange(t.position, min, max))
+                {
+                    if (IsEraser) IsEraser = false;
+                    if (IsCheck) IsCheck = false;
+                }
+
+                ModeUIDispSet();
+            }
+        }
+
+        // 画面タップで確認カメラモードのウィンドウを閉じる
+        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            checkModeWindow.SetActive(false);
+            canCheckWindowUnDisp = false;
+
+            selectButtons[(int)checkPos.x, (int)checkPos.y].ShapeCheckEnd();
+        }
+    }
+
     /// <summary>
     /// 選択フェーズ終了
     /// </summary>
@@ -247,6 +247,9 @@ public class SelectPhase : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 各モードの表示設定
+    /// </summary>
     void ModeUIDispSet()
     {
         Color clear = new Color(1, 1, 1, 0);

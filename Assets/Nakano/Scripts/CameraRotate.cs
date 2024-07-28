@@ -12,7 +12,7 @@ public class CameraRotate : MonoBehaviour
     [SerializeField] private StageController stageController;
     [SerializeField] private Tutorial tutorial;
     [SerializeField] private TapManager tapManager;
-    [SerializeField] private Camera _camera;
+    [SerializeField] private Camera m_camera;
     private Vector3 mapSize;
     private float wid, hei;  // スクリーンサイズ
 
@@ -37,10 +37,12 @@ public class CameraRotate : MonoBehaviour
     // 回転解除
     private bool didSwip; // スワイプで回転させたかどうか
     private bool isRestoring = false;
-    private Tween restoreTween = null;
-    private bool isRestoreStart = false;
     [SerializeField, Header("スワイプ回転解除範囲　最小")] private Vector2 rotateCancellRangeMin;
     [SerializeField, Header("スワイプ回転解除範囲　最大")] private Vector2 rotateCancellRangeMax;
+    [SerializeField, Header("スワイプによる回転からもとに戻るまでの時間")] private float restoreTime = 1.0f;
+
+    private float restoreAngleY, restoreAngleXZ;
+    private Vector3 restoreNormalVec = Vector3.right;
 
     // 拡縮
     private float sDist = 0.0f, nDist = 0.0f;  //距離変数
@@ -75,15 +77,7 @@ public class CameraRotate : MonoBehaviour
     // 実行フェーズ時のカメラ位置
     [SerializeField, Header("実行フェーズ時のカメラと水平軸のなす角度")] private float play_Angle;
 
-    /// <summary>
-    /// カメラを動かすかどうか
-    /// falseのときは動かない
-    /// </summary>
-    public bool CanRotate { get; set; } = false;
-
-    [SerializeField] GameObject debugobj;
-
-    void Awake()
+    public void Initialize()
     {
         wid = Screen.width;
         hei = Screen.height;
@@ -108,27 +102,29 @@ public class CameraRotate : MonoBehaviour
         teleportDir = TeleportDir.NULL;
         currentCameraPos = CameraPos.UP;
         nextCameraPos = CameraPos.NULL;
+
+        SetSensitivity();
+        CameraSetting();
     }
 
-    void Update()
+    public void CameraUpdate()
     {
-        sensitivity = sensChenger.sensitivity;
-        TweenPause();
+        TweenPauseControll();
 
-        if (!CanRotate || stageController.IsPause) return;
-
-        if (!CanRotate) tapManager.DoubleTapReset();
-
-        if (isRestoring)
+        if(!stageController.IsPause)
         {
-            AdjustCameraToTarget();
-        }
+            if (isRestoring)
+            {
+                Restore();
+                AdjustCameraToTarget();
+            }
 
-        if (!isRotating && !isRestoring)
-        {
-            Swip();
-            Scaling();
-            DoubleTap();
+            if (!isRotating && !isRestoring)
+            {
+                Swip();
+                Scaling();
+                DoubleTap();
+            }
         }
     }
 
@@ -155,10 +151,10 @@ public class CameraRotate : MonoBehaviour
                 // 判定範囲内だったら処理する
                 if (didSwip &&
                     tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax) &&
-                    !stageController.IsTutorial)
+                    ((stageController.IsTutorial && tutorial.TutorialCompleteByPhase) ||
+                    !stageController.IsTutorial))
                 {
-                    RotateRestore();
-                    isRestoreStart = true;
+                    RestoreStart();
                 }
             }
             else if (t.phase == TouchPhase.Moved)
@@ -246,7 +242,7 @@ public class CameraRotate : MonoBehaviour
                 // タップした二点間の距離を取得
                 sDist = Vector2.Distance(t1.position, t2.position);
 
-                vRatio = _camera.fieldOfView;
+                vRatio = m_camera.fieldOfView;
             }
             else if (t1.phase == TouchPhase.Moved || t2.phase == TouchPhase.Moved)
             {
@@ -257,7 +253,7 @@ public class CameraRotate : MonoBehaviour
                 // 拡大
                 if (sDist < nDist) vRatio -= vSpeed * ((vRatio - vMin) / (vMax - vMin)) * (nDist - sDist);
 
-                _camera.fieldOfView = vRatio;
+                m_camera.fieldOfView = vRatio;
                 sDist = nDist;
 
                 transform.LookAt(target, transform.up);
@@ -455,12 +451,15 @@ public class CameraRotate : MonoBehaviour
         isRotateStart = true;
     }
 
+    /// <summary>
+    /// 90度回転
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator Rotate90Degrees()
     {
         if (didSwip)
         {
-            RotateRestore();
-            isRestoreStart = true;
+            RestoreStart();
             yield return new WaitUntil(() => !isRestoring);
         }
 
@@ -563,30 +562,70 @@ public class CameraRotate : MonoBehaviour
     /// スワイプによるカメラの移動を元の位置に戻す
     /// </summary>
     /// <returns></returns>
-    private void RotateRestore()
+    private void RestoreStart()
     {
         isRestoring = true;
 
-        var sequence = DOTween.Sequence();
+        // オブジェクト前方にある補正位置と現在位置のなす角度を求める　⇒　Y軸回転の量を算出
+        var planeFrom = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
+        var planeTo = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
+        var angle = Vector3.SignedAngle(planeFrom, planeTo, Vector3.up);
 
-        sequence
-            .Join(transform.DOLocalPath(new[] { transform.position, adjustPoint[currentCameraPos] }, rotateTime, PathType.CatmullRom).SetOptions(false))
-            .Join(transform.DORotateQuaternion(adjustQuaternion[currentCameraPos], rotateTime))
-            .OnComplete(() =>
+        // targetを中心とした反時計回りのベクトル
+        restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+
+        var from = transform.position - target;
+        var to = adjustPoint[currentCameraPos] - target;
+
+        // 平面にベクトルを投影し、Y軸回転/XまたはZ軸回転の角度を求める
+        // XZ平面に投影
+        var planeUpFrom = Vector3.ProjectOnPlane(from, Vector3.up);
+        var planeUpTo = Vector3.ProjectOnPlane(to, Vector3.up);
+        restoreAngleY = Vector3.SignedAngle(planeUpFrom, planeUpTo, Vector3.up);
+
+        // XY/ZY平面に投影
+        var planeRightFrom = Vector3.ProjectOnPlane(from, restoreNormalVec);
+        var planeRightTo = Vector3.ProjectOnPlane(to, restoreNormalVec);
+        restoreAngleXZ = Vector3.SignedAngle(planeRightFrom, planeRightTo, restoreNormalVec);
+    }
+
+    private void Restore()
+    {
+        var from = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
+        var to = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
+        var angle = Vector3.SignedAngle(from, to, Vector3.up);
+
+        // targetを中心とした反時計回りのベクトルを毎フレーム計算し直す
+        restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+        Ray ray = new Ray(transform.position, restoreNormalVec);
+        Debug.DrawRay(ray.origin, ray.direction, Color.red, 100);
+
+        // 行列の作成
+        var angleAxisY = Quaternion.AngleAxis(restoreAngleY * Time.deltaTime / restoreTime, Vector3.up);
+        var angleAxisXZ = Quaternion.AngleAxis(restoreAngleXZ * Time.deltaTime / restoreTime, restoreNormalVec);
+
+        // 移動
+        var pos = transform.position;
+        pos -= target;
+        pos = angleAxisXZ * angleAxisY * pos; // 回転移動
+        pos += target; // 平行移動
+
+        // 一定以下まで近付いたら回転終了
+        if ((adjustPoint[currentCameraPos] - transform.position).magnitude < 0.5f)
+        {
+            isRestoring = false;
+            transform.position = adjustPoint[currentCameraPos];
+
+            if(stageController.IsTutorial && tutorial.IsCheckC)
             {
-                didSwip = false;
-                isRestoring = false;
-                tx = 0;
-                ty = 0;
-                restoreTween = null;
-
-                if (stageController.IsTutorial && tutorial.IsCheckC)
-                {
-                    tutorial.ToCheckD = true;
-                }
-            });
-
-        restoreTween = sequence;
+                tutorial.ToCheckD = true;
+            }
+        }
+        else
+        {
+            transform.position = pos;
+            transform.LookAt(target, transform.up);
+        }
     }
 
     private Vector3[] GetControllPoint()
@@ -623,20 +662,25 @@ public class CameraRotate : MonoBehaviour
         }
 
         nextCameraPos = CameraPos.UP;
-        _camera.fieldOfView = vDefault;
+        m_camera.fieldOfView = vDefault;
 
         StartCoroutine(RotateResetCoroutine());
     }
 
+    /// <summary>
+    /// カメラの位置・回転を初期状態に戻すコルーチン
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator RotateResetCoroutine()
     {
+        // スワイプしていたら戻す
         if (didSwip)
         {
-            RotateRestore();
-            isRestoreStart = true;
+            RestoreStart();
             yield return new WaitUntil(() => !isRestoring);
         }
 
+        // 戻り切ったら、オブジェクト上部へ移動
         if (currentCameraPos != CameraPos.UP)
         {
             StartCoroutine(Rotate90Degrees());
@@ -644,6 +688,10 @@ public class CameraRotate : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 現在のカメラ位置から最も近い90度毎の補正ポイントを返す
+    /// </summary>
+    /// <returns></returns>
     private CameraPos GetCameraToClosest90Point()
     {
         Vector3 nearestPos = new Vector3(100, 100, 100);
@@ -737,8 +785,9 @@ public class CameraRotate : MonoBehaviour
     /// <summary>
     /// Tweenの一時停止/再開
     /// </summary>
-    private void TweenPause()
+    private void TweenPauseControll()
     {
+        // 90度回転の一時停止/再開
         if (rotateTween != null)
         {
             if (!stageController.IsPause && isRotateStart)
@@ -752,19 +801,22 @@ public class CameraRotate : MonoBehaviour
                 rotateTween.Pause();
             }
         }
+    }
 
-        if (restoreTween != null)
-        {
-            if (!stageController.IsPause && isRestoreStart)
-            {
-                isRestoreStart = false;
-                restoreTween.Play();
-            }
-            else if (stageController.IsPause && !isRestoreStart)
-            {
-                isRestoreStart = true;
-                restoreTween.Pause();
-            }
-        }
+    /// <summary>
+    /// 感度設定
+    /// 設定画面を閉じたときに呼ぶ
+    /// </summary>
+    public void SetSensitivity()
+    {
+        sensitivity = sensChenger.sensitivity;
+    }
+
+    /// <summary>
+    /// タップの状態をリセット
+    /// </summary>
+    public void TapReset()
+    {
+        tapManager.DoubleTapReset();
     }
 }
