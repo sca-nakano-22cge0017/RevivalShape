@@ -16,6 +16,7 @@ public class Windows
 public class Tutorial : MonoBehaviour
 {
     [SerializeField] private StageController stageController;
+    [SerializeField] private TimeManager timeManager;
 
     [SerializeField] private GameObject tutorialCanvas;
     [SerializeField] private Windows[] checkPhase;
@@ -65,12 +66,15 @@ public class Tutorial : MonoBehaviour
     {
         NextWindowDisplayByTap(checkPhase[0], CheckB, () => 
         {
-            // 右移動指示
-            if (!checkPhase[1].order.activeSelf)
+            StartCoroutine(stageController.DelayCoroutine(0.1f, () => 
             {
-                checkPhase[1].order.SetActive(true);
-                checkPhase[1].objects[0].SetActive(true);
-            }
+                // 右移動指示
+                if (!checkPhase[1].order.activeSelf)
+                {
+                    checkPhase[1].order.SetActive(true);
+                    checkPhase[1].objects[0].SetActive(true);
+                }
+            }));
         });
     }
 
@@ -80,7 +84,6 @@ public class Tutorial : MonoBehaviour
         get { return toCheckB_2;} 
         set {
             if(toCheckB_2) return;
-
             toCheckB_2 = value;
 
             // 左スワイプ指示
@@ -96,18 +99,6 @@ public class Tutorial : MonoBehaviour
     {
     }
 
-    // リセットボタンを押したか
-    private bool isCheckC = false;
-    public bool IsCheckC { 
-        get { return isCheckC; } 
-        set {
-            if(isCheckC) return;
-            isCheckC = value;
-
-            // リセットボタンが押されたらウィンドウの表示を消す
-            checkPhase[2].order.SetActive(false);
-        }
-    }
     // 左方向へスワイプしたか
     private bool toCheckC = false;
     public bool ToCheckC
@@ -128,6 +119,25 @@ public class Tutorial : MonoBehaviour
             {
                 checkPhase[2].order.SetActive(true);
             }
+
+            obstruct.SetActive(false);
+        }
+    }
+
+    // リセットボタンを押したか
+    private bool isCheckC = false;
+    public bool IsCheckC
+    {
+        get { return isCheckC; }
+        set
+        {
+            if (isCheckC) return;
+            isCheckC = value;
+
+            // リセットボタンが押されたらウィンドウの表示を消す
+            checkPhase[2].order.SetActive(false);
+
+            obstruct.SetActive(true);
         }
     }
 
@@ -149,6 +159,7 @@ public class Tutorial : MonoBehaviour
         get { return toCheckD; }
         set
         {
+            if(toCheckD) return;
             toCheckD = value;
 
             // 回転演出が終わったら次へ
@@ -186,6 +197,7 @@ public class Tutorial : MonoBehaviour
         get { return toCheckE; }
         set
         {
+            if(toCheckE) return;
             toCheckE = value;
 
             // 回転演出が終わったら次へ
@@ -197,6 +209,7 @@ public class Tutorial : MonoBehaviour
             }
         }
     }
+
     // 次のフェーズへの移行ボタンの説明
     void CheckE()
     {
@@ -213,6 +226,8 @@ public class Tutorial : MonoBehaviour
     {
         playFunc = SelectA;
         ExplainDisplaing(true);
+
+        obstruct.SetActive(false);
     }
 
     // 選択フェーズの説明
@@ -243,7 +258,6 @@ public class Tutorial : MonoBehaviour
         set
         {
             if (toSelectC) return;
-
             toSelectC = value;
 
             // 入力されたら
@@ -256,6 +270,7 @@ public class Tutorial : MonoBehaviour
                 if (!selectPhase[2].order.activeSelf)
                 {
                     selectPhase[2].order.SetActive(true);
+                    obstruct.SetActive(true);
 
                     StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
                     {
@@ -389,12 +404,16 @@ public class Tutorial : MonoBehaviour
         }
     }
 
+    private bool endPlayC = false;
+    public bool EndPlayC { get { return endPlayC;} }
+
     // ミッションの説明、チュートリアルの終了
     void PlayC()
     {
         NextWindowDisplayByTap(playPhase[2], () => { }, () => 
         {
             ExplainDisplaing(false);
+            endPlayC = true;
             isTutorialComplete = true;
         });
     }

@@ -165,13 +165,13 @@ public class StageController : MonoBehaviour
                 ShapeType[i] = ShapeData.Shape.Empty;
             }
 
-            cameraRotate.CameraSetting();
-
             // 正答取得
             CorrectAnswer = stageDataLoader.LoadStageMap(MapSize);
 
             // 使用している図形の種類を取得
             ShapeType = shapeData.ShapeTypes(CorrectAnswer);
+
+            cameraRotate.Initialize();
 
             checkPhase.Initialize();
             selectPhase.Initialize();
@@ -194,16 +194,17 @@ public class StageController : MonoBehaviour
         switch (phase)
         {
             case PHASE.CHECK:
+                cameraRotate.CameraUpdate();
                 break;
             
             case PHASE.SELECT:
+                selectPhase.SelectPhaseUpdate();
                 break;
 
             case PHASE.PLAY:
+                playPhase.PlayPhaseUpdate();
                 break;
         }
-
-        // Todo 各フェーズのUpdata内の処理をここで呼ぶ
     }
 
     /// <summary>
@@ -256,10 +257,11 @@ public class StageController : MonoBehaviour
         {
             phase = PHASE.CHECK;
 
+            // 設定ボタン
             optionButton.SetActive(true);
 
-            // カメラの回転ができるようにする
-            cameraRotate.CanRotate = true;
+            // カメラ
+            cameraRotate.TapReset();
 
             // シートの表示設定
             sheatCreate.SheatDisp(true, true);
@@ -327,10 +329,9 @@ public class StageController : MonoBehaviour
         if(isTutorial) tutorial.ToSelectA();
 
         canToCheckPhase = false;
-        optionButton.SetActive(true);
 
-        // カメラ
-        cameraRotate.CanRotate = false;
+        // 設定ボタン
+        optionButton.SetActive(true);
 
         // シート
         sheatCreate.SheatDisp(false, false);
@@ -360,11 +361,14 @@ public class StageController : MonoBehaviour
         if (isTutorial) tutorial.ToPlayA();
 
         canToCheckPhase = true;
+
+        // 設定ボタン非表示
         optionButton.SetActive(false);
 
         // シート
         sheatCreate.SheatDisp(true, false);
 
+        // カメラ
         cameraRotate.ToPlayPhase();
 
         // 実行フェーズ開始処理
@@ -380,9 +384,28 @@ public class StageController : MonoBehaviour
         }
     }
 
-    public IEnumerator DelayCoroutine(float seconds, Action action)
+    public IEnumerator DelayCoroutine(float _seconds, Action _action)
     {
-        yield return new WaitForSeconds(seconds);
-        action?.Invoke();
+        yield return new WaitForSeconds(_seconds);
+        _action?.Invoke();
+    }
+
+    /// <summary>
+    /// _flagの返り値がtrueになったら_actionを実行する
+    /// </summary>
+    /// <param name="_flag"></param>
+    /// <param name="_action"></param>
+    /// <returns></returns>
+    public IEnumerator DelayCoroutine(Func<bool> _flag, Action _action)
+    {
+        bool flag = false;
+
+        while(!flag)
+        {
+            flag = _flag.Invoke();
+            yield return null;
+        }
+
+        _action?.Invoke();
     }
 }

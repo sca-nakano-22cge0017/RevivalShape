@@ -13,7 +13,7 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private TapManager tapManager;
     [SerializeField] private MeshCombiner meshCombiner;
-    private Vibration vibration;
+    [SerializeField] private Vibration vibration;
 
     [SerializeField] private Transform objParent; // 親オブジェクト
 
@@ -65,7 +65,7 @@ public class PlayPhase : MonoBehaviour
     /// </summary>
     public bool IsDebug { get; private set; } = false;
 
-    private void Awake()
+    public void Initialize()
     {
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage;
@@ -77,11 +77,6 @@ public class PlayPhase : MonoBehaviour
         matchUI.SetActive(false);
         matchRateText.enabled = false;
 
-        vibration = GameObject.FindObjectOfType<Vibration>();
-    }
-
-    public void Initialize()
-    {
         toClearWindow = false;
 
         // マップサイズ取得
@@ -106,49 +101,6 @@ public class PlayPhase : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void Update()
-    {
-        if (stageController.phase != StageController.PHASE.PLAY) return;
-
-        if(isFalling)
-        {
-            Skip();
-            FastForward();
-        }
-
-        ClearCheck();
-    }
-
-    /// <summary>
-    /// 落下演出スキップ
-    /// </summary>
-    void Skip()
-    {
-        tapManager.DoubleTap(() =>
-        {
-            if (isFalling)
-            {
-                isSkip = true;
-                IsFastForward = false;
-            }
-        });
-    }
-
-    /// <summary>
-    /// 落下演出早送り
-    /// </summary>
-    void FastForward()
-    {
-        tapManager.LongTap(() =>
-            {
-                IsFastForward = true;
-                isSkip = false;
-            }, () =>
-            {
-                IsFastForward = false;
-            }, 0.5f);
     }
 
     /// <summary>
@@ -181,6 +133,19 @@ public class PlayPhase : MonoBehaviour
         AnswerInstance();
     }
 
+    public void PlayPhaseUpdate()
+    {
+        if (stageController.phase != StageController.PHASE.PLAY) return;
+
+        if (isFalling)
+        {
+            Skip();
+            FastForward();
+        }
+
+        ClearCheck();
+    }
+
     /// <summary>
     /// 実行フェーズ終了
     /// </summary>
@@ -203,6 +168,36 @@ public class PlayPhase : MonoBehaviour
         {
             obj.gameObject.SetActive(false);
         }
+    }
+
+    /// <summary>
+    /// 落下演出スキップ
+    /// </summary>
+    void Skip()
+    {
+        tapManager.DoubleTap(() =>
+        {
+            if (isFalling)
+            {
+                isSkip = true;
+                IsFastForward = false;
+            }
+        });
+    }
+
+    /// <summary>
+    /// 落下演出早送り
+    /// </summary>
+    void FastForward()
+    {
+        tapManager.LongTap(() =>
+            {
+                IsFastForward = true;
+                isSkip = false;
+            }, () =>
+            {
+                IsFastForward = false;
+            }, 0.5f);
     }
 
     /// <summary>
@@ -356,39 +351,54 @@ public class PlayPhase : MonoBehaviour
         
         if (stageController.IsTutorial)
         {
-            tutorial.ToPlayB = true;
-
-            yield return new WaitUntil(() => tutorial.EndPlayB);
+            yield return new WaitUntil(() => tutorial.EndPlayA);
             ResultDisp();
         }
         else Invoke("ResultDisp", fallToMatchdispTime);
     }
 
+    /// <summary>
+    /// リザルト表示
+    /// </summary>
     void ResultDisp()
     {
         // 全体の一致率算出
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
-        matchRateText.enabled = true;
         matchRateText.text = matchRate.ToString() + "%";
+        matchRateText.enabled = true;
         matchUI.SetActive(true);
 
-        if (matchRate >= 100)
+        float waitTime = 0.0f;
+        if (stageController.IsTutorial)
         {
-            resultWindow.SetActive(true);
-
-            if (stageController.IsTutorial) tutorial.ToPlayC = true;
-            missionScore.ResultDisp();
-            
-            vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
-
-            toClearWindow = true;
+            waitTime = 0.5f;
         }
-        else
+
+        StartCoroutine(stageController.DelayCoroutine(waitTime, () =>
         {
-            StartCoroutine(MatchTextBlinking());
+            tutorial.ToPlayB = true;
 
-            stageController.IsRetry = true;
-        }
+            if (matchRate >= 100)
+            {
+                StartCoroutine(stageController.DelayCoroutine(() =>
+                {
+                    if (stageController.IsTutorial) return tutorial.EndPlayB;
+                    else return true;
+                }, () =>
+                {
+                    resultWindow.SetActive(true);
+                    missionScore.ResultDisp();
+
+                    vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
+
+                    toClearWindow = true;
+                }));
+            }
+            else
+            {
+                StartCoroutine(MatchTextBlinking());
+            }
+        }));
     }
 
     const float UN_DISP_TIME = 0.3f;
@@ -407,12 +417,20 @@ public class PlayPhase : MonoBehaviour
             matchRateText.enabled = true;
         }
 
-        if (stageController.IsTutorial) tutorial.ToPlayC = true;
+        if (stageController.IsTutorial)
+        {
+            tutorial.ToPlayB = true;
+            yield return new WaitUntil(() => tutorial.EndPlayB);
+            tutorial.ToPlayC = true;
+            yield return new WaitUntil(() => tutorial.EndPlayC);
+        }
+
+        stageController.IsRetry = true;
     }
 
     void ClearCheck()
     {
-        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1 && !stageController.IsPause && tutorial.IsTutorialComplete)
+        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1)
         {
             if (stageName.Contains("Stage") || stageName == "Tutorial")
             {
@@ -421,10 +439,33 @@ public class PlayPhase : MonoBehaviour
 
                 if (missionWindow.GetComponent<MissionWindow>().DispEnd)
                 {
-                    StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                    if(stageController.IsTutorial)
                     {
-                        stageController.IsClear = true;
-                    }));
+                        StartCoroutine(stageController.DelayCoroutine(0.5f, () =>
+                        {
+                            tutorial.ToPlayC = true;
+
+                            StartCoroutine(stageController.DelayCoroutine(() =>
+                            {
+                                return tutorial.EndPlayC;
+                            }, () =>
+                            {
+                                StartCoroutine(stageController.DelayCoroutine(0.5f, () =>
+                                {
+                                    stageController.IsClear = true;
+                                }));
+                                
+                            }));
+                        }));
+                    }
+
+                    else
+                    {
+                        StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                        {
+                            stageController.IsClear = true;
+                        }));
+                    }
                 }
             }
             else

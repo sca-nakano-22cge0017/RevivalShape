@@ -22,14 +22,11 @@ public class CheckPhase : MonoBehaviour
     // サンプル生成済みかどうか
     private bool sampleCreated = false;
 
-    private void Awake()
+    public void Initialize()
     {
         checkPhaseUI.SetActive(false);
         objParent.gameObject.SetActive(false);
-    }
 
-    public void Initialize()
-    {
         // マップサイズ取得
         mapSize = stageController.MapSize;
 
