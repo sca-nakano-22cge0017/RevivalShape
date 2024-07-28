@@ -191,9 +191,8 @@ public class CameraRotate : MonoBehaviour
 
                 var pos = transform.position;
                 pos -= target;
-                pos = angleAxisLR * angleAxisTB * pos; // 回転移動
-                pos += target;                          // 平行移動
-
+                pos = angleAxisTB * angleAxisLR * pos; // 回転移動
+                pos += target; // 平行移動
 
                 if (pos.y >= MIN_Y)
                 {
@@ -583,6 +582,8 @@ public class CameraRotate : MonoBehaviour
         var planeUpTo = Vector3.ProjectOnPlane(to, Vector3.up);
         restoreAngleY = Vector3.SignedAngle(planeUpFrom, planeUpTo, Vector3.up);
 
+        restoreAngleY = Mathf.Clamp(restoreAngleY, -180, 180);
+
         // XY/ZY平面に投影
         var planeRightFrom = Vector3.ProjectOnPlane(from, restoreNormalVec);
         var planeRightTo = Vector3.ProjectOnPlane(to, restoreNormalVec);
@@ -591,38 +592,48 @@ public class CameraRotate : MonoBehaviour
 
     private void Restore()
     {
+        // targetを中心とした反時計回りのベクトルを毎フレーム計算し直す
         var from = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
         var to = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
         var angle = Vector3.SignedAngle(from, to, Vector3.up);
-
-        // targetを中心とした反時計回りのベクトルを毎フレーム計算し直す
         restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+
         Ray ray = new Ray(transform.position, restoreNormalVec);
         Debug.DrawRay(ray.origin, ray.direction, Color.red, 100);
 
+        var ratio = Time.deltaTime / restoreTime;
+
         // 行列の作成
-        var angleAxisY = Quaternion.AngleAxis(restoreAngleY * Time.deltaTime / restoreTime, Vector3.up);
-        var angleAxisXZ = Quaternion.AngleAxis(restoreAngleXZ * Time.deltaTime / restoreTime, restoreNormalVec);
+        var angleAxisY = Quaternion.AngleAxis(restoreAngleY * ratio, Vector3.up);
+        var angleAxisXZ = Quaternion.AngleAxis(restoreAngleXZ * ratio, restoreNormalVec);
 
         // 移動
         var pos = transform.position;
         pos -= target;
         pos = angleAxisXZ * angleAxisY * pos; // 回転移動
         pos += target; // 平行移動
+        
+        var rot = transform.rotation;
+        rot = angleAxisXZ * angleAxisY * rot;
 
         // 一定以下まで近付いたら回転終了
-        if ((adjustPoint[currentCameraPos] - transform.position).magnitude < 0.5f)
+        if ((adjustPoint[currentCameraPos] - transform.position).magnitude < 1.0f)
         {
             isRestoring = false;
             transform.position = adjustPoint[currentCameraPos];
+            tx = 0;
+            ty = 0;
+            didSwip = false;
 
-            if(stageController.IsTutorial && tutorial.IsCheckC)
+            if (stageController.IsTutorial && tutorial.IsCheckC)
             {
                 tutorial.ToCheckD = true;
             }
         }
         else
         {
+            if (pos.y < MIN_Y) pos.y = MIN_Y;
+
             transform.position = pos;
             transform.LookAt(target, transform.up);
         }
