@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -23,7 +24,7 @@ public class CameraRotate : MonoBehaviour
     // これらはカメラのY座標を0に補正できるようにするための変数
     [SerializeField, Header("ajustAngle度毎に補正ポイントを置く")] private float adjustAngle;
     private Vector3[] point; // カメラ位置の補正 一定距離まで近付いたらこの座標に移動させる
-    const float MIN_Y = -0.5f; // y座標の下限
+    const float MIN_Y = 0.0f; // y座標の下限
 
     // 回転
     private float sensitivity;
@@ -85,10 +86,10 @@ public class CameraRotate : MonoBehaviour
         point = new Vector3[(int)(360 / adjustAngle)];
 
         adjustQuaternion[CameraPos.UP] = Quaternion.Euler(90, 0, 180);
-        adjustQuaternion[CameraPos.BACK] = Quaternion.Euler(181.79f, 180, 180);
-        adjustQuaternion[CameraPos.RIGHT] = Quaternion.Euler(181.79f, -90, 180);
-        adjustQuaternion[CameraPos.FRONT] = Quaternion.Euler(181.79f, 0, 180);
-        adjustQuaternion[CameraPos.LEFT] = Quaternion.Euler(181.79f, 90, 180);
+        adjustQuaternion[CameraPos.BACK] = Quaternion.Euler(180, 180, 180);
+        adjustQuaternion[CameraPos.RIGHT] = Quaternion.Euler(180, -90, 180);
+        adjustQuaternion[CameraPos.FRONT] = Quaternion.Euler(180, 0, 180);
+        adjustQuaternion[CameraPos.LEFT] = Quaternion.Euler(180, 90, 180);
 
         tx = 0;
         ty = 0;
@@ -100,11 +101,45 @@ public class CameraRotate : MonoBehaviour
         inputDir1 = TeleportDir.NULL;
         inputDir2 = TeleportDir.NULL;
         teleportDir = TeleportDir.NULL;
+
         currentCameraPos = CameraPos.UP;
         nextCameraPos = CameraPos.NULL;
 
+        // サイズ代入
+        if (stageController)
+            mapSize = stageController.MapSize;
+
+        // 注視位置設定
+        target = mapSize / 2;
+        target.x *= -1;
+        target.y = 0;
+        target += new Vector3(0.5f, 0, -0.5f);
+
+        // サンプルのサイズに応じてカメラの初期位置を調整
+        transform.position = new Vector3(target.x, mapSize.x + dir + MIN_Y, target.z);
+
+        // 補正ポイントの生成
+        range = (target - transform.position).magnitude;
+
+        Vector3 firstPos = new Vector3(range, MIN_Y, 0);
+        for (int i = 0; i < point.Length; i++)
+        {
+            point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;
+        }
+
+        // 90度毎の補正ポイントの作成
+        adjustPoint.Add(CameraPos.UP, transform.position);
+
+        for (int i = 1; i < 5; i++)
+        {
+            CameraPos c = (CameraPos)Enum.ToObject(typeof(CameraPos), i);
+            adjustPoint.Add(c, Quaternion.Euler(0, i * 90, 0) * firstPos + target);
+        }
+
+        // 注視
+        transform.LookAt(target, transform.up);
+
         SetSensitivity();
-        CameraSetting();
     }
 
     public void CameraUpdate()
@@ -154,7 +189,7 @@ public class CameraRotate : MonoBehaviour
                     ((stageController.IsTutorial && tutorial.TutorialCompleteByPhase) ||
                     !stageController.IsTutorial))
                 {
-                    RestoreStart();
+                    //RestoreStart();
                 }
             }
             else if (t.phase == TouchPhase.Moved)
@@ -185,9 +220,19 @@ public class CameraRotate : MonoBehaviour
 
                 if (tx != 0 || ty != 0) didSwip = true;
 
+                var up = transform.up;
+                var right = transform.right;
+
+                // 地面を移動する場合は回転軸を変更する
+                if (transform.position.y <= MIN_Y && tx == 0)
+                {
+                    up = Vector3.up;
+                    right = transform.rotation * Vector3.left;
+                }
+
                 // カメラから見て上・右向きのベクトルを回転軸として回転させる
-                var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, transform.up); // 左右方向
-                var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, transform.right); // 上下方向
+                var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, up); // 左右方向
+                var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, right); // 上下方向
 
                 var pos = transform.position;
                 pos -= target;
@@ -201,6 +246,10 @@ public class CameraRotate : MonoBehaviour
                 }
                 else
                 {
+                    pos.y = MIN_Y;
+                    transform.position = pos;
+                    transform.LookAt(target, transform.up);
+
                     AdjustCameraToClosestPoint();
                 }
 
@@ -489,34 +538,34 @@ public class CameraRotate : MonoBehaviour
                 // 回転角度取得
                 if (currentCameraPos == CameraPos.BACK && nextCameraPos == CameraPos.UP)
                 {
-                    angleXZ = new Vector3(91.79f, 0.0f, 0.0f);
+                    angleXZ = new Vector3(90.0f, 0.0f, 0.0f);
                     angleY = new Vector3(0.0f, -180.0f, 0.0f);
                 }
                 else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.BACK)
                 {
-                    angleXZ = new Vector3(-91.79f, 0.0f, 0.0f);
+                    angleXZ = new Vector3(-90.0f, 0.0f, 0.0f);
                     angleY = new Vector3(0.0f, -180.0f, 0.0f);
                 }
 
                 else if (currentCameraPos == CameraPos.RIGHT && nextCameraPos == CameraPos.UP)
                 {
-                    angleXZ = new Vector3(0.0f, 0.0f, -91.79f);
+                    angleXZ = new Vector3(0.0f, 0.0f, -90.0f);
                     angleY = new Vector3(0.0f, 90.0f, 0.0f);
                 }
                 else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.RIGHT)
                 {
-                    angleXZ = new Vector3(0.0f, 0.0f, 91.79f);
+                    angleXZ = new Vector3(0.0f, 0.0f, 90.0f);
                     angleY = new Vector3(0.0f, -90.0f, 0.0f);
                 }
 
                 else if (currentCameraPos == CameraPos.LEFT && nextCameraPos == CameraPos.UP)
                 {
-                    angleXZ = new Vector3(0.0f, 0.0f, 91.79f);
+                    angleXZ = new Vector3(0.0f, 0.0f, 90.0f);
                     angleY = new Vector3(0.0f, -90.0f, 0.0f);
                 }
                 else if (currentCameraPos == CameraPos.UP && nextCameraPos == CameraPos.LEFT)
                 {
-                    angleXZ = new Vector3(0.0f, 0.0f, -91.79f);
+                    angleXZ = new Vector3(0.0f, 0.0f, -90.0f);
                     angleY = new Vector3(0.0f, 90.0f, 0.0f);
                 }
 
@@ -565,13 +614,7 @@ public class CameraRotate : MonoBehaviour
     {
         isRestoring = true;
 
-        // オブジェクト前方にある補正位置と現在位置のなす角度を求める　⇒　Y軸回転の量を算出
-        var planeFrom = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
-        var planeTo = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
-        var angle = Vector3.SignedAngle(planeFrom, planeTo, Vector3.up);
-
-        // targetを中心とした反時計回りのベクトル
-        restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+        CalcRestoreVec();
 
         var from = transform.position - target;
         var to = adjustPoint[currentCameraPos] - target;
@@ -582,24 +625,21 @@ public class CameraRotate : MonoBehaviour
         var planeUpTo = Vector3.ProjectOnPlane(to, Vector3.up);
         restoreAngleY = Vector3.SignedAngle(planeUpFrom, planeUpTo, Vector3.up);
 
-        restoreAngleY = Mathf.Clamp(restoreAngleY, -180, 180);
-
         // XY/ZY平面に投影
         var planeRightFrom = Vector3.ProjectOnPlane(from, restoreNormalVec);
         var planeRightTo = Vector3.ProjectOnPlane(to, restoreNormalVec);
         restoreAngleXZ = Vector3.SignedAngle(planeRightFrom, planeRightTo, restoreNormalVec);
+
+        restoreAngleXZ = Mathf.Clamp(restoreAngleXZ, -90, 90);
     }
 
     private void Restore()
     {
         // targetを中心とした反時計回りのベクトルを毎フレーム計算し直す
-        var from = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
-        var to = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
-        var angle = Vector3.SignedAngle(from, to, Vector3.up);
-        restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+        CalcRestoreVec();
 
-        Ray ray = new Ray(transform.position, restoreNormalVec);
-        Debug.DrawRay(ray.origin, ray.direction, Color.red, 100);
+        //Ray ray = new Ray(transform.position, restoreNormalVec);
+        //Debug.DrawRay(ray.origin, ray.direction, Color.red, 100);
 
         var ratio = Time.deltaTime / restoreTime;
 
@@ -612,9 +652,6 @@ public class CameraRotate : MonoBehaviour
         pos -= target;
         pos = angleAxisXZ * angleAxisY * pos; // 回転移動
         pos += target; // 平行移動
-        
-        var rot = transform.rotation;
-        rot = angleAxisXZ * angleAxisY * rot;
 
         // 一定以下まで近付いたら回転終了
         if ((adjustPoint[currentCameraPos] - transform.position).magnitude < 1.0f)
@@ -637,6 +674,20 @@ public class CameraRotate : MonoBehaviour
             transform.position = pos;
             transform.LookAt(target, transform.up);
         }
+    }
+
+    private void CalcRestoreVec()
+    {
+        // オブジェクト前方にある補正位置と現在位置のなす角度を求める　⇒　Y軸回転の量を算出
+        var planeFrom = Vector3.ProjectOnPlane(adjustPoint[CameraPos.FRONT] - target, Vector3.up);
+        var planeTo = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
+        var angle = Vector3.SignedAngle(planeFrom, planeTo, Vector3.up);
+
+        // targetを中心とした反時計回りのベクトル
+        restoreNormalVec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
+
+        if (transform.position.y <= MIN_Y && adjustPoint[currentCameraPos].y <= MIN_Y) 
+            restoreNormalVec = transform.rotation * Vector3.left;
     }
 
     private Vector3[] GetControllPoint()
@@ -748,49 +799,6 @@ public class CameraRotate : MonoBehaviour
     {
         didSwip = true;
         RotateReset(false);
-    }
-
-    /// <summary>
-    /// カメラの初期設定
-    /// </summary>
-    public void CameraSetting()
-    {
-        currentCameraPos = CameraPos.UP;
-        nextCameraPos = CameraPos.NULL;
-
-        // サイズ代入
-        if (stageController)
-            mapSize = stageController.MapSize;
-
-        // 注視位置設定
-        target = mapSize / 2;
-        target.x *= -1;
-        target.y = 0;
-        target += new Vector3(0.5f, 0, -0.5f);
-
-        // サンプルのサイズに応じてカメラの初期位置を調整
-        transform.position = new Vector3(target.x, mapSize.x + dir + MIN_Y, target.z);
-
-        // 注視
-        transform.LookAt(target, transform.up);
-
-        // 補正ポイントの生成
-        range = (target - transform.position).magnitude;
-
-        Vector3 firstPos = new Vector3(range, MIN_Y, 0);
-        for (int i = 0; i < point.Length; i++)
-        {
-            point[i] = Quaternion.Euler(0, i * adjustAngle, 0) * firstPos + target;
-        }
-
-        // 90度毎の補正ポイントの作成
-        adjustPoint.Add(CameraPos.UP, transform.position);
-
-        for (int i = 1; i < 5; i++)
-        {
-            CameraPos c = (CameraPos)Enum.ToObject(typeof(CameraPos), i);
-            adjustPoint.Add(c, Quaternion.Euler(0, i * 90, 0) * firstPos + target);
-        }
     }
 
     /// <summary>
