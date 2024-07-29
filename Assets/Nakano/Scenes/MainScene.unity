@@ -7970,7 +7970,7 @@ MonoBehaviour:
   dir: 12
   adjustAngle: 5
   sensChenger: {fileID: 8479405632822147068}
-  dragAdjust: 100
+  dragAdjust: 50
   rotateCancellRangeMin: {x: 190, y: 800}
   rotateCancellRangeMax: {x: 890, y: 1500}
   restoreTime: 0.5
