@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using static Extensions;
 
 namespace select
 {
@@ -11,71 +12,83 @@ namespace select
     [System.Serializable]
     public class ShapesUI
     {
-        public ShapeData.Shape shape;
-        public Sprite sprite;
-        public GameObject button; // 図形変更ボタン
+        public ShapeData.Shape shape; // 図形
+        public Sprite sprite;         // アイコンに使用する画像
+        public GameObject button;     // 図形変更ボタン
     }
 }
 
 /// <summary>
 /// 選択フェーズ
 /// </summary>
-public class SelectPhase : MonoBehaviour
+public class SelectPhase : MonoBehaviour, IPhase
 {
     [SerializeField] private StageController stageController;
     [SerializeField] private TapManager tapManager;
 
+    // 入力ボタン
     [SerializeField] private GameObject buttonParent;
     [SerializeField] private GameObject buttonPrefab;
-
     [SerializeField, Header("ボタン表示範囲")] private Vector2 buttonRange;
 
     [SerializeField] private GameObject selectPhaseUI;
 
-    private SelectPhaseButton[,] selectButtons; // 各ボタンのデータ
+    private SelectPhaseButton[,] selectButtons; // 各ボタンに入力されたデータ
+    private int[,] playerInputData;             // プレイヤーが入力したデータ
 
-    private int[,] playerInputData;
-    private ShapeData.Shape selectingShape; // 選択中の図形
-
-    private ShapeData.Shape[] shapeType;     // 使用図形の種類
+    private ShapeData.Shape selectingShape;     // 選択中の図形
+    private ShapeData.Shape[] shapeType;        // 使用図形の種類
 
     private Vector3 mapSize;
 
-    private ShapeData.Shape[,,] playerAnswer; // プレイヤーの解答
+    private ShapeData.Shape[,,] playerAnswer;   // プレイヤーの解答
 
     // 各図形毎のUI
     [SerializeField] private select.ShapesUI[] shapesUI;
 
     // 削除モード
-    [SerializeField] private GameObject eraserModeButton;
+    [SerializeField, Header("削除モードのボタン")] private GameObject eraserModeButton;
+    /// <summary>
+    /// 削除モードか
+    /// </summary>
     public bool IsEraser { get; set; } = false;
 
     // 確認モード
-    [SerializeField] private GameObject checkModeButton;
-    [SerializeField] private GameObject checkModeWindow;
-    [SerializeField] private GameObject stepsParent;
-    [SerializeField] private GameObject stepsPrefab;
-    private Image[] steps;
+    [SerializeField, Header("確認モードのボタン")] private GameObject checkModeButton;
+    [SerializeField, Header("確認モードのウィンドウ")] private GameObject checkModeWindow;
+    [SerializeField] private GameObject stepsParent;     // 画像を配置する場所
+    [SerializeField] private GameObject stepsPrefab;     // 生成する画像
+    private Image[] steps;                               // 表示する画像　Spriteを変更する
+    /// <summary>
+    /// 確認モードか
+    /// </summary>
     public bool IsCheck { get; private set; } = false;
-    private Vector2 checkPos = new Vector2(0, 0); // 確認するマス
+    private Vector2 checkPos = new Vector2(0, 0);     // 確認するマスの座標
 
     // 確認カメラモードのウィンドウを消去できるか
     private bool canCheckWindowUnDisp = false;
 
-    // スワイプして数字を上昇させられるか
-    public bool CanSwipInput { get; set; } = false;
+    private bool canSwipInput = false;
+    /// <summary>
+    /// スワイプして数字を上昇させられるか
+    /// </summary>
+    public bool CanSwipInput
+    {
+        get
+        {
+            return canSwipInput;
+        }
+        set
+        {
+            canSwipInput = value;
+        }
+    }
 
-    // 各モード時の黒背景
-    [SerializeField] private GameObject modeBG;
-
-    [SerializeField] private GameObject clearBG;
-
-    [SerializeField] private PlayPhase play;
+    [SerializeField, Header("各モード時の黒背景")] private GameObject modeBG;
+    [SerializeField, Header("各モード時のUI妨害用")] private GameObject clearBG;
 
     public void Initialize()
     {
-        if (!stageController) return;
-
         // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
         checkModeWindow.SetActive(false);
@@ -88,10 +101,16 @@ public class SelectPhase : MonoBehaviour
         // 使用図形を取得
         shapeType = stageController.ShapeType;
 
+        // ボタンの親オブジェクトのサイズ調整
+        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
+        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
+
+        // 配列の要素数設定
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
         playerAnswer = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         playerInputData = new int[(int)mapSize.x, (int)mapSize.z];
 
+        // 配列の初期化
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int y = 0; y < mapSize.y; y++)
@@ -99,15 +118,10 @@ public class SelectPhase : MonoBehaviour
                 for (int x = 0; x < mapSize.x; x++)
                 {
                     playerAnswer[x, y, z] = ShapeData.Shape.Empty;
-                    selectButtons[x, z] = null;
                     playerInputData[x, z] = 0;
                 }
             }
         }
-
-        // ボタンの親オブジェクトのサイズ調整
-        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
-        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
 
         // マップの広さ分ボタンを生成
         for (int z = 0; z < (int)mapSize.z; z++)
@@ -138,8 +152,7 @@ public class SelectPhase : MonoBehaviour
         }
 
         // 図形変更ボタン設定
-        bool firstShape = true; // 一番最初に配置する図形
-
+        bool firstShape = true;
         foreach (var ui in shapesUI)
         {
             if (ui.shape == ShapeData.Shape.Empty) continue;
@@ -156,6 +169,7 @@ public class SelectPhase : MonoBehaviour
                     // ボタンを表示
                     ui.button.SetActive(true);
 
+                    // 一番目の図形なら
                     if (firstShape)
                     {
                         // 初期状態で選択している図形を設定
@@ -174,7 +188,7 @@ public class SelectPhase : MonoBehaviour
     /// <summary>
     /// 選択フェーズ移行時の処理
     /// </summary>
-    public void SelectPhaseStart()
+    public void PhaseStart()
     {
         // UI表示
         selectPhaseUI.SetActive(true);
@@ -189,10 +203,8 @@ public class SelectPhase : MonoBehaviour
         }
     }
 
-    public void SelectPhaseUpdate()
+    public void PhaseUpdate()
     {
-        if (stageController.phase != StageController.PHASE.SELECT) return;
-
         if (IsEraser || IsCheck)
         {
             // ボタンの外を押したらモード終了
@@ -203,6 +215,7 @@ public class SelectPhase : MonoBehaviour
                 Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
                 Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
 
+                // ボタンの外側をタップしたらモード解除する
                 if (t.phase == TouchPhase.Began &&
                     !tapManager.TapOrDragRange(t.position, min, max))
                 {
@@ -214,7 +227,7 @@ public class SelectPhase : MonoBehaviour
             }
         }
 
-        // 画面タップで確認カメラモードのウィンドウを閉じる
+        // 画面タップで確認モードのウィンドウを閉じる
         if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             checkModeWindow.SetActive(false);
@@ -227,7 +240,7 @@ public class SelectPhase : MonoBehaviour
     /// <summary>
     /// 選択フェーズ終了
     /// </summary>
-    public void SelectPhaseEnd()
+    public void PhaseEnd()
     {
         InputNumSave();
 
@@ -260,6 +273,28 @@ public class SelectPhase : MonoBehaviour
             // モード時は背景暗く
             modeBG.SetActive(true);
             clearBG.SetActive(true);
+
+            GameObject disp = null;
+            GameObject unDisp = null;
+
+            if (IsCheck)
+            {
+                disp = checkModeButton;
+                unDisp = eraserModeButton;
+            }
+            if (IsEraser)
+            {
+                unDisp = checkModeButton;
+                disp = eraserModeButton;
+            }
+
+            // モード中はボタンを白く光らせる
+            disp.GetComponent<Image>().color = unClear;
+            unDisp.GetComponent<Image>().color = clear;
+
+            // 表示順変更
+            unDisp.transform.SetAsFirstSibling();
+            disp.transform.SetAsLastSibling();
         }
         else
         {
@@ -268,23 +303,6 @@ public class SelectPhase : MonoBehaviour
 
             modeBG.SetActive(false);
             clearBG.SetActive(false);
-        }
-
-        if (IsEraser)
-        {
-            checkModeButton.GetComponent<Image>().color = clear;
-            eraserModeButton.GetComponent<Image>().color = unClear;
-
-            checkModeButton.transform.SetAsFirstSibling();
-            eraserModeButton.transform.SetAsLastSibling();
-        }
-        if (IsCheck)
-        {
-            checkModeButton.GetComponent<Image>().color = unClear;
-            eraserModeButton.GetComponent<Image>().color = clear;
-
-            eraserModeButton.transform.SetAsFirstSibling();
-            checkModeButton.transform.SetAsLastSibling();
         }
     }
 
@@ -341,7 +359,7 @@ public class SelectPhase : MonoBehaviour
         }
 
         // ウィンドウの表示と非表示が一瞬で行われるので表示後一定時間待ってから、非表示にできるようにする
-        StartCoroutine(stageController.DelayCoroutine(0.1f, () =>
+        StartCoroutine(DelayCoroutine(0.1f, () =>
         {
             canCheckWindowUnDisp = true;
         }));
@@ -377,8 +395,10 @@ public class SelectPhase : MonoBehaviour
         {
             if (s.shape == ShapeData.Shape.Empty) continue;
 
+            // 選択中の図形は枠表示＋明るくする
             var frame = s.button.transform.Find("Frame").gameObject;
             var front = s.button.transform.Find("Front").gameObject;
+
             if (s.shape == selectingShape)
             {
                 frame.SetActive(true);
@@ -427,6 +447,7 @@ public class SelectPhase : MonoBehaviour
             }
         }
 
+        // 解答に保存
         playerAnswer[(int)buttonPos.x, nextYPos, (int)buttonPos.y] = selectingShape;
     }
 

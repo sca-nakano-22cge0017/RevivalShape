@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using static MathExtensions;
 
 /// <summary>
 /// タップ関連の処理
@@ -9,7 +10,30 @@ using System;
 public class TapManager : MonoBehaviour
 {
     [SerializeField, Header("スワイプの範囲 左上")] private Vector2 dragRangeMin = new Vector2(0, 370);
+    public Vector2 DragRangeMin
+    {
+        get
+        {
+            return dragRangeMin;
+        }
+        set
+        {
+            dragRangeMin = value;
+        }
+    }
+
     [SerializeField, Header("スワイプの範囲 右下")] private Vector2 dragRangeMax = new Vector2(1080, 1700);
+    public Vector2 DragRangeMax
+    {
+        get
+        {
+            return dragRangeMax;
+        }
+        set
+        {
+            dragRangeMax = value;
+        }
+    }
 
     Dictionary<string, Vector3> vertex = new(); // 操作可能範囲の中心と4頂点
 
@@ -37,18 +61,8 @@ public class TapManager : MonoBehaviour
         holdingTime = 0;
     }
 
-    public Vector2 DragRangeMin()
-    {
-        return dragRangeMin;
-    }
-
-    public Vector2 DragRangeMax()
-    {
-        return dragRangeMax;
-    }
-
     /// <summary>
-    /// タップ位置が画面上のどのあたりかを上下左右で判定
+    /// タップ位置が画面上のどこかを上下左右で判定
     /// </summary>
     /// <param name="_pos">タップ位置</param>
     /// <returns></returns>
@@ -60,19 +74,19 @@ public class TapManager : MonoBehaviour
         _pos.y += Screen.height;
 
         // 上部分
-        if (InsideOrOutsideJudgement.Judge(vertex["right_up"], vertex["left_up"], vertex["center"], _pos))
+        if (InsideOrOutsideJudgement(vertex["right_up"], vertex["left_up"], vertex["center"], _pos))
             s = "up";
 
         // 下部分
-        if (InsideOrOutsideJudgement.Judge(vertex["left_down"], vertex["right_down"], vertex["center"], _pos))
+        if (InsideOrOutsideJudgement(vertex["left_down"], vertex["right_down"], vertex["center"], _pos))
             s = "down";
 
         // 右部分
-        if (InsideOrOutsideJudgement.Judge(vertex["right_down"], vertex["right_up"], vertex["center"], _pos))
+        if (InsideOrOutsideJudgement(vertex["right_down"], vertex["right_up"], vertex["center"], _pos))
             s = "right";
 
         // 左部分
-        if (InsideOrOutsideJudgement.Judge(vertex["left_up"], vertex["left_down"], vertex["center"], _pos))
+        if (InsideOrOutsideJudgement(vertex["left_up"], vertex["left_down"], vertex["center"], _pos))
             s = "left";
 
         return s;
@@ -99,8 +113,7 @@ public class TapManager : MonoBehaviour
                     {
                         secondTap?.Invoke();
 
-                        isDoubleTapStart = false;
-                        doubleTapTime = 0.0f;
+                        DoubleTapReset();
                     }
                 }
             }
@@ -151,8 +164,7 @@ public class TapManager : MonoBehaviour
             }
             else
             {
-                isDoubleTapStart = false;
-                doubleTapTime = 0.0f;
+                DoubleTapReset();
             }
         }
         else
@@ -237,8 +249,8 @@ public class TapManager : MonoBehaviour
     /// タップ位置が範囲内か調べる
     /// </summary>
     /// <param name="_pos">タップ位置</param>
-    /// <param name="_minPos">範囲　最小</param>
-    /// <param name="_maxPos">範囲　最大</param>
+    /// <param name="_minPos">任意の範囲　X,Y座標共に最大の場所</param>
+    /// <param name="_maxPos">任意の範囲　X,Y座標共に最大の場所</param>
     /// <returns>範囲内であればtrue</returns>
     public bool TapOrDragRange(Vector3 _pos, Vector3 _minPos, Vector3 _maxPos)
     {
@@ -248,37 +260,5 @@ public class TapManager : MonoBehaviour
         if (_pos.x <= _minPos.x || _pos.x > _maxPos.x || _pos.y <= _minPos.y || _pos.y > _maxPos.y)
             return false;
         else return true;
-    }
-}
-
-public static class InsideOrOutsideJudgement
-{
-    /// <summary>
-    /// 外積による内外判定
-    /// </summary>
-    /// <param name="_vertexLeft">底辺 左側の頂点</param>
-    /// <param name="_vertexRight">底辺 右側の頂点</param>
-    /// <param name="_vertexTop">上部の頂点</param>
-    /// <param name="_judgePos">判定する位置</param>
-    /// <returns>三角形の内部にあればtrue</returns>
-    public static bool Judge(Vector2 _vertexLeft, Vector2 _vertexRight, Vector2 _vertexTop, Vector2 _judgePos)
-    {
-        // ベクトル
-        Vector3 leftToTop = _vertexTop - _vertexLeft;
-        Vector3 leftToRight = _vertexRight - _vertexLeft;
-        Vector3 rightToTop = _vertexTop - _vertexRight;
-        Vector3 leftToJudge = _judgePos - _vertexLeft;
-        Vector3 rightToJudge = _judgePos - _vertexRight;
-
-        // 外積計算
-        Vector3 cross1 = Vector3.Cross(leftToJudge, leftToTop);
-        Vector3 cross2 = Vector3.Cross(leftToRight, leftToJudge);
-        Vector3 cross3 = Vector3.Cross(rightToTop, rightToJudge);
-
-        // 外積のzの値の符号が同じなら三角形の内部に点が存在する
-        if ((cross1.z > 0 && cross2.z > 0 && cross3.z > 0) || (cross1.z < 0 && cross2.z < 0 && cross3.z < 0))
-            return true;
-
-        else return false;
     }
 }

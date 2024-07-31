@@ -2,11 +2,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using static Extensions;
 
 /// <summary>
 /// 実行フェーズ
 /// </summary>
-public class PlayPhase : MonoBehaviour
+public class PlayPhase : MonoBehaviour, IPhase
 {
     [SerializeField] private StageController stageController;
     [SerializeField] private Tutorial tutorial;
@@ -60,11 +61,6 @@ public class PlayPhase : MonoBehaviour
     [SerializeField] private GameObject missionWindow;
     [SerializeField] private MissionScore missionScore;
 
-    /// <summary>
-    /// 確認中か
-    /// </summary>
-    public bool IsDebug { get; private set; } = false;
-
     public void Initialize()
     {
         if (SelectButton.SelectStage != null)
@@ -106,7 +102,7 @@ public class PlayPhase : MonoBehaviour
     /// <summary>
     /// 実行フェーズ移行時の処理
     /// </summary>
-    public void PlayPhaseStart()
+    public void PhaseStart()
     {
         playPhaseUI.SetActive(true);
 
@@ -133,7 +129,7 @@ public class PlayPhase : MonoBehaviour
         AnswerInstance();
     }
 
-    public void PlayPhaseUpdate()
+    public void PhaseUpdate()
     {
         if (stageController.phase != StageController.PHASE.PLAY) return;
 
@@ -149,7 +145,7 @@ public class PlayPhase : MonoBehaviour
     /// <summary>
     /// 実行フェーズ終了
     /// </summary>
-    public void PlayPhaseEnd()
+    public void PhaseEnd()
     {
         StopAllCoroutines();
 
@@ -374,13 +370,13 @@ public class PlayPhase : MonoBehaviour
             waitTime = 0.5f;
         }
 
-        StartCoroutine(stageController.DelayCoroutine(waitTime, () =>
+        StartCoroutine(DelayCoroutine(waitTime, () =>
         {
             tutorial.ToPlayB = true;
 
             if (matchRate >= 100)
             {
-                StartCoroutine(stageController.DelayCoroutine(() =>
+                StartCoroutine(DelayCoroutine(() =>
                 {
                     if (stageController.IsTutorial) return tutorial.EndPlayB;
                     else return true;
@@ -441,16 +437,16 @@ public class PlayPhase : MonoBehaviour
                 {
                     if(stageController.IsTutorial)
                     {
-                        StartCoroutine(stageController.DelayCoroutine(0.5f, () =>
+                        StartCoroutine(DelayCoroutine(0.5f, () =>
                         {
                             tutorial.ToPlayC = true;
 
-                            StartCoroutine(stageController.DelayCoroutine(() =>
+                            StartCoroutine(DelayCoroutine(() =>
                             {
                                 return tutorial.EndPlayC;
                             }, () =>
                             {
-                                StartCoroutine(stageController.DelayCoroutine(0.5f, () =>
+                                StartCoroutine(DelayCoroutine(0.5f, () =>
                                 {
                                     stageController.IsClear = true;
                                 }));
@@ -461,7 +457,7 @@ public class PlayPhase : MonoBehaviour
 
                     else
                     {
-                        StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                        StartCoroutine(DelayCoroutine(0.2f, () =>
                         {
                             stageController.IsClear = true;
                         }));
@@ -470,23 +466,12 @@ public class PlayPhase : MonoBehaviour
             }
             else
             {
-                StartCoroutine(stageController.DelayCoroutine(0.2f, () =>
+                StartCoroutine(DelayCoroutine(0.2f, () =>
                 {
                     stageController.IsClear = true;
                 }));
             }
         }
-    }
-
-    /// <summary>
-    /// デバッグ用　実行フェーズを再度行う
-    /// </summary>
-    public void DebugPlayRetry()
-    {
-        IsDebug = true;
-
-        PlayPhaseEnd();
-        stageController.ToPlayPhase();
     }
 
     /// <summary>

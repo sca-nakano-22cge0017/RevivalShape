@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// 確認フェーズ
 /// </summary>
-public class CheckPhase : MonoBehaviour
+public class CheckPhase : MonoBehaviour, IPhase
 {
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageController stageController;
@@ -19,8 +19,7 @@ public class CheckPhase : MonoBehaviour
     private ShapeData.Shape[,,] map; // 配置データ
     private GameObject[,,] mapObj;   // サンプルのGameObject型配列
 
-    // サンプル生成済みかどうか
-    private bool sampleCreated = false;
+    private bool sampleCreated = false; // サンプル生成済みかどうか
 
     public void Initialize()
     {
@@ -51,20 +50,25 @@ public class CheckPhase : MonoBehaviour
     /// 確認フェーズ移行時の処理
     /// UI表示、サンプル生成
     /// </summary>
-    public void CheckPhaseStart()
+    public void PhaseStart()
     {
         checkPhaseUI.SetActive(true);
         objParent.gameObject.SetActive(true);
 
         // オブジェクト生成
-        StageInstance();
+        SampleInstance();
+    }
+
+    public void PhaseUpdate()
+    {
+
     }
 
     /// <summary>
     /// 確認フェーズ終了
     /// UI非表示
     /// </summary>
-    public void CheckPhaseEnd()
+    public void PhaseEnd()
     {
         checkPhaseUI.SetActive(false);
         objParent.gameObject.SetActive(false);
@@ -73,7 +77,7 @@ public class CheckPhase : MonoBehaviour
     /// <summary>
     /// サンプル生成
     /// </summary>
-    private void StageInstance()
+    private void SampleInstance()
     {
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
@@ -90,7 +94,7 @@ public class CheckPhase : MonoBehaviour
             }
         }
 
-        // 生成
+        // オブジェクト生成
         for (int z = 0; z < mapSize.z; z++)
         {
             for (int x = 0; x < mapSize.x; x++)
