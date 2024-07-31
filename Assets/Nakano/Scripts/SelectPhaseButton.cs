@@ -109,6 +109,9 @@ public class SelectPhaseButton : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 確認モード時のハイライトを解除
+    /// </summary>
     public void ShapeCheckEnd()
     {
         flame.enabled = false;

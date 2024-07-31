@@ -26,21 +26,28 @@ public class StageController : MonoBehaviour
     [SerializeField] private CameraRotate cameraRotate;
     [SerializeField] private SheatCreate sheatCreate;
 
+    // 各フェーズの処理
     [SerializeField] private CheckPhase checkPhase;
     [SerializeField] private SelectPhase selectPhase;
     [SerializeField] private PlayPhase playPhase;
 
+    // UI制御系
     [SerializeField] private TestButton testButton;
     [SerializeField] private GameObject optionButton;
 
     private bool isTutorial = false;
+    /// <summary>
+    /// チュートリアルステージかどうか
+    /// </summary>
     public bool IsTutorial { get { return isTutorial;} private set { isTutorial = value; } }
 
-    private bool canToCheckPhase = true;
-    public bool CanToCheckPhase { get { return canToCheckPhase; } private set { canToCheckPhase = value; } }
+    private bool canToCheckPhase = true; // 選択フェーズから確認フェーズに移行できるか
     [SerializeField, Header("選択→確認移行時の確認ウィンドウ")] private GameObject confirmWindow;
     [SerializeField] private Text numberOfReconfirmation;
 
+    /// <summary>
+    /// サンプルの大きさ
+    /// </summary>
     public Vector3 MapSize { get; private set; } = new Vector3(4, 4, 4);
 
     // データ取得完了したかどうか
@@ -65,42 +72,84 @@ public class StageController : MonoBehaviour
     /// <summary>
     /// 正しい答え
     /// </summary>
-    public ShapeData.Shape[,,] CorrectAnswer { get { return correctAnswer; } set { correctAnswer = value; } }
+    public ShapeData.Shape[,,] CorrectAnswer
+    {
+        get
+        {
+            return correctAnswer;
+        }
+        private set
+        {
+            correctAnswer = value;
+        }
+    }
 
     private ShapeData.Shape[,,] playerAnswer;
     /// <summary>
     /// プレイヤーの答え
     /// </summary>
-    public ShapeData.Shape[,,] PlayerAnswer { get { return playerAnswer; } set { playerAnswer = value; } }
+    public ShapeData.Shape[,,] PlayerAnswer
+    {
+        get
+        {
+            return playerAnswer;
+        }
+        set
+        {
+            playerAnswer = value;
+        }
+    }
 
     private bool isClear = false;
     /// <summary>
     /// trueでステージクリア
     /// </summary>
-    public bool IsClear { get{ return isClear; } set{ isClear = value;} }
+    public bool IsClear
+    {
+        get
+        {
+            return isClear;
+        }
+        set
+        {
+            isClear = value;
+        }
+    }
 
     private bool isRetry = false;
     /// <summary>
     /// trueのときリトライ
     /// </summary>
-    public bool IsRetry { get{ return isRetry; } set{ isRetry = value; } }
+    public bool IsRetry
+    {
+        get
+        {
+            return isRetry;
+        }
+        set
+        {
+            isRetry = value;
+        }
+    }
 
     private bool isPause = false;
-    public bool IsPause { get { return isPause; } set { isPause = value; } }
-
-    [Header("図形描画")]
-    [SerializeField, Header("描画範囲 左上")] private Vector2 drawRangeMin = new Vector2(0, 370);
-    [SerializeField, Header("描画範囲 右下")] private Vector2 drawRangeMax = new Vector2(1080, 1700);
-    [SerializeField] private Texture _texture;
-    [SerializeField] private bool isDragRangeDraw = false;
+    /// <summary>
+    /// ポーズ状態かどうか
+    /// </summary>
+    public bool IsPause
+    {
+        get
+        {
+            return isPause;
+        }
+        set
+        {
+            isPause = value;
+        }
+    }
 
     private void Awake()
     {
-        var texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, Color.red);
-        texture.Apply();
-        _texture = texture;
-
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
@@ -120,13 +169,15 @@ public class StageController : MonoBehaviour
 
     void Update()
     {
-        if(phase != PHASE.PLAY) isPause = !timeManager.TimeActive;
-        else isPause = false;
-
-        // ロードが終わっていなければ次の処理に進ませない
+        // ロードが終わっていなければ以降の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
 
-        Initialize();
+        if (phase != PHASE.PLAY) isPause = !timeManager.TimeActive;
+        else isPause = false;
+
+        // データを変数として取得していなければ取得・初期化
+        if (!dataGot) Initialize();
+
         MainGameManage();
         ClearOrRetry();
     }
@@ -136,57 +187,58 @@ public class StageController : MonoBehaviour
     /// </summary>
     private void Initialize()
     {
-        // データを変数として取得していなければ
-        if (!dataGot)
+        // マップサイズ取得
+        MapSize = stageDataLoader.LoadStageSize();
+
+        // 配列 要素数指定
+        ShapeType = new ShapeData.Shape[System.Enum.GetValues(typeof(ShapeData.Shape)).Length];
+        CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+        PlayerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+        playerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
+
+        // 配列の初期化
+        for (int z = 0; z < MapSize.z; z++)
         {
-            // マップサイズ取得
-            MapSize = stageDataLoader.LoadStageSize();
-
-            // 配列 要素数指定
-            ShapeType = new ShapeData.Shape[System.Enum.GetValues(typeof(ShapeData.Shape)).Length];
-            CorrectAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
-            PlayerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
-            playerAnswer = new ShapeData.Shape[(int)MapSize.x, (int)MapSize.y, (int)MapSize.z];
-
-            for (int z = 0; z < MapSize.z; z++)
+            for (int y = 0; y < MapSize.y; y++)
             {
-                for (int y = 0; y < MapSize.y; y++)
+                for (int x = 0; x < MapSize.x; x++)
                 {
-                    for (int x = 0; x < MapSize.x; x++)
-                    {
-                        CorrectAnswer[x, y, z] = ShapeData.Shape.Empty;
-                        PlayerAnswer[x, y, z] = ShapeData.Shape.Empty;
-                        playerAnswer[x, y, z] = ShapeData.Shape.Empty;
-                    }
+                    CorrectAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    PlayerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    playerAnswer[x, y, z] = ShapeData.Shape.Empty;
                 }
             }
-            for (int i = 0; i < ShapeType.Length; i++)
-            {
-                ShapeType[i] = ShapeData.Shape.Empty;
-            }
-
-            // 正答取得
-            CorrectAnswer = stageDataLoader.LoadStageMap(MapSize);
-
-            // 使用している図形の種類を取得
-            ShapeType = shapeData.ShapeTypes(CorrectAnswer);
-
-            cameraRotate.Initialize();
-
-            checkPhase.Initialize();
-            selectPhase.Initialize();
-            playPhase.Initialize();
-
-            // シート作成
-            sheatCreate.Sheat();
-
-            // 確認フェーズに移行
-            ToCheckPhase();
-
-            dataGot = true;
         }
+        for (int i = 0; i < ShapeType.Length; i++)
+        {
+            ShapeType[i] = ShapeData.Shape.Empty;
+        }
+
+        // 正答取得
+        CorrectAnswer = stageDataLoader.LoadStageMap(MapSize);
+
+        // 使用している図形の種類を取得
+        // この配列内にある図形だけ、選択フェーズのタブ内にボタンを表示する
+        ShapeType = shapeData.ShapeTypes(CorrectAnswer);
+
+        // 各クラスの初期化
+        cameraRotate.Initialize();
+        checkPhase.Initialize();
+        selectPhase.Initialize();
+        playPhase.Initialize();
+
+        // シート作成
+        sheatCreate.Create();
+
+        // 確認フェーズに移行
+        ToCheckPhase();
+
+        dataGot = true;
     }
 
+    /// <summary>
+    /// フェーズ管理
+    /// </summary>
     private void MainGameManage()
     {
         if (IsTutorial) tutorial.TutorialUpdate();
@@ -198,11 +250,11 @@ public class StageController : MonoBehaviour
                 break;
             
             case PHASE.SELECT:
-                selectPhase.SelectPhaseUpdate();
+                selectPhase.PhaseUpdate();
                 break;
 
             case PHASE.PLAY:
-                playPhase.PlayPhaseUpdate();
+                playPhase.PhaseUpdate();
                 break;
         }
     }
@@ -212,27 +264,63 @@ public class StageController : MonoBehaviour
     /// </summary>
     private void ClearOrRetry()
     {
-        if(isTutorial && !tutorial.IsTutorialComplete) return;
+        if((isTutorial && !tutorial.IsTutorialComplete) || isPause) return;
 
         // クリア時の遷移処理
-        if (IsClear && Input.touchCount >= 1 && !isPause)
+        if (IsClear && Input.touchCount >= 1)
         {
             // ステージ選択画面に戻る
-            if (!playPhase.IsDebug)
-                SceneManager.LoadScene("SelectScene");
+            SceneManager.LoadScene("SelectScene");
             IsClear = false;
         }
 
         // 再挑戦時の処理
-        if (IsRetry && Input.touchCount >= 1 && !isPause)
+        if (IsRetry && Input.touchCount >= 1)
         {
             // 確認フェーズに戻る
-            if (!playPhase.IsDebug)
-            {
-                testButton.BackToggle();
-            }
-
+            testButton.BackToggle();
             IsRetry = false;
+        }
+    }
+
+    /// <summary>
+    /// 確認ウィンドウの表示
+    /// </summary>
+    public void ConfirmDisp()
+    {
+        // 選択フェーズから確認フェーズに戻るボタンを押したときに呼ばれる
+        if (phase == PHASE.SELECT)
+        {
+            numberOfReconfirmation.text = "現在の回数：" + Reconfirmation.ToString() + "回";
+            confirmWindow.SetActive(true);
+            timeManager.OnStop();
+        }
+    }
+
+    /// <summary>
+    ///  選択フェーズから確認フェーズへ移行
+    /// </summary>
+    /// <param name="_canToCheckPhase">確認フェーズに移行するか</param>
+    public void Confirm(bool _canToCheckPhase)
+    {
+        // 確認ウィンドウのはい/いいえのボタンを押したときに呼ばれる
+        if (phase == PHASE.SELECT)
+        {
+            canToCheckPhase = _canToCheckPhase;
+            confirmWindow.SetActive(false);
+
+            // 確認フェーズに戻るとき（『はい』を押されたとき）
+            if (canToCheckPhase)
+            {
+                // フェーズ移行
+                selectPhase.PhaseEnd();
+                ToCheckPhase();
+
+                Reconfirmation++;
+
+                testButton.BackToggle();
+                timeManager.OnStart();
+            }
         }
     }
 
@@ -247,7 +335,7 @@ public class StageController : MonoBehaviour
             case PHASE.SELECT:
                 break;
             case PHASE.PLAY:
-                playPhase.PlayPhaseEnd();
+                playPhase.PhaseEnd();
                 Miss++;
                 cameraRotate.FromPlayPhase();
                 break;
@@ -260,51 +348,16 @@ public class StageController : MonoBehaviour
             // 設定ボタン
             optionButton.SetActive(true);
 
-            // カメラ
+            // タップ状態のリセット
             cameraRotate.TapReset();
 
             // シートの表示設定
             sheatCreate.SheatDisp(true, true);
 
             // 確認フェーズ開始処理
-            checkPhase.CheckPhaseStart();
+            checkPhase.PhaseStart();
 
             canToCheckPhase = false;
-        }
-    }
-
-    /// <summary>
-    /// 確認ウィンドウの表示
-    /// </summary>
-    public void ConfirmDisp()
-    {
-        if(phase == PHASE.SELECT)
-        {
-            numberOfReconfirmation.text = "現在の回数：" + Reconfirmation.ToString() + "回";
-            confirmWindow.SetActive(true);
-            timeManager.OnStop();
-        }
-    }
-
-    /// <summary>
-    ///  選択フェーズから確認フェーズへ移行
-    /// </summary>
-    /// <param name="_canToCheckPhase"></param>
-    public void Confirm(bool _canToCheckPhase)
-    {
-        if(phase == PHASE.SELECT)
-        {
-            canToCheckPhase = _canToCheckPhase;
-            confirmWindow.SetActive(false);
-
-            if (canToCheckPhase)
-            {
-                selectPhase.SelectPhaseEnd();
-                ToCheckPhase();
-                Reconfirmation++;
-                testButton.BackToggle();
-                timeManager.OnStart();
-            }
         }
     }
 
@@ -317,10 +370,10 @@ public class StageController : MonoBehaviour
         switch (phase)
         {
             case PHASE.CHECK:
-                checkPhase.CheckPhaseEnd();
+                checkPhase.PhaseEnd();
                 break;
             case PHASE.PLAY:
-                playPhase.PlayPhaseEnd();
+                playPhase.PhaseEnd();
                 break;
         }
 
@@ -337,7 +390,7 @@ public class StageController : MonoBehaviour
         sheatCreate.SheatDisp(false, false);
 
         // 選択フェーズ開始処理
-        selectPhase.SelectPhaseStart();
+        selectPhase.PhaseStart();
     }
 
     /// <summary>
@@ -349,10 +402,10 @@ public class StageController : MonoBehaviour
         switch (phase)
         {
             case PHASE.CHECK:
-                checkPhase.CheckPhaseEnd();
+                checkPhase.PhaseEnd();
                 break;
             case PHASE.SELECT:
-                selectPhase.SelectPhaseEnd();
+                selectPhase.PhaseEnd();
                 break;
         }
 
@@ -368,44 +421,10 @@ public class StageController : MonoBehaviour
         // シート
         sheatCreate.SheatDisp(true, false);
 
-        // カメラ
+        // カメラ 位置変更
         cameraRotate.ToPlayPhase();
 
         // 実行フェーズ開始処理
-        playPhase.PlayPhaseStart();
-    }
-
-    private void OnGUI()
-    {
-        if (isDragRangeDraw)
-        {
-            var rect = new Rect(drawRangeMin.x, drawRangeMin.y, drawRangeMax.x - drawRangeMin.x, drawRangeMax.y - drawRangeMin.y);
-            GUI.DrawTexture(rect, _texture);
-        }
-    }
-
-    public IEnumerator DelayCoroutine(float _seconds, Action _action)
-    {
-        yield return new WaitForSeconds(_seconds);
-        _action?.Invoke();
-    }
-
-    /// <summary>
-    /// _flagの返り値がtrueになったら_actionを実行する
-    /// </summary>
-    /// <param name="_flag"></param>
-    /// <param name="_action"></param>
-    /// <returns></returns>
-    public IEnumerator DelayCoroutine(Func<bool> _flag, Action _action)
-    {
-        bool flag = false;
-
-        while(!flag)
-        {
-            flag = _flag.Invoke();
-            yield return null;
-        }
-
-        _action?.Invoke();
+        playPhase.PhaseStart();
     }
 }

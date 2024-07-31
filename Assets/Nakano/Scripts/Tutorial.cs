@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using static Extensions;
 
 [System.Serializable]
 public class Windows
@@ -66,7 +67,7 @@ public class Tutorial : MonoBehaviour
     {
         NextWindowDisplayByTap(checkPhase[0], CheckB, () => 
         {
-            StartCoroutine(stageController.DelayCoroutine(0.1f, () => 
+            StartCoroutine(DelayCoroutine(0.1f, () => 
             {
                 // ‰EˆÚ“®ŽwŽ¦
                 if (!checkPhase[1].order.activeSelf)
@@ -269,7 +270,7 @@ public class Tutorial : MonoBehaviour
             toSelectC = value;
 
             // “ü—Í‚³‚ê‚½‚ç
-            StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+            StartCoroutine(DelayCoroutine(tapCoolTime, () =>
             {
                 selectPhase[1].order.SetActive(false);
 
@@ -280,7 +281,7 @@ public class Tutorial : MonoBehaviour
                     selectPhase[2].order.SetActive(true);
                     obstruct.SetActive(true);
 
-                    StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                    StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                     {
                         toSelectD = true;
                     }));
@@ -297,7 +298,7 @@ public class Tutorial : MonoBehaviour
             {
                 selectPhase[3].order.SetActive(true);
 
-                StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                 {
                     toSelectE = true;
                 }));
@@ -315,7 +316,7 @@ public class Tutorial : MonoBehaviour
             {
                 selectPhase[4].order.SetActive(true);
 
-                StartCoroutine(stageController.DelayCoroutine(tapCoolTime, () =>
+                StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                 {
                     toSelectF = true;
                 }));
