@@ -2905,7 +2905,6 @@ MonoBehaviour:
   stepsPrefab: {fileID: 8422475021457934984, guid: 70964fa05cfefb546bd1a68304ee5b98, type: 3}
   modeBG: {fileID: 1296985714}
   clearBG: {fileID: 161562915}
-  play: {fileID: 798559330}
 --- !u!4 &271283360
 Transform:
   m_ObjectHideFlags: 0

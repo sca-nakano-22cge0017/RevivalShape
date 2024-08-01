@@ -30,7 +30,6 @@ public class MissionWindow : MonoBehaviour
     private void OnEnable()
     {
         dispEnd = false;
-        //StartCoroutine(Display());
 
         StartCoroutine(disp);
         isDispStart = false;
