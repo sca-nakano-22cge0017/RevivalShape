@@ -51,6 +51,8 @@ public class Tutorial : MonoBehaviour
         tutorialCanvas.SetActive(true);
         obstruct.SetActive(true);
         playFunc = CheckA;
+
+        timeManager.OnStop();
     }
 
     public void TutorialUpdate()
@@ -59,6 +61,11 @@ public class Tutorial : MonoBehaviour
         {
             playFunc();
             methodName = playFunc.Method.Name;
+        }
+
+        if(isTutorialComplete)
+        {
+            obstruct.SetActive(false);
         }
     }
 
@@ -217,6 +224,7 @@ public class Tutorial : MonoBehaviour
         NextWindowDisplayByTap(checkPhase[4], () => { }, () => 
         {
             ExplainDisplaing(false);
+            timeManager.OnStart();
         });
     }
 
@@ -236,6 +244,7 @@ public class Tutorial : MonoBehaviour
             ExplainDisplaing(true);
 
             obstruct.SetActive(false);
+            timeManager.OnStop();
         }
     }
 
@@ -341,6 +350,7 @@ public class Tutorial : MonoBehaviour
         NextWindowDisplayByTap(selectPhase[5], () => { }, () => 
         {
             ExplainDisplaing(false);
+            timeManager.OnStart();
         });
     }
 
@@ -351,6 +361,7 @@ public class Tutorial : MonoBehaviour
     {
         playFunc = PlayA;
         ExplainDisplaing(true);
+        timeManager.OnStop();
     }
 
     // 実行フェーズの説明
@@ -424,6 +435,7 @@ public class Tutorial : MonoBehaviour
             ExplainDisplaing(false);
             endPlayC = true;
             isTutorialComplete = true;
+            timeManager.OnStart();
         });
     }
 
