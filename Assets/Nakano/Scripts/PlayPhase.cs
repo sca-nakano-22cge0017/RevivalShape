@@ -417,6 +417,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             tutorial.ToPlayB = true;
             yield return new WaitUntil(() => tutorial.EndPlayB);
+            yield return new WaitForSeconds(0.5f);
             tutorial.ToPlayC = true;
             yield return new WaitUntil(() => tutorial.EndPlayC);
         }

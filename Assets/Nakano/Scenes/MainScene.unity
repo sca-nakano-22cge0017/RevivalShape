@@ -4026,7 +4026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageController: {fileID: 1471772881}
-  timeManager: {fileID: 0}
+  timeManager: {fileID: 7731844378942465002}
   tutorialCanvas: {fileID: 291439859}
   checkPhase:
   - order: {fileID: 807125092}
@@ -14173,7 +14173,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Stage1
+  stageName: Tutorial
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
@@ -25925,7 +25925,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8190697891714903526
 RectTransform:
   m_ObjectHideFlags: 0
