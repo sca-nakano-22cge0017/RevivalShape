@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using static MathExtensions;
 
 /// <summary>
 /// 確認フェーズ　カメラ制御
@@ -418,24 +418,62 @@ public class CameraRotate : MonoBehaviour
 
             // 現在のカメラ位置から見た上下左右を求める
             // カメラがサンプルの上側にあるとき、『上』はサンプル後方、『下』はサンプル前方になる
+            CameraPos up    = CameraPos.NULL, 
+                      down  = CameraPos.NULL, 
+                      left  = CameraPos.NULL, 
+                      right = CameraPos.NULL;
+
             switch (currentCameraPos)
             {
                 case CameraPos.UP:
-                    RotateDirSet(CameraPos.BACK, CameraPos.FRONT, CameraPos.RIGHT, CameraPos.LEFT);
+                    up    = CameraPos.BACK;
+                    down  = CameraPos.FRONT;
+                    right = CameraPos.RIGHT;
+                    left  = CameraPos.LEFT;
                     break;
+
                 case CameraPos.FRONT:
-                    RotateDirSet(CameraPos.UP, currentCameraPos, CameraPos.RIGHT, CameraPos.LEFT);
+                    up    = CameraPos.UP;
+                    down  = CameraPos.NULL;
+                    right = CameraPos.RIGHT;
+                    left  = CameraPos.LEFT;
                     break;
+
                 case CameraPos.BACK:
-                    RotateDirSet(CameraPos.UP, currentCameraPos, CameraPos.LEFT, CameraPos.RIGHT);
+                    up    = CameraPos.UP;
+                    down  = CameraPos.NULL;
+                    right = CameraPos.LEFT;
+                    left  = CameraPos.RIGHT;
                     break;
+
                 case CameraPos.RIGHT:
-                    RotateDirSet(CameraPos.UP, currentCameraPos, CameraPos.BACK, CameraPos.FRONT);
+                    up    = CameraPos.UP;
+                    down  = CameraPos.NULL;
+                    right = CameraPos.BACK;
+                    left  = CameraPos.FRONT;
                     break;
+
                 case CameraPos.LEFT:
-                    RotateDirSet(CameraPos.UP, currentCameraPos, CameraPos.FRONT, CameraPos.BACK);
+                    up    = CameraPos.UP;
+                    down  = CameraPos.NULL;
+                    right = CameraPos.FRONT;
+                    left  = CameraPos.BACK;
                     break;
             }
+
+            if(currentCameraPos != CameraPos.UP)
+            {
+                if (didSwip && tx > 0)
+                    right = currentCameraPos;
+
+                else if (didSwip && tx < 0)
+                    left  = currentCameraPos;
+
+                else if (didSwip && ty > 0)
+                    down  = currentCameraPos;
+            }
+
+            RotateDirSet(up, down, right, left);
 
             is90Rotate = false;
             firstInputDir = TeleportDir.NULL;
@@ -518,12 +556,16 @@ public class CameraRotate : MonoBehaviour
         if (didSwip)
         {
             // カメラをサンプルの前後左右に移動させるとき
-            if (adjustPoint_DoubleTap[currentCameraPos].y == MIN_Y && adjustPoint_DoubleTap[nextCameraPos].y == MIN_Y)
+            if ((adjustPoint_DoubleTap[currentCameraPos].y == MIN_Y && adjustPoint_DoubleTap[nextCameraPos].y == MIN_Y) ||
+                (tx == 0 && ty < 0 && currentCameraPos == CameraPos.FRONT))
             {
                 // カメラをDoTweenを使わずに移動させる
                 restoreTargetPos = adjustPoint_DoubleTap[nextCameraPos];
                 RestoreStart();
                 yield return new WaitUntil(() => !isRestoring);
+
+                if(nextCameraPos == CameraPos.UP)
+                    transform.LookAt(target, Vector3.back);
 
                 currentCameraPos = nextCameraPos;
                 yield break;
@@ -718,24 +760,6 @@ public class CameraRotate : MonoBehaviour
         return vec;
     }
 
-    /// <summary>
-    /// 投影したベクトル同士の角度を求める
-    /// </summary>
-    /// <param name="_from">投影するベクトル1</param>
-    /// <param name="_to">投影するベクトル2</param>
-    /// <param name="_normal">投影する面の法線ベクトル</param>
-    /// <returns></returns>
-    private float ProjectionAngle(Vector3 _from, Vector3 _to, Vector3 _normal)
-    {
-        float angle = 0;
-
-        var planeFrom = Vector3.ProjectOnPlane(_from, _normal);
-        var planeTo = Vector3.ProjectOnPlane(_to, _normal);
-        angle = Vector3.SignedAngle(planeFrom, planeTo, _normal);
-
-        return angle;
-    }
-
     private Vector3[] GetControllPoint()
     {
         Vector3 relay = Vector3.zero;
@@ -876,6 +900,7 @@ public class CameraRotate : MonoBehaviour
     public void SetSensitivity()
     {
         sensitivity = sensChenger.sensitivity;
+        if (sensitivity == 0) sensitivity = 80;
     }
 
     /// <summary>

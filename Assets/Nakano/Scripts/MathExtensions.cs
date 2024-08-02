@@ -35,4 +35,22 @@ public static class MathExtensions
 
         else return false;
     }
+
+    /// <summary>
+    /// 投影したベクトル同士の角度を求める
+    /// </summary>
+    /// <param name="_from">投影するベクトル1</param>
+    /// <param name="_to">投影するベクトル2</param>
+    /// <param name="_normal">投影する面の法線ベクトル</param>
+    /// <returns></returns>
+    public static float ProjectionAngle(Vector3 _from, Vector3 _to, Vector3 _normal)
+    {
+        float angle = 0;
+
+        var planeFrom = Vector3.ProjectOnPlane(_from, _normal);
+        var planeTo = Vector3.ProjectOnPlane(_to, _normal);
+        angle = Vector3.SignedAngle(planeFrom, planeTo, _normal);
+
+        return angle;
+    }
 }

@@ -221,4 +221,14 @@ public class SelectPhaseButton : MonoBehaviour
 
         isInAnimation = false;
     }
+
+    /// <summary>
+    /// “ü—Í”š‰Šú‰»
+    /// </summary>
+    public void NumReset()
+    {
+        inputNum = 0;
+        currentText.text = inputNum.ToString();
+        nextText.text = inputNum.ToString();
+    }
 }

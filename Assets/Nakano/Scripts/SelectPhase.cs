@@ -37,6 +37,7 @@ public class SelectPhase : MonoBehaviour, IPhase
     private int[,] playerInputData;             // プレイヤーが入力したデータ
 
     private ShapeData.Shape selectingShape;     // 選択中の図形
+    [SerializeField, Header("選択中の図形")] Image selectingShapeImage;
     private ShapeData.Shape[] shapeType;        // 使用図形の種類
 
     private Vector3 mapSize;
@@ -45,13 +46,15 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     // 各図形毎のUI
     [SerializeField] private select.ShapesUI[] shapesUI;
-
+    
     // 削除モード
     [SerializeField, Header("削除モードのボタン")] private GameObject eraserModeButton;
+    [SerializeField, Header("削除モードのウィンドウ")] private GameObject eraserModeWindow;
     /// <summary>
     /// 削除モードか
     /// </summary>
     public bool IsEraser { get; set; } = false;
+    private bool canEraserWindowUnDisp = false;
 
     // 確認モード
     [SerializeField, Header("確認モードのボタン")] private GameObject checkModeButton;
@@ -84,16 +87,20 @@ public class SelectPhase : MonoBehaviour, IPhase
         }
     }
 
+    // 全消し
+    [SerializeField, Header("全消し確認ウィンドウ")] private GameObject confirmWindow;
+    [SerializeField, Header("全消しを機能させるか")] private bool canReset = true;
+
     [SerializeField, Header("各モード時の黒背景")] private GameObject modeBG;
-    [SerializeField, Header("各モード時のUI妨害用")] private GameObject clearBG;
 
     public void Initialize()
     {
         // ウィンドウ、UI非表示
         selectPhaseUI.SetActive(false);
+        eraserModeWindow.SetActive(false);
         checkModeWindow.SetActive(false);
+        confirmWindow.SetActive(false);
         modeBG.SetActive(false);
-        clearBG.SetActive(false);
 
         // マップサイズ取得
         mapSize = stageController.MapSize;
@@ -182,6 +189,7 @@ public class SelectPhase : MonoBehaviour, IPhase
                 else ui.button.SetActive(false);
             }
         }
+
         ShapeChangeButtonDispSet();
     }
 
@@ -205,35 +213,44 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     public void PhaseUpdate()
     {
-        if (IsEraser || IsCheck)
-        {
-            // ボタンの外を押したらモード終了
-            if (Input.touchCount >= 1)
-            {
-                Touch t = Input.GetTouch(0);
+        //if (IsEraser || IsCheck)
+        //{
+        //    // ボタンの外を押したらモード終了
+        //    if (Input.touchCount >= 1)
+        //    {
+        //        Touch t = Input.GetTouch(0);
 
-                Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
-                Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
+        //        Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
+        //        Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
 
-                // ボタンの外側をタップしたらモード解除する
-                if (t.phase == TouchPhase.Began &&
-                    !tapManager.TapOrDragRange(t.position, min, max))
-                {
-                    if (IsEraser) IsEraser = false;
-                    if (IsCheck) IsCheck = false;
-                }
+        //        // ボタンの外側をタップしたらモード解除する
+        //        if (t.phase == TouchPhase.Began &&
+        //            !tapManager.TapOrDragRange(t.position, min, max))
+        //        {
+        //            if (IsEraser) IsEraser = false;
+        //            if (IsCheck) IsCheck = false;
+        //        }
 
-                ModeUIDispSet();
-            }
-        }
+        //        ModeUIDispSet();
+        //    }
+        //}
 
         // 画面タップで確認モードのウィンドウを閉じる
-        if (canCheckWindowUnDisp && Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            checkModeWindow.SetActive(false);
-            canCheckWindowUnDisp = false;
+            if (canCheckWindowUnDisp)
+            {
+                checkModeWindow.SetActive(false);
+                canCheckWindowUnDisp = false;
 
-            selectButtons[(int)checkPos.x, (int)checkPos.y].ShapeCheckEnd();
+                selectButtons[(int)checkPos.x, (int)checkPos.y].ShapeCheckEnd();
+            }
+
+            if (canEraserWindowUnDisp)
+            {
+                eraserModeWindow.SetActive(false);
+                canEraserWindowUnDisp = false;
+            }
         }
     }
 
@@ -272,7 +289,6 @@ public class SelectPhase : MonoBehaviour, IPhase
         {
             // モード時は背景暗く
             modeBG.SetActive(true);
-            clearBG.SetActive(true);
 
             GameObject disp = null;
             GameObject unDisp = null;
@@ -302,8 +318,12 @@ public class SelectPhase : MonoBehaviour, IPhase
             eraserModeButton.GetComponent<Image>().color = clear;
 
             modeBG.SetActive(false);
-            clearBG.SetActive(false);
         }
+
+        if (IsEraser && !eraserModeWindow.activeSelf && canReset)
+            eraserModeWindow.SetActive(true);
+        if (!IsEraser && eraserModeWindow.activeSelf && canReset)
+            eraserModeWindow.SetActive(false);
     }
 
     /// <summary>
@@ -321,6 +341,14 @@ public class SelectPhase : MonoBehaviour, IPhase
     public void CheckModeChange()
     {
         IsCheck = !IsCheck;
+        ModeUIDispSet();
+    }
+
+    public void ModeEnd()
+    {
+        if (IsEraser) IsEraser = false;
+        if (IsCheck) IsCheck = false;
+
         ModeUIDispSet();
     }
 
@@ -410,6 +438,22 @@ public class SelectPhase : MonoBehaviour, IPhase
                 front.SetActive(true);
             }
         }
+
+        SelectingShapeDisp();
+    }
+
+    /// <summary>
+    /// 選択中の図形を表示
+    /// </summary>
+    void SelectingShapeDisp()
+    {
+        for(int i = 0; i < shapesUI.Length; i++)
+        {
+            if(selectingShape == shapesUI[i].shape)
+            {
+                selectingShapeImage.sprite = shapesUI[i].sprite;
+            }
+        }
     }
 
     /// <summary>
@@ -468,5 +512,35 @@ public class SelectPhase : MonoBehaviour, IPhase
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// 全消し確認ウィンドウの表示/非表示
+    /// </summary>
+    /// <param name="_isDisp">trueで表示</param>
+    public void ResetConfirmWindow(bool _isDisp)
+    {
+        confirmWindow.SetActive(_isDisp);
+    }
+
+    /// <summary>
+    /// 全消し
+    /// </summary>
+    public void DataReset()
+    {
+        for (int z = 0; z < mapSize.z; z++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                for (int x = 0; x < mapSize.x; x++)
+                {
+                    playerAnswer[x, y, z] = ShapeData.Shape.Empty;
+                    playerInputData[x, z] = 0;
+                    selectButtons[x, z].NumReset();
+                }
+            }
+        }
+
+        ModeEnd();
     }
 }
