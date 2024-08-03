@@ -119,7 +119,7 @@ public class CheckPhase : MonoBehaviour, IPhase
         sampleCreated = true;
 
         // ƒƒbƒVƒ…Œ‹‡
-        meshCombiner.SetParent(objParent);
-        meshCombiner.Combine();
+        //meshCombiner.SetParent(objParent);
+        //meshCombiner.Combine();
     }
 }

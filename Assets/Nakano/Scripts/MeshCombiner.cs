@@ -53,7 +53,7 @@ public class MeshCombiner : MonoBehaviour
         parentMeshFilter.mesh.CombineMeshes(combine);
 
         // 結合したメッシュにマテリアルをセット
-        parentMeshRenderer.material = combinedMat;
+        //parentMeshRenderer.material = combinedMat;
 
         // 親オブジェクトを表示
         fieldParent.gameObject.SetActive(true);
