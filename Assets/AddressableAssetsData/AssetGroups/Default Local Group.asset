@@ -32,6 +32,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f02b33fd917790a4cbd13a23548ddb99
+    m_Address: Assets/Nakano/StageData/StageData3.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 09d4bf1c3d481fc468e6bdc321b2dd71
+    m_Address: Assets/Nakano/StageData/StageData4.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ce0713ecbd5acf941bad6d24ced48e83, type: 2}
   m_SchemaSet:

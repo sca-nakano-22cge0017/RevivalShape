@@ -22,7 +22,8 @@ public class SelectButtonController : MonoBehaviour
 
     [SerializeField, Header("ステージ選択画面①")] GameObject firstSelectPanel;
     [SerializeField, Header("ステージ選択画面①のボタン")] private Button[] buttons_FirstSelect;
-    
+    [SerializeField, Header("Content")] private RectTransform firstContent = null;
+
     [SerializeField, Header("ステージ選択画面②")] private SelectButton selectButton;
     [SerializeField, Header("ステージ選択画面②のボタン")] private Button[] buttons_SecondSelect;
     [SerializeField] private Sprite[] missionIcons_sp;
@@ -96,6 +97,17 @@ public class SelectButtonController : MonoBehaviour
             // 解放済みのステージはボタンを押下できるようにする
             buttons_FirstSelect[i].interactable = stageRelease[i];
         }
+
+        int num = 0;
+        for (int i = 0; i < buttons_FirstSelect.Length; i++)
+        {
+            if(!buttons_FirstSelect[i].gameObject.activeSelf)
+            {
+                num++;
+            }
+        }
+        var height = maxHeight - (num * contentHeight);
+        firstContent.sizeDelta = new Vector2(width, height);
 
         // Tutorial
         if (gameManager.GetStageData("Tutorial") != null)
