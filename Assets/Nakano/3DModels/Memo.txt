@@ -1,0 +1,8 @@
+3Dモデル設定
+
+軽量化
+・Import BlendShapesのチェックを外す
+・Mesh CompressionをMediumに変更
+
+メッシュ結合用
+・Read/Writeにチェックを付ける
