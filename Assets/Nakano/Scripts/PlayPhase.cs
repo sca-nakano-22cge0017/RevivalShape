@@ -55,6 +55,8 @@ public class PlayPhase : MonoBehaviour, IPhase
 
     [SerializeField] private Text matchRateText;
     [SerializeField] private GameObject matchUI;
+    [SerializeField] private GameObject completeText;
+    [SerializeField] private Animator completeAnim;
 
     private bool toClearWindow = false;
     [SerializeField] private GameObject resultWindow;
@@ -361,14 +363,10 @@ public class PlayPhase : MonoBehaviour, IPhase
         // 全体の一致率算出
         matchRate = (int)(matchRateTroutTotal / (float)hasBlockTrout * 100);
         matchRateText.text = matchRate.ToString() + "%";
-        matchRateText.enabled = true;
         matchUI.SetActive(true);
 
         float waitTime = 0.0f;
-        if (stageController.IsTutorial)
-        {
-            waitTime = 0.5f;
-        }
+        if (stageController.IsTutorial) waitTime = 0.5f;
 
         StartCoroutine(DelayCoroutine(waitTime, () =>
         {
@@ -376,22 +374,37 @@ public class PlayPhase : MonoBehaviour, IPhase
 
             if (matchRate >= 100)
             {
+                completeText.SetActive(true);
+                completeAnim.SetTrigger("Completed");
+
+                // 100％演出が終了したら
                 StartCoroutine(DelayCoroutine(() =>
                 {
-                    if (stageController.IsTutorial) return tutorial.EndPlayB;
-                    else return true;
+                    if (completeAnim.GetCurrentAnimatorStateInfo(0).IsName("End")) return true;
+                    else return false;
                 }, () =>
                 {
-                    resultWindow.SetActive(true);
-                    missionScore.ResultDisp();
+                    // Tutorialの場合は説明終了まで待つ
+                    StartCoroutine(DelayCoroutine(() =>
+                    {
+                        if (stageController.IsTutorial) return tutorial.EndPlayB;
+                        else return true;
+                    }, () =>
+                    {
+                        // リザルト表示
+                        resultWindow.SetActive(true);
+                        missionScore.ResultDisp();
 
-                    vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
+                        vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
 
-                    toClearWindow = true;
+                        toClearWindow = true;
+                    }));
                 }));
             }
             else
             {
+                completeText.SetActive(false);
+                matchRateText.enabled = true;
                 StartCoroutine(MatchTextBlinking());
             }
         }));
