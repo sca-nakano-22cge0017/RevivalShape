@@ -139,6 +139,8 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             Skip();
             FastForward();
+
+            Outline();
         }
 
         ClearCheck();
@@ -150,6 +152,8 @@ public class PlayPhase : MonoBehaviour, IPhase
     public void PhaseEnd()
     {
         StopAllCoroutines();
+
+        meshCombiner.Remove();
 
         matchRateText.enabled = false;
         matchUI.SetActive(false);
@@ -196,6 +200,13 @@ public class PlayPhase : MonoBehaviour, IPhase
             {
                 IsFastForward = false;
             }, 0.5f);
+    }
+
+    void Outline()
+    {
+        // ÉÅÉbÉVÉÖåãçá
+        meshCombiner.SetParent(objParent);
+        meshCombiner.Combine();
     }
 
     /// <summary>

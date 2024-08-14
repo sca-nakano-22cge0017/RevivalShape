@@ -12,6 +12,8 @@ public class MeshCombiner : MonoBehaviour
     // 結合したメッシュのマテリアル
     [SerializeField] private Material combinedMat;
 
+    [SerializeField] private float outlineWidth = 5.0f;
+
     public void SetParent(Transform _parent)
     {
         fieldParent = _parent;
@@ -67,7 +69,7 @@ public class MeshCombiner : MonoBehaviour
         fieldParent.gameObject.AddComponent<Outline>();
         fieldParent.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineVisible;
         fieldParent.gameObject.GetComponent<Outline>().OutlineColor = Color.black;
-        fieldParent.gameObject.GetComponent<Outline>().OutlineWidth = 5.0f;
+        fieldParent.gameObject.GetComponent<Outline>().OutlineWidth = outlineWidth;
     }
 
     /// <Summary>
