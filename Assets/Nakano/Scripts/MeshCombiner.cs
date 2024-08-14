@@ -45,7 +45,7 @@ public class MeshCombiner : MonoBehaviour
         {
             combine[i].mesh = meshFilterList[i].sharedMesh;
             combine[i].transform = meshFilterList[i].transform.localToWorldMatrix;
-            meshFilterList[i].gameObject.SetActive(false);
+            //meshFilterList[i].gameObject.SetActive(false);
         }
 
         // 結合したメッシュをセット
@@ -53,10 +53,21 @@ public class MeshCombiner : MonoBehaviour
         parentMeshFilter.mesh.CombineMeshes(combine);
 
         // 結合したメッシュにマテリアルをセット
-        //parentMeshRenderer.material = combinedMat;
+        parentMeshRenderer.material = combinedMat;
 
         // 親オブジェクトを表示
         fieldParent.gameObject.SetActive(true);
+
+        // アウトライン描画
+        DispOutline();
+    }
+
+    void DispOutline()
+    {
+        fieldParent.gameObject.AddComponent<Outline>();
+        fieldParent.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineVisible;
+        fieldParent.gameObject.GetComponent<Outline>().OutlineColor = Color.black;
+        fieldParent.gameObject.GetComponent<Outline>().OutlineWidth = 5.0f;
     }
 
     /// <Summary>
