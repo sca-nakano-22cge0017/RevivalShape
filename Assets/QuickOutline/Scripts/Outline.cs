@@ -66,7 +66,7 @@ public class Outline : MonoBehaviour {
 
   [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
   + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
-  private bool precomputeOutline;
+  private bool precomputeOutline = true;
 
   [SerializeField, HideInInspector]
   private List<Mesh> bakeKeys = new List<Mesh>();
@@ -177,19 +177,27 @@ public class Outline : MonoBehaviour {
     }
   }
 
+    /// <summary>
+    /// 法線読み込み
+    /// </summary>
   void LoadSmoothNormals() {
 
     // Retrieve or generate smooth normals
+    // 滑らかな法線を取得または生成する
     foreach (var meshFilter in GetComponentsInChildren<MeshFilter>()) {
 
-      // Skip if smooth normals have already been adopted
+    // Skip if smooth normals have already been adopted
+    // 滑らかな法線がすでに使われている場合はスキップ
       if (!registeredMeshes.Add(meshFilter.sharedMesh)) {
         continue;
       }
 
       // Retrieve or generate smooth normals
-      var index = bakeKeys.IndexOf(meshFilter.sharedMesh);
+      // 滑らかな法線を取得または生成する
+      var index = bakeKeys.IndexOf(meshFilter.sharedMesh); 
+    　  // メッシュのindex番号を取得
       var smoothNormals = (index >= 0) ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
+        // メッシュがあればVector3のデータ取得
 
       // Store smooth normals in UV3
       meshFilter.sharedMesh.SetUVs(3, smoothNormals);
