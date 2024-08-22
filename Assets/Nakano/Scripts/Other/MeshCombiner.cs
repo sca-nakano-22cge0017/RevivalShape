@@ -59,17 +59,6 @@ public class MeshCombiner : MonoBehaviour
 
         // 親オブジェクトを表示
         fieldParent.gameObject.SetActive(true);
-
-        // アウトライン描画
-        DispOutline();
-    }
-
-    void DispOutline()
-    {
-        fieldParent.gameObject.AddComponent<Outline>();
-        fieldParent.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineVisible;
-        fieldParent.gameObject.GetComponent<Outline>().OutlineColor = Color.black;
-        fieldParent.gameObject.GetComponent<Outline>().OutlineWidth = outlineWidth;
     }
 
     /// <Summary>

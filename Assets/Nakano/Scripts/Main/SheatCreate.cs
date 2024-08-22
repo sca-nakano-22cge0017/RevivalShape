@@ -21,6 +21,8 @@ public class SheatCreate : MonoBehaviour
     private bool isCreated = false;
     private const float markPosY = -0.5f;
 
+    [SerializeField, Header("生成位置 Y座標")] private float createPosY = -0.5f;
+
     /// <summary>
     /// シート作成
     /// </summary>
@@ -38,7 +40,7 @@ public class SheatCreate : MonoBehaviour
         {
             for (int z = 0; z < (int)mapSize.z; z++)
             {
-                Instantiate(sheatPrefab, new Vector3(-x, -0.5f, z), Quaternion.identity, sheatParent);
+                Instantiate(sheatPrefab, new Vector3(-x, createPosY, z), Quaternion.identity, sheatParent);
             }
         }
 
