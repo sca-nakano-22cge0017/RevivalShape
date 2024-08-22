@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: Outline
   m_EditorClassIdentifier: 
   m_Active: 1
-  _outlineResources: {fileID: 11400000, guid: 231d88937a104094b8e4e0fdb8d2e77b, type: 2}
+  _outlineResources: {fileID: 11400000, guid: a7f9e093820ada341a565d5faf8ce911, type: 2}
   _outlineLayers: {fileID: 0}
   _outlineSettings:
     _outlineSettings: {fileID: 0}
