@@ -18,10 +18,10 @@ public class TapEffectScript : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             var pos = Input.mousePosition;
-            pos.z = 10f;
+            //pos.z = 10f;
 
-            transform.position = camera.ScreenToWorldPoint(pos);
-            tapEffect.Play();
+            tapEffect.transform.position = camera.ScreenToWorldPoint(pos);
+            tapEffect.Emit(8);
         }
     }
 }
