@@ -754,9 +754,6 @@ public class CameraRotate : MonoBehaviour
             vec = (Quaternion.Euler(0, angle, 0) * Vector3.left).normalized;
         }
 
-        Ray ray = new Ray(target, vec);
-        Debug.DrawRay(ray.origin, ray.direction, Color.red, 500);
-
         return vec;
     }
 
