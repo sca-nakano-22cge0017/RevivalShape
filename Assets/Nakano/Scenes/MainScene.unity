@@ -636,7 +636,7 @@ GameObject:
   - component: {fileID: 31090453}
   - component: {fileID: 31090452}
   - component: {fileID: 31090451}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13437,7 +13437,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1312685051}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: SampleObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14491,7 +14491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Stage1
+  stageName: Stage11
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
@@ -15079,7 +15079,7 @@ GameObject:
   - component: {fileID: 1512881999}
   - component: {fileID: 1512881998}
   - component: {fileID: 1512881997}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15329,7 +15329,7 @@ GameObject:
   - component: {fileID: 1534877017}
   - component: {fileID: 1534877016}
   - component: {fileID: 1534877015}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18011,7 +18011,7 @@ GameObject:
   - component: {fileID: 1867473999}
   - component: {fileID: 1867473998}
   - component: {fileID: 1867473997}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18123,7 +18123,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1894742054}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: PlayObjParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -45,7 +45,7 @@ public class MeshCombiner : MonoBehaviour
         {
             combine[i].mesh = meshFilterList[i].sharedMesh;
             combine[i].transform = meshFilterList[i].transform.localToWorldMatrix;
-            meshFilterList[i].gameObject.SetActive(false);
+            //meshFilterList[i].gameObject.SetActive(false);
         }
 
         // 結合したメッシュをセット
