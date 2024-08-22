@@ -103,14 +103,14 @@ MonoBehaviour:
   _outlineSettings:
     _outlineSettings: {fileID: 0}
     _outlineColor: {r: 0, g: 0, b: 0, a: 1}
-    _outlineWidth: 10
+    _outlineWidth: 8
     _outlineIntensity: 2
     _outlineAlphaCutoff: 0.9
     _outlineMode: 2
     _filterMode: 1
     _layerMask:
       serializedVersion: 2
-      m_Bits: 192
+      m_Bits: 128
     _renderingLayerMask: 1
-  _renderPassEvent: 400
+  _renderPassEvent: 1000
   _shaderPassNames: []
