@@ -5,11 +5,12 @@ using UnityEngine;
 public class TapEffectScript : MonoBehaviour
 {
     [SerializeField] private ParticleSystem tapEffect;
-    [SerializeField] private Camera camera;
+    private Camera mainCamera;
 
     // Start is called before the first frame update
     void Start()
     {
+        mainCamera = Camera.main;
     }
 
     // Update is called once per frame
@@ -18,9 +19,9 @@ public class TapEffectScript : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             var pos = Input.mousePosition;
-            //pos.z = 10f;
+            pos.z = Vector3.Distance(new Vector3(0,0,tapEffect.transform.position.z), mainCamera.transform.position);
 
-            tapEffect.transform.position = camera.ScreenToWorldPoint(pos);
+            tapEffect.transform.position = mainCamera.ScreenToWorldPoint(pos);
             tapEffect.Emit(8);
         }
     }
