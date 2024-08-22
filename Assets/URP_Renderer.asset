@@ -73,15 +73,15 @@ MonoBehaviour:
   _outlineLayers: {fileID: 0}
   _outlineSettings:
     _outlineSettings: {fileID: 0}
-    _outlineColor: {r: 0, g: 0, b: 0, a: 1}
-    _outlineWidth: 5
+    _outlineColor: {r: 1, g: 0, b: 0, a: 1}
+    _outlineWidth: 4
     _outlineIntensity: 2
     _outlineAlphaCutoff: 0.9
     _outlineMode: 0
-    _filterMode: 1
+    _filterMode: 0
     _layerMask:
       serializedVersion: 2
-      m_Bits: 8
+      m_Bits: 0
     _renderingLayerMask: 1
   _renderPassEvent: 400
   _shaderPassNames: []
@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd37d03d18ee9584d881763c34816b35, type: 3}
-  m_Name: OutlineFeature
+  m_Name: Outline
   m_EditorClassIdentifier: 
   m_Active: 1
   _outlineResources: {fileID: 11400000, guid: 231d88937a104094b8e4e0fdb8d2e77b, type: 2}
@@ -106,11 +106,11 @@ MonoBehaviour:
     _outlineWidth: 10
     _outlineIntensity: 2
     _outlineAlphaCutoff: 0.9
-    _outlineMode: 0
+    _outlineMode: 2
     _filterMode: 1
     _layerMask:
       serializedVersion: 2
-      m_Bits: 64
+      m_Bits: 192
     _renderingLayerMask: 1
   _renderPassEvent: 400
   _shaderPassNames: []
