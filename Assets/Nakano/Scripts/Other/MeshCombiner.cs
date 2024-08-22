@@ -12,8 +12,6 @@ public class MeshCombiner : MonoBehaviour
     // 結合したメッシュのマテリアル
     [SerializeField] private Material combinedMat;
 
-    [SerializeField] private float outlineWidth = 5.0f;
-
     public void SetParent(Transform _parent)
     {
         fieldParent = _parent;
@@ -47,7 +45,7 @@ public class MeshCombiner : MonoBehaviour
         {
             combine[i].mesh = meshFilterList[i].sharedMesh;
             combine[i].transform = meshFilterList[i].transform.localToWorldMatrix;
-            //meshFilterList[i].gameObject.SetActive(false);
+            meshFilterList[i].gameObject.SetActive(false);
         }
 
         // 結合したメッシュをセット

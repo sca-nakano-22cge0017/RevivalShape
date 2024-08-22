@@ -14566,7 +14566,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combinedMat: {fileID: 2100000, guid: d970ac4c801004248912133f8f509ac9, type: 2}
-  outlineWidth: 8
 --- !u!114 &1471772886
 MonoBehaviour:
   m_ObjectHideFlags: 0
