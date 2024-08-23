@@ -150,6 +150,8 @@ public class StageController : MonoBehaviour
 
     private void Awake()
     {
+        timeManager.OnStop();
+
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
@@ -165,6 +167,9 @@ public class StageController : MonoBehaviour
             isTutorial = true;
             tutorial.TutorialStart();
         }
+
+        // フェード終了後スタート
+        timeManager.OnStart();
     }
 
     void Update()
