@@ -57,6 +57,7 @@ public class PlayPhase : MonoBehaviour, IPhase
     [SerializeField] private GameObject matchUI;
     [SerializeField] private GameObject completeText;
     [SerializeField] private Animator completeAnim;
+    [SerializeField] private ParticleSystem completeEffect;
 
     private bool toClearWindow = false;
     [SerializeField] private GameObject resultWindow;
@@ -387,6 +388,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             {
                 completeText.SetActive(true);
                 completeAnim.SetTrigger("Completed");
+                completeEffect.Play();
 
                 // 100“‰‰o‚ªI—¹‚µ‚½‚ç
                 StartCoroutine(DelayCoroutine(() =>
