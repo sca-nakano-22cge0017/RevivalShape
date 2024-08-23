@@ -16,6 +16,8 @@ public class StageController : MonoBehaviour
     [SerializeField, Header("ステージ名")] private string stageName;
     public string StageName { get { return stageName; } }
 
+    private LoadManager loadManager;
+
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageDataLoader stageDataLoader;
     [SerializeField] private TapManager tapManager;
@@ -152,6 +154,8 @@ public class StageController : MonoBehaviour
     {
         timeManager.OnStop();
 
+        loadManager = FindObjectOfType<LoadManager>();
+
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
@@ -275,7 +279,12 @@ public class StageController : MonoBehaviour
         if (IsClear && Input.touchCount >= 1)
         {
             // ステージ選択画面に戻る
-            SceneManager.LoadScene("SelectScene");
+            if (loadManager != null)
+            {
+                loadManager.LoadScene("SelectScene");
+            }
+            else SceneManager.LoadScene("SelectScene");
+
             IsClear = false;
         }
 
