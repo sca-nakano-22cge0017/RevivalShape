@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class LoadingAnim : MonoBehaviour
 {
+    [SerializeField] private Animator[] animator;
     // Start is called before the first frame update
     void Start()
     {
