@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataSave: {fileID: 182066052}
-  stageAmount: 40
+  stageAmount: 50
   fps: 120
 --- !u!4 &182066054
 Transform:
