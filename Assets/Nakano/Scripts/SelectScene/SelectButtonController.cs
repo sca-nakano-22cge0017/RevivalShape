@@ -71,8 +71,7 @@ public class SelectButtonController : MonoBehaviour
 
                 if (SceneName.GetLastSceneName() == "MainScene")
                 {
-                    if(selectNumber > 0)
-                        FirstSelect(selectNumber);
+                    if(selectNumber >= 0) FirstSelect(selectNumber);
                 }
             }
         }
@@ -138,7 +137,7 @@ public class SelectButtonController : MonoBehaviour
     {
         selectNumber = num;
         firstSelectPanel.SetActive(false);
-
+        
         SecondButtonsSetting(num);
     }
 
