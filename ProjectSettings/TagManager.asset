@@ -12,7 +12,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - BackUI
   - Water
   - UI
   - Outline
@@ -48,6 +48,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: FrontUI
+  - name: MIiddleUI
     uniqueID: 1864021537
+    locked: 0
+  - name: FrontUI
+    uniqueID: 2707450361
+    locked: 0
+  - name: UIParticleLayer
+    uniqueID: 1404816293
     locked: 0
