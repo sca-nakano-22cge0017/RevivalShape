@@ -14,7 +14,6 @@ public class LoadManager : MonoBehaviour
     public bool IsLoading { get { return isLoading; } private set { isLoading = value; } }
 
     [SerializeField, Header("最低限のロード画面表示時間")] private float lowestLoadTime;
-    private bool didLoadComplete = false; // シーン読み込み完了したか
 
     [SerializeField, Header("フェードさせる時間")] private float fadeTime;
     private CanvasGroup canvasGroup;
@@ -101,22 +100,13 @@ public class LoadManager : MonoBehaviour
 
         // 読み込み開始
         StartCoroutine(LoadSceneCoroutine(sceneName));
-
-        // 読み込み完了後、シーン遷移・最低限待ってフェードアウト開始
-        StartCoroutine(DelayCoroutine(() => { return (didLoadComplete && !isFadeIn); }, 
-                                       () =>
-                                       {
-                                           // 遷移
-                                           async.allowSceneActivation = true;
-                                           // 待機・フェードアウト
-                                           StartCoroutine(DelayCoroutine(lowestLoadTime, () => { isFadeOut = true; }));
-
-                                           isLoading = false;
-                                       }));
     }
 
     private IEnumerator LoadSceneCoroutine(string sceneName)
     {
+        // フェードイン終わってからシーンロード
+        yield return new WaitUntil(() => !isFadeIn);
+
         // シーン読み込み開始
         async = SceneManager.LoadSceneAsync(sceneName);
         async.allowSceneActivation = false;
@@ -125,11 +115,17 @@ public class LoadManager : MonoBehaviour
         {
             yield return null;
         }
+        //ロード完了
 
-        if (async.progress >= 0.9f)
-        {
-            //ロード完了
-            didLoadComplete = true;
-        }
+        // 遷移
+        async.allowSceneActivation = true;
+
+        // 最低限待ってからフェードアウト
+        yield return new WaitForSeconds(lowestLoadTime);
+
+        // フェードアウト
+        isFadeOut = true;
+
+        isLoading = false;
     }
 }

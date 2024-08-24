@@ -4494,7 +4494,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4125167552549572659, guid: 8afa164a0f6d4d0418e1d86824d9cf8f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6259394944216633530, guid: 8afa164a0f6d4d0418e1d86824d9cf8f, type: 3}
       propertyPath: m_LocalScale.x
@@ -14756,7 +14756,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   phase: 0
-  stageName: Stage1
+  stageName: Stage2
   shapeData: {fileID: 1471772877}
   stageDataLoader: {fileID: 1471772879}
   tapManager: {fileID: 1471772884}
@@ -18613,7 +18613,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1894742054}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: PlayObjParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
