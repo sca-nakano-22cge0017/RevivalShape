@@ -192,7 +192,7 @@ public class StageController : MonoBehaviour
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
 
-        if(loadManager != null && loadManager.DidFadeComplete)
+        if (loadManager != null && loadManager.DidFadeComplete)
         {
             MainGameManage();
             ClearOrRetry();
