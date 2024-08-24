@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Extensions;
 
 /// <summary>
 /// メインゲーム制御
@@ -16,7 +17,7 @@ public class StageController : MonoBehaviour
     [SerializeField, Header("ステージ名")] private string stageName;
     public string StageName { get { return stageName; } }
 
-    private LoadManager loadManager;
+    LoadManager loadManager;
 
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageDataLoader stageDataLoader;
@@ -154,8 +155,6 @@ public class StageController : MonoBehaviour
     {
         timeManager.OnStop();
 
-        loadManager = FindObjectOfType<LoadManager>();
-
         if (SelectButton.SelectStage != null)
             stageName = SelectButton.SelectStage; // 選択ステージ名を取得
 
@@ -172,8 +171,14 @@ public class StageController : MonoBehaviour
             tutorial.TutorialStart();
         }
 
-        // フェード終了後スタート
-        timeManager.OnStart();
+        loadManager = FindObjectOfType<LoadManager>();
+        if (loadManager != null)
+        {
+            // フェード終了後スタート
+            StartCoroutine(DelayCoroutine(() => { return loadManager.DidFadeComplete; },
+                () => { timeManager.OnStart(); }));
+        }
+        else timeManager.OnStart();
     }
 
     void Update()
@@ -187,8 +192,11 @@ public class StageController : MonoBehaviour
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
 
-        MainGameManage();
-        ClearOrRetry();
+        if(loadManager != null && loadManager.DidFadeComplete)
+        {
+            MainGameManage();
+            ClearOrRetry();
+        }
     }
 
     /// <summary>
@@ -279,11 +287,8 @@ public class StageController : MonoBehaviour
         if (IsClear && Input.touchCount >= 1)
         {
             // ステージ選択画面に戻る
-            if (loadManager != null)
-            {
-                loadManager.LoadScene("SelectScene");
-            }
-            else SceneManager.LoadScene("SelectScene");
+            SceneLoader.Load("SelectScene");
+            //SceneManager.LoadScene("SelectScene");
 
             IsClear = false;
         }
