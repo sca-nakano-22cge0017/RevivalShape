@@ -10,10 +10,13 @@ public class LoadManager : MonoBehaviour
 
     [SerializeField] private GameObject loadingUI;
 
-    [SerializeField, Header("最低限のロード画面表示時間")] private float lowestLoadTime = 0.3f;
+    private bool isLoading = false;
+    public bool IsLoading { get { return isLoading; } private set { isLoading = value; } }
+
+    [SerializeField, Header("最低限のロード画面表示時間")] private float lowestLoadTime;
     private bool didLoadComplete = false; // シーン読み込み完了したか
 
-    [SerializeField, Header("フェードさせる時間")] private float fadeTime = 0.15f;
+    [SerializeField, Header("フェードさせる時間")] private float fadeTime;
     private CanvasGroup canvasGroup;
 
     private bool didFadeComplete = false;
@@ -59,22 +62,23 @@ public class LoadManager : MonoBehaviour
     {
         if(isFadeIn)
         {
-            canvasGroup.alpha += Time.deltaTime / fadeTime;
             if (canvasGroup.alpha >= 1)
             {
+                canvasGroup.alpha = 1;
                 isFadeIn = false;
             }
+            else canvasGroup.alpha += Time.deltaTime / fadeTime;
         }
 
         else if (isFadeOut)
         {
-            canvasGroup.alpha -= Time.deltaTime / fadeTime;
             if (canvasGroup.alpha <= 0)
             {
+                canvasGroup.alpha = 0;
                 didFadeComplete = true;
                 isFadeOut = false;
             }
-            else didFadeComplete = false;
+            else canvasGroup.alpha -= Time.deltaTime / fadeTime;
         }
 
         // 透明のときは他UIが操作できるようにSetActiveをfalseに変える
@@ -87,6 +91,11 @@ public class LoadManager : MonoBehaviour
 
     public void LoadScene(string sceneName)
     {
+        // 既にロード中なら実行しない
+        if (isLoading) return;
+
+        isLoading = true;
+
         // フェードイン開始
         isFadeIn = true;
 
@@ -101,8 +110,9 @@ public class LoadManager : MonoBehaviour
                                            async.allowSceneActivation = true;
                                            // 待機・フェードアウト
                                            StartCoroutine(DelayCoroutine(lowestLoadTime, () => { isFadeOut = true; }));
-                                       }));
 
+                                           isLoading = false;
+                                       }));
     }
 
     private IEnumerator LoadSceneCoroutine(string sceneName)
