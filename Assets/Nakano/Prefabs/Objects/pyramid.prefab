@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2230265015980169944}
   - component: {fileID: 3088875119419376112}
   - component: {fileID: 4399737630204879667}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: pyramid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
