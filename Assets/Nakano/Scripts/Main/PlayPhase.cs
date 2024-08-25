@@ -60,8 +60,8 @@ public class PlayPhase : MonoBehaviour, IPhase
     [SerializeField] private ParticleSystem completeEffect;
 
     private bool toClearWindow = false;
-    [SerializeField] private GameObject resultWindow;
-    [SerializeField] private GameObject missionWindow;
+    [SerializeField] private ResultWindow resultWindow;
+    [SerializeField] private MissionWindow missionWindow;
     [SerializeField] private MissionScore missionScore;
 
     public void Initialize()
@@ -71,8 +71,8 @@ public class PlayPhase : MonoBehaviour, IPhase
         else stageName = stageController.StageName;
 
         playPhaseUI.SetActive(false);
-        resultWindow.SetActive(false);
-        missionWindow.SetActive(false);
+        resultWindow.gameObject.SetActive(false);
+        missionWindow.gameObject.SetActive(false);
         matchUI.SetActive(false);
         matchRateText.enabled = false;
 
@@ -140,8 +140,6 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             Skip();
             FastForward();
-
-            Outline();
         }
 
         ClearCheck();
@@ -154,13 +152,11 @@ public class PlayPhase : MonoBehaviour, IPhase
     {
         StopAllCoroutines();
 
-        meshCombiner.Remove();
-
         matchRateText.enabled = false;
         matchUI.SetActive(false);
         playPhaseUI.SetActive(false);
-        resultWindow.SetActive(false);
-        missionWindow.SetActive(false);
+        resultWindow.gameObject.SetActive(false);
+        missionWindow.gameObject.SetActive(false);
 
         tapManager.LongTapReset();
         tapManager.DoubleTapReset();
@@ -169,7 +165,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         Transform children = objParent.GetComponentInChildren<Transform>();
         foreach (Transform obj in children)
         {
-            obj.gameObject.SetActive(false);
+            obj.GetComponent<MeshRenderer>().enabled = false;
         }
     }
 
@@ -201,13 +197,6 @@ public class PlayPhase : MonoBehaviour, IPhase
             {
                 IsFastForward = false;
             }, 0.5f);
-    }
-
-    void Outline()
-    {
-        // メッシュ結合
-        meshCombiner.SetParent(objParent);
-        meshCombiner.Combine();
     }
 
     /// <summary>
@@ -255,7 +244,7 @@ public class PlayPhase : MonoBehaviour, IPhase
                         if (mapObj[x, y, z])
                         {
                             mapObj[x, y, z].transform.position = pos;
-                            mapObj[x, y, z].SetActive(true);
+                            mapObj[x, y, z].GetComponent<MeshRenderer>().enabled = true;
                         }
                     }
 
@@ -332,10 +321,11 @@ public class PlayPhase : MonoBehaviour, IPhase
 
                     if (mapObj[x, y, z])
                     {
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().TargetHeight = y;
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().FallSpeed = fallSpeed;
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsFall = true;
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = true;
+                        ShapeObjects shapeObj = mapObj[x, y, z].GetComponent<ShapeObjects>();
+                        shapeObj.TargetHeight = y;
+                        shapeObj.FallSpeed = fallSpeed;
+                        shapeObj.IsFall = true;
+                        shapeObj.IsVibrate = true;
 
                         finalObj = mapObj[x, y, z];
                     }
@@ -405,7 +395,7 @@ public class PlayPhase : MonoBehaviour, IPhase
                     }, () =>
                     {
                         // リザルト表示
-                        resultWindow.SetActive(true);
+                        resultWindow.gameObject.SetActive(true);
                         missionScore.ResultDisp();
 
                         vibration.PluralVibrate(2, (long)(clearVibrateTime * 1000));
@@ -416,6 +406,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             }
             else
             {
+                Debug.Log("失敗");
                 completeText.SetActive(false);
                 matchRateText.enabled = true;
                 StartCoroutine(MatchTextBlinking());
@@ -453,17 +444,23 @@ public class PlayPhase : MonoBehaviour, IPhase
 
     void ClearCheck()
     {
-        if (resultWindow.GetComponent<ResultWindow>().DispEnd && toClearWindow && Input.touchCount >= 1)
+        // リザルト表示完了後にタップしたら
+        if (resultWindow.DispEnd && toClearWindow && Input.touchCount >= 1)
         {
+            // 通常ステージかチュートリアルステージの場合ミッション達成画面を表示
             if (stageName.Contains("Stage") || stageName == "Tutorial")
             {
-                resultWindow.SetActive(false);
-                missionWindow.SetActive(true);
+                resultWindow.gameObject.SetActive(false);
+                missionWindow.gameObject.SetActive(true);
 
-                if (missionWindow.GetComponent<MissionWindow>().DispEnd)
+                // 表示終了後
+                if (missionWindow.DispEnd)
                 {
+                    // チュートリアルの場合
                     if(stageController.IsTutorial)
                     {
+                        // 0.5秒待って説明ウィンドウ表示
+                        // 全ウィンドウの表示が完了したら0.5秒待って遷移
                         StartCoroutine(DelayCoroutine(0.5f, () =>
                         {
                             tutorial.ToPlayC = true;
@@ -484,6 +481,7 @@ public class PlayPhase : MonoBehaviour, IPhase
 
                     else
                     {
+                        // 0.2秒待って遷移
                         StartCoroutine(DelayCoroutine(0.2f, () =>
                         {
                             stageController.IsClear = true;
@@ -493,6 +491,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             }
             else
             {
+                // 0.2秒待って遷移
                 StartCoroutine(DelayCoroutine(0.2f, () =>
                 {
                     stageController.IsClear = true;

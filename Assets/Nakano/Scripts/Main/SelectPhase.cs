@@ -213,28 +213,6 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     public void PhaseUpdate()
     {
-        //if (IsEraser || IsCheck)
-        //{
-        //    // ボタンの外を押したらモード終了
-        //    if (Input.touchCount >= 1)
-        //    {
-        //        Touch t = Input.GetTouch(0);
-
-        //        Vector2 min = new Vector2(Screen.width / 2 - buttonRange.x / 2, Screen.height / 2 - buttonRange.y / 2);
-        //        Vector2 max = new Vector2(Screen.width - min.x, Screen.height - min.y);
-
-        //        // ボタンの外側をタップしたらモード解除する
-        //        if (t.phase == TouchPhase.Began &&
-        //            !tapManager.TapOrDragRange(t.position, min, max))
-        //        {
-        //            if (IsEraser) IsEraser = false;
-        //            if (IsCheck) IsCheck = false;
-        //        }
-
-        //        ModeUIDispSet();
-        //    }
-        //}
-
         // 画面タップで確認モードのウィンドウを閉じる
         if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
         {

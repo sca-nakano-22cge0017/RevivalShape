@@ -10,6 +10,8 @@ using static MathExtensions;
 /// </summary>
 public class CameraRotate : MonoBehaviour
 {
+    private Transform thisTransform;
+
     [SerializeField] private StageController stageController;
     [SerializeField] private Tutorial tutorial;
     [SerializeField] private TapManager tapManager;
@@ -76,8 +78,14 @@ public class CameraRotate : MonoBehaviour
     // 実行フェーズ時のカメラ位置
     [SerializeField, Header("実行フェーズ時 カメラと水平軸のなす角度")] private float play_Angle;
 
+    WaitUntil untilRestored;
+
     public void Initialize()
     {
+        // キャッシュ
+        thisTransform = GetComponent<Transform>();
+        untilRestored = new WaitUntil(() => !isRestoring);
+
         adjustQuaternion_DoubleTap[CameraPos.UP]    = Quaternion.Euler(90, 0, 180);
         adjustQuaternion_DoubleTap[CameraPos.BACK]  = Quaternion.Euler(180, 180, 180);
         adjustQuaternion_DoubleTap[CameraPos.RIGHT] = Quaternion.Euler(180, -90, 180);
@@ -111,10 +119,10 @@ public class CameraRotate : MonoBehaviour
         target += new Vector3(0.5f, 0, -0.5f); // ズレを補正
 
         // サンプルのサイズに応じてカメラの初期位置を調整
-        transform.position = new Vector3(target.x, mapSize.x + dir + MIN_Y, target.z);
+        thisTransform.position = new Vector3(target.x, mapSize.x + dir + MIN_Y, target.z);
 
         // カメラが動く球面の半径を算出
-        range = (target - transform.position).magnitude;
+        range = (target - thisTransform.position).magnitude;
 
         // スワイプの補正ポイントの生成
         Vector3 firstPos = new Vector3(range, MIN_Y, 0);
@@ -125,7 +133,7 @@ public class CameraRotate : MonoBehaviour
         }
 
         // ダブルタップで移動するポイントの作成
-        adjustPoint_DoubleTap.Add(CameraPos.UP, transform.position);
+        adjustPoint_DoubleTap.Add(CameraPos.UP, thisTransform.position);
         for (int i = 1; i < 5; i++)
         {
             CameraPos c = (CameraPos)Enum.ToObject(typeof(CameraPos), i);
@@ -133,7 +141,7 @@ public class CameraRotate : MonoBehaviour
         }
 
         // 注視
-        transform.LookAt(target, transform.up);
+        thisTransform.LookAt(target, thisTransform.up);
     }
 
     public void CameraUpdate()
@@ -216,35 +224,35 @@ public class CameraRotate : MonoBehaviour
 
                 if (tx != 0 || ty != 0) didSwip = true;
 
-                var up = transform.up;
-                var right = transform.right;
+                var up = thisTransform.up;
+                var right = thisTransform.right;
 
                 // 地面を移動する場合は回転軸を変更する
-                if (transform.position.y <= MIN_Y && ty == 0)
+                if (thisTransform.position.y <= MIN_Y && ty == 0)
                 {
                     up = Vector3.up;
-                    right = transform.rotation * Vector3.left;
+                    right = thisTransform.rotation * Vector3.left;
                 }
 
                 // カメラから見て上・右向きのベクトルを回転軸として回転させる
                 var angleAxisLR = Quaternion.AngleAxis(deltaAngleLR, up); // 左右方向
                 var angleAxisTB = Quaternion.AngleAxis(deltaAngleTB, right); // 上下方向
 
-                var pos = transform.position;
+                var pos = thisTransform.position;
                 pos -= target;
                 pos = angleAxisTB * angleAxisLR * pos; // 回転移動
                 pos += target; // 平行移動
 
                 if (pos.y >= MIN_Y)
                 {
-                    transform.position = pos;
-                    transform.LookAt(target, transform.up);
+                    thisTransform.position = pos;
+                    thisTransform.LookAt(target, thisTransform.up);
                 }
                 else
                 {
                     pos.y = MIN_Y;
-                    transform.position = pos;
-                    transform.LookAt(target, transform.up);
+                    thisTransform.position = pos;
+                    thisTransform.LookAt(target, thisTransform.up);
 
                     AdjustCameraToClosestPoint();
                 }
@@ -300,7 +308,7 @@ public class CameraRotate : MonoBehaviour
                 m_camera.fieldOfView = vRatio;
                 sDist = nDist;
 
-                transform.LookAt(target, transform.up);
+                thisTransform.LookAt(target, thisTransform.up);
             }
         }
     }
@@ -312,11 +320,11 @@ public class CameraRotate : MonoBehaviour
     {
         if (currentCameraPos == CameraPos.UP)
         {
-            transform.LookAt(target, Vector3.back);
+            thisTransform.LookAt(target, Vector3.back);
         }
         else
         {
-            transform.LookAt(target, Vector3.up);
+            thisTransform.LookAt(target, Vector3.up);
         }
     }
 
@@ -326,19 +334,19 @@ public class CameraRotate : MonoBehaviour
     private void AdjustCameraToClosestPoint()
     {
         Vector3 nearestPos = new Vector3(100, 100, 100);
-        var currentPosition = transform.position;
+        var currentPosition = thisTransform.position;
 
         // もっとも近いポイントを探す
         foreach (var p in adjustPoint_Swip)
         {
-            if ((currentPosition - nearestPos).magnitude > (currentPosition - p).magnitude)
+            if ((currentPosition - nearestPos).sqrMagnitude > (currentPosition - p).sqrMagnitude)
             {
                 nearestPos = p;
             }
         }
 
-        transform.position = nearestPos;
-        transform.LookAt(target, transform.up);
+        thisTransform.position = nearestPos;
+        thisTransform.LookAt(target, thisTransform.up);
     }
 
     /// <summary>
@@ -562,10 +570,10 @@ public class CameraRotate : MonoBehaviour
                 // カメラをDoTweenを使わずに移動させる
                 restoreTargetPos = adjustPoint_DoubleTap[nextCameraPos];
                 RestoreStart();
-                yield return new WaitUntil(() => !isRestoring);
+                yield return untilRestored;
 
                 if(nextCameraPos == CameraPos.UP)
-                    transform.LookAt(target, Vector3.back);
+                    thisTransform.LookAt(target, Vector3.back);
 
                 currentCameraPos = nextCameraPos;
                 yield break;
@@ -575,7 +583,7 @@ public class CameraRotate : MonoBehaviour
             {
                 restoreTargetPos = adjustPoint_DoubleTap[currentCameraPos];
                 RestoreStart();
-                yield return new WaitUntil(() => !isRestoring);
+                yield return untilRestored;
             }
         }
 
@@ -584,7 +592,7 @@ public class CameraRotate : MonoBehaviour
 
         Vector3[] controllPoint = GetControllPoint(); // 制御点取得
 
-        Tween move = transform.DOLocalPath(new[] { adjustPoint_DoubleTap[nextCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false);
+        Tween move = thisTransform.DOLocalPath(new[] { adjustPoint_DoubleTap[nextCameraPos], controllPoint[0], controllPoint[1] }, rotateTime, PathType.CubicBezier).SetOptions(false);
 
         if (currentCameraPos != nextCameraPos)
         {
@@ -594,7 +602,7 @@ public class CameraRotate : MonoBehaviour
             {
                 sequence
                     .Join(move)
-                    .Join(transform.DORotateQuaternion(adjustQuaternion_DoubleTap[nextCameraPos], rotateTime));
+                    .Join(thisTransform.DORotateQuaternion(adjustQuaternion_DoubleTap[nextCameraPos], rotateTime));
             }
 
             // 上←→左/右/後のときは回転角度を指定して回転させる
@@ -641,16 +649,16 @@ public class CameraRotate : MonoBehaviour
                 if (nextCameraPos == CameraPos.UP)
                 {
                     sequence
-                        .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd))
+                        .Join(thisTransform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd))
                         .Join(move)
-                        .Append(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd));
+                        .Append(thisTransform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd));
                 }
                 else
                 {
                     sequence
-                        .Join(transform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
+                        .Join(thisTransform.DORotate(angleY, rotateTime / 2.0f, RotateMode.WorldAxisAdd))
                         .Append(move)
-                        .Join(transform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd));
+                        .Join(thisTransform.DORotate(angleXZ, rotateTime, RotateMode.WorldAxisAdd));
                 }
             }
         }
@@ -684,7 +692,7 @@ public class CameraRotate : MonoBehaviour
 
         Vector3 restoreNormalVec = CalcRestoreVec();
 
-        var from = transform.position - target;
+        var from = thisTransform.position - target;
         var to = restoreTargetPos - target;
 
         // 平面にベクトルを投影し、Y軸回転/XまたはZ軸回転の角度を求める
@@ -709,16 +717,16 @@ public class CameraRotate : MonoBehaviour
         var angleAxisXZ = Quaternion.AngleAxis(restoreAngleXZ * ratio, restoreNormalVec);
 
         // 移動
-        var pos = transform.position;
+        var pos = thisTransform.position;
         pos -= target;
         pos = angleAxisXZ * angleAxisY * pos; // 回転移動
         pos += target; // 平行移動
 
         // 一定以下まで近付いたら回転終了
-        if ((restoreTargetPos - transform.position).magnitude < 1.0f)
+        if ((restoreTargetPos - thisTransform.position).sqrMagnitude < 1.0f)
         {
             isRestoring = false;
-            transform.position = restoreTargetPos;
+            thisTransform.position = restoreTargetPos;
             tx = 0;
             ty = 0;
             didSwip = false;
@@ -731,7 +739,7 @@ public class CameraRotate : MonoBehaviour
         else
         {
             if (pos.y < MIN_Y) pos.y = MIN_Y;
-            transform.position = pos;
+            thisTransform.position = pos;
         }
     }
 
@@ -741,12 +749,12 @@ public class CameraRotate : MonoBehaviour
 
         // オブジェクト前方にある補正位置と現在位置のなす角度を求める　⇒　Y軸回転の量を算出
         var planeFrom = Vector3.ProjectOnPlane(adjustPoint_DoubleTap[CameraPos.FRONT] - target, Vector3.up);
-        var planeTo = Vector3.ProjectOnPlane(transform.position - target, Vector3.up);
+        var planeTo = Vector3.ProjectOnPlane(thisTransform.position - target, Vector3.up);
         var angle = Vector3.SignedAngle(planeFrom, planeTo, Vector3.up);
 
-        if (transform.position.y <= MIN_Y && restoreTargetPos.y <= MIN_Y)
+        if (thisTransform.position.y <= MIN_Y && restoreTargetPos.y <= MIN_Y)
         {
-            vec = transform.rotation * Vector3.left;
+            vec = thisTransform.rotation * Vector3.left;
         }
         else
         {
@@ -807,7 +815,7 @@ public class CameraRotate : MonoBehaviour
         {
             restoreTargetPos = adjustPoint_DoubleTap[currentCameraPos];
             RestoreStart();
-            yield return new WaitUntil(() => !isRestoring);
+            yield return untilRestored;
         }
 
         // 戻り切ったら、オブジェクト上部へ移動
@@ -826,11 +834,11 @@ public class CameraRotate : MonoBehaviour
     {
         Vector3 nearestPos = new Vector3(100, 100, 100);
         CameraPos cameraPos = CameraPos.NULL;
-        var currentPosition = transform.position;
+        var currentPosition = thisTransform.position;
 
         foreach (var p in adjustPoint_DoubleTap)
         {
-            if ((currentPosition - nearestPos).magnitude > (currentPosition - p.Value).magnitude)
+            if ((currentPosition - nearestPos).sqrMagnitude > (currentPosition - p.Value).sqrMagnitude)
             {
                 nearestPos = p.Value;
                 cameraPos = p.Key;
@@ -847,15 +855,15 @@ public class CameraRotate : MonoBehaviour
     {
         StopAllCoroutines();
 
-        transform.rotation = Quaternion.Euler(0, 0, 0);
+        thisTransform.rotation = Quaternion.Euler(0, 0, 0);
 
         var angle = 90 - play_Angle;
 
         float buttom = target.z + range * Mathf.Cos(angle * Mathf.Deg2Rad);
         float height = range * Mathf.Sin(angle * Mathf.Deg2Rad);
 
-        transform.position = new Vector3(target.x, buttom, height);
-        transform.LookAt(target, transform.up);
+        thisTransform.position = new Vector3(target.x, buttom, height);
+        thisTransform.LookAt(target, thisTransform.up);
 
         currentCameraPos = CameraPos.UP;
     }
