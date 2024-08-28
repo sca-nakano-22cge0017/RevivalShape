@@ -88,15 +88,8 @@ public class DataSave : MonoBehaviour
     public void Initialize()
     {
         PlayerData data = new PlayerData();
-        //StageData stageData = new StageData();
 
-        //stageData.IsClear = false;
-        //stageData.GotStar = 0;
-
-        ////リストの中にデータ生成
-        //data.DataList.Add(stageData);
-
-        // 追加 ステージ総数分初期化
+        // ステージ総数分初期化
         data.DataList = new();
         for (int i = 0; i < stageAmount; i++)
         {
@@ -142,7 +135,6 @@ public class DataSave : MonoBehaviour
     //ファイルリセット
     public void RestartButton()
     {
-        Debug.Log("test" + File.Exists(datapath));
         if (File.Exists(datapath))
         {
             File.Delete(datapath);
@@ -153,6 +145,19 @@ public class DataSave : MonoBehaviour
         gameManager.DataReset(); // GameManager内のデータを書き換え
     }
 
+    /// <summary>
+    /// ステージ全開放
+    /// </summary>
+    public void AllRelease()
+    {
+        bool[] mission = { true, true, true };
+        gameManager.StageDataUpdate("Tutorial", true, mission);
+
+        for (int i = 1; i <= stageAmount; i++)
+        {
+            gameManager.StageDataUpdate("Stage" + i.ToString(), true, mission);
+        }
+    }
 
     /// <summary>
     /// ファイルの存在確認
@@ -160,7 +165,6 @@ public class DataSave : MonoBehaviour
     public void FileCheck()
     {
         //Jsonファイルがなければ生成、初期化
-        // Todo Jsonファイルの形式が正しくなければファイルを生成し直す
         while (!File.Exists(datapath))
         {
             //ファイル生成
