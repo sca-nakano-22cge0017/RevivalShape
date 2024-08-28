@@ -8,6 +8,15 @@ public class FallBlock : MonoBehaviour
     [HideInInspector] public float targetHeight;
     [HideInInspector] public float fallSpeed;
     [HideInInspector] public bool isFall = false;
+    [HideInInspector] public float needTimeForUnClear;
+    private MeshRenderer meshRenderer;
+    private float alpha = 0;
+
+    private void Start()
+    {
+        meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer.material.color = new Color(1, 1, 1, alpha);
+    }
 
     void Update()
     {
@@ -20,6 +29,9 @@ public class FallBlock : MonoBehaviour
             if (this.transform.localPosition.y >= targetHeight)
             {
                 transform.position = tmpPos.position;
+
+                alpha += 1 / needTimeForUnClear * Time.deltaTime;
+                meshRenderer.material.color = new Color(1, 1, 1, alpha);
             }
             else
             {
@@ -27,7 +39,16 @@ public class FallBlock : MonoBehaviour
                 pos.y = targetHeight;
                 transform.localPosition = pos;
                 isFall = false;
+
+                alpha = 1;
+                meshRenderer.material.color = new Color(1, 1, 1, alpha);
             }
         }
+
+        if (alpha <= 0)
+        {
+            meshRenderer.enabled = false;
+        }
+        else meshRenderer.enabled = true;
     }
 }

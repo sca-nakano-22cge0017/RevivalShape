@@ -24,6 +24,8 @@ public class SelectButtonController : MonoBehaviour
     [SerializeField, Header("ステージ選択画面①のボタン")] private Button[] buttons_FirstSelect;
     [SerializeField, Header("Content")] private RectTransform firstContent = null;
 
+    [SerializeField] Scrollbar secondScrollbar;
+    [SerializeField, Header("ステージ選択画面②")] GameObject secondSelectPanel;
     [SerializeField, Header("ステージ選択画面②")] private SelectButton selectButton;
     [SerializeField, Header("ステージ選択画面②のボタン")] private Button[] buttons_SecondSelect;
     [SerializeField] private Sprite[] missionIcons_sp;
@@ -55,6 +57,8 @@ public class SelectButtonController : MonoBehaviour
         }
 
         loaded = false;
+
+        secondSelectPanel.SetActive(false);
     }
 
     private void Update()
@@ -127,6 +131,7 @@ public class SelectButtonController : MonoBehaviour
     public void Back()
     {
         firstSelectPanel.SetActive(true);
+        secondSelectPanel.SetActive(false);
     }
 
     /// <summary>
@@ -137,7 +142,8 @@ public class SelectButtonController : MonoBehaviour
     {
         selectNumber = num;
         firstSelectPanel.SetActive(false);
-        
+        secondSelectPanel.SetActive(true);
+
         SecondButtonsSetting(num);
     }
 
@@ -147,6 +153,9 @@ public class SelectButtonController : MonoBehaviour
     /// <param name="num">選択したステージ番号①</param>
     void SecondButtonsSetting(int num)
     {
+        // スクロールを初期位置に戻す
+        secondScrollbar.value = 1;
+
         int undispButton = 0; // 非表示にするボタンの数
 
         for (int i = 0; i < buttons_SecondSelect.Length; i++)
