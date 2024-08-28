@@ -8,12 +8,12 @@ public class SceneChnger : MonoBehaviour
     public void TitleSceneButton()
     {
         
-        SceneManager.LoadScene("SelectScene");
+        SceneLoader.Load("SelectScene");
     }
 
     public void BackTitleButton()
     {
         
-        SceneManager.LoadScene("TitleScene");
+        SceneLoader.Load("TitleScene");
     }
 }
