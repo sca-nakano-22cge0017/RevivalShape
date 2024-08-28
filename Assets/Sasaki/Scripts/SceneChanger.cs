@@ -7,6 +7,7 @@ public class SceneChnger : MonoBehaviour
 {
     public void TitleSceneButton()
     {
+        
         SceneManager.LoadScene("SelectScene");
     }
 
