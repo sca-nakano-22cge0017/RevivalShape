@@ -16,13 +16,14 @@ public class SelectButton : MonoBehaviour
     {
     }
 
-    //‰Ÿ‚µ‚½ƒ{ƒ^ƒ“‚Ì–¼‘O‚ğæ“¾
+    //æŠ¼ã—ãŸãƒœã‚¿ãƒ³ã®åå‰ã‚’å–å¾—
     public void ButtonName(string objName)
     {
         SelectStage = objName;
 
         SceneLoader.Load("MainScene");
-        //Debug—p
+        //SceneManager.LoadScene("MainScene");
+        //Debugç”¨
         //SceneManager.LoadScene("SampleScene");
     }
 }

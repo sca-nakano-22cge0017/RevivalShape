@@ -7317,7 +7317,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &728352477
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18628,7 +18628,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1894742054}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: PlayObjParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
