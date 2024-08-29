@@ -53,6 +53,9 @@ public class SelectPhaseButton : MonoBehaviour
 
     private bool isInAnimation = false; // アニメーション中か
 
+    // SE
+    private SoundManager sm;
+
     private void Awake()
     {
         Initialize();
@@ -62,6 +65,7 @@ public class SelectPhaseButton : MonoBehaviour
     {
         stageController = GameObject.FindObjectOfType<StageController>();
         tutorial = GameObject.FindObjectOfType<Tutorial>();
+        sm = FindObjectOfType<SoundManager>();
 
         var rt = GetComponent<RectTransform>();
         flame.GetComponent<RectTransform>().sizeDelta = rt.sizeDelta;
@@ -184,10 +188,12 @@ public class SelectPhaseButton : MonoBehaviour
         if (!isEraserMode && inputNum < max)
         {
             StartCoroutine(CountAnimation());
+            SEPlay();
         }
         else if (isEraserMode && inputNum > 0)
         {
             StartCoroutine(CountAnimation());
+            SEPlay();
         }
     }
 
@@ -230,5 +236,13 @@ public class SelectPhaseButton : MonoBehaviour
         inputNum = 0;
         currentText.text = inputNum.ToString();
         nextText.text = inputNum.ToString();
+    }
+
+    void SEPlay()
+    {
+        if (sm != null)
+        {
+            sm.SEPlay3();
+        }
     }
 }

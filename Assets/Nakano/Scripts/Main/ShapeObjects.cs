@@ -32,11 +32,15 @@ public class ShapeObjects : MonoBehaviour
 
     float fastForwardRatio = 1;
 
+    // SE
+    private SoundManager sm;
+
     private void Awake()
     {
-        vibration = GameObject.FindObjectOfType<Vibration>();
-        playPhase = GameObject.FindObjectOfType<PlayPhase>();
-        stageController = GameObject.FindObjectOfType<StageController>();
+        vibration = FindObjectOfType<Vibration>();
+        playPhase = FindObjectOfType<PlayPhase>();
+        stageController = FindObjectOfType<StageController>();
+        sm = FindObjectOfType<SoundManager>();
 
         // êUìÆéûä‘éÊìæ
         vibrateTime_Normal = playPhase.GetVibrateTime()[0];
@@ -77,7 +81,17 @@ public class ShapeObjects : MonoBehaviour
                 pos.y = TargetHeight;
                 transform.position = pos;
                 IsFall = false;
+
+                SEPlay();
             }
+        }
+    }
+
+    void SEPlay()
+    {
+        if (sm != null)
+        {
+            sm.SEPlay4();
         }
     }
 }
