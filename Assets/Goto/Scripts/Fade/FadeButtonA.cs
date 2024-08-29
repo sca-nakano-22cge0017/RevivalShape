@@ -22,7 +22,7 @@ public class FadeButtonA : MonoBehaviour
 
     public void Start()
     {
-       
+        soundManager = FindObjectOfType<SoundManager>();
 
     }
 

@@ -14,11 +14,15 @@ public class Audio : MonoBehaviour
     [SerializeField] Slider SESlider;
     [SerializeField] Slider MasterSlider;
 
-   
+    public AudioMixer AudioMixer { get { return audioMixer; } private set { } }
+    public float maxSound = 20f;
+    public float minSound = -80f;
+    public float MasterSound = 0;
+
     private void Start()
     {
-        InitializeSliders();
-        AttachSliderListeners();
+        //InitializeSliders();
+        //AttachSliderListeners();
       
 
     }
@@ -36,13 +40,13 @@ public class Audio : MonoBehaviour
     {
         float maxSound = 20f;
         float minSound = -80f;
-       // float nowSound =-10;
-        float MasterSound =0;
+        // float nowSound =-10;
+        float MasterSound = 0;
 
         BGMSlider.maxValue = maxSound;
         BGMSlider.minValue = minSound;
-       // BGMSlider.value = 0.5f;
-       
+        // BGMSlider.value = 0.5f;
+
 
         SESlider.maxValue = maxSound;
         SESlider.minValue = minSound;
@@ -50,7 +54,7 @@ public class Audio : MonoBehaviour
 
         MasterSlider.maxValue = maxSound;
         MasterSlider.minValue = minSound;
-        MasterSlider.value =MasterSound;
+        MasterSlider.value = MasterSound;
 
         if (audioMixer != null)
         {
