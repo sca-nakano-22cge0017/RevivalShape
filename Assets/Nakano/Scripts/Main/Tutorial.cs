@@ -539,7 +539,7 @@ public class Tutorial : MonoBehaviour
 
     void SEPlay()
     {
-        if (soundManager != null)
+        if (soundManager != null && !isTutorialComplete)
         {
             soundManager.SEPlay7();
         }
