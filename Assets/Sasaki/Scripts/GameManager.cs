@@ -5,9 +5,9 @@ using System.IO;
 
 public class GameManager : MonoBehaviour
 {
-    [HideInInspector] public static PlayerData playerData = null;
+    public static PlayerData playerData = null;
 
-    [SerializeField, Header("チュートリアルやエクストラを含めないステージ数")] private int stageAmount = 20;
+    [SerializeField, Header("チュートリアルやエクストラを含めないステージ数")] private int stageAmount = 50;
     [SerializeField, Header("フレームレート")] int fps = 120;
 
     private const int missionAmount = 3; // ミッション数
@@ -19,10 +19,27 @@ public class GameManager : MonoBehaviour
         private set { }
     }
 
+    // シングルトン
+    public static GameManager Instance;
+
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         FpsSet();
         DataSave.SetStageAmount(stageAmount);
+    }
+
+    private void Start()
+    {
+        DontDestroyOnLoad(this);
     }
 
     private void Update()
