@@ -38,7 +38,7 @@ public class FadeButtonA : MonoBehaviour
         StartCoroutine(FadeOutOk());
       
         
-        soundManager.SEPlay6();
+        if(soundManager != null) soundManager.SEPlay6();
         Debug.Log("se");
      
     }
