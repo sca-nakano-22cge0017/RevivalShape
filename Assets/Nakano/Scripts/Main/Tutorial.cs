@@ -46,6 +46,14 @@ public class Tutorial : MonoBehaviour
     private string methodName = "";
     public string MethodName { get { return methodName; } private set { methodName = value; } }
 
+    // SE
+    private SoundManager soundManager;
+
+    private void Awake()
+    {
+        soundManager = FindObjectOfType<SoundManager>();
+    }
+
     public void TutorialStart()
     {
         tutorialCanvas.SetActive(true);
@@ -53,6 +61,8 @@ public class Tutorial : MonoBehaviour
         playFunc = CheckA;
 
         timeManager.OnStop();
+
+        SEPlay();
     }
 
     public void TutorialUpdate()
@@ -81,6 +91,8 @@ public class Tutorial : MonoBehaviour
                 {
                     checkPhase[1].order.SetActive(true);
                     checkPhase[1].objects[0].SetActive(true);
+
+                    SEPlay();
                 }
             }));
         });
@@ -126,6 +138,7 @@ public class Tutorial : MonoBehaviour
             if (!checkPhase[2].order.activeSelf)
             {
                 checkPhase[2].order.SetActive(true);
+                SEPlay();
             }
 
             obstruct.SetActive(false);
@@ -176,6 +189,7 @@ public class Tutorial : MonoBehaviour
             if (!checkPhase[3].order.activeSelf)
             {
                 checkPhase[3].order.SetActive(true);
+                SEPlay();
             }
         }
     }
@@ -214,6 +228,7 @@ public class Tutorial : MonoBehaviour
             if (!checkPhase[4].order.activeSelf)
             {
                 checkPhase[4].order.SetActive(true);
+                SEPlay();
             }
         }
     }
@@ -245,6 +260,8 @@ public class Tutorial : MonoBehaviour
 
             obstruct.SetActive(false);
             timeManager.OnStop();
+
+            SEPlay();
         }
     }
 
@@ -256,6 +273,7 @@ public class Tutorial : MonoBehaviour
             if (!selectPhase[1].order.activeSelf)
             {
                 selectPhase[1].order.SetActive(true);
+                SEPlay();
             }
         });
     }
@@ -290,6 +308,8 @@ public class Tutorial : MonoBehaviour
                     selectPhase[2].order.SetActive(true);
                     obstruct.SetActive(true);
 
+                    SEPlay();
+
                     StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                     {
                         toSelectD = true;
@@ -306,6 +326,7 @@ public class Tutorial : MonoBehaviour
             if (!selectPhase[3].order.activeSelf)
             {
                 selectPhase[3].order.SetActive(true);
+                SEPlay();
 
                 StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                 {
@@ -324,6 +345,7 @@ public class Tutorial : MonoBehaviour
             if (!selectPhase[4].order.activeSelf)
             {
                 selectPhase[4].order.SetActive(true);
+                SEPlay();
 
                 StartCoroutine(DelayCoroutine(tapCoolTime, () =>
                 {
@@ -340,6 +362,7 @@ public class Tutorial : MonoBehaviour
         if (toSelectF) NextFunctionByTap(selectPhase[4], SelectF, () => 
         {
             if (!selectPhase[5].order.activeSelf) selectPhase[5].order.SetActive(true);
+            SEPlay();
         });
     }
 
@@ -362,6 +385,8 @@ public class Tutorial : MonoBehaviour
         playFunc = PlayA;
         ExplainDisplaing(true);
         timeManager.OnStop();
+
+        SEPlay();
     }
 
     // 実行フェーズの説明
@@ -391,6 +416,8 @@ public class Tutorial : MonoBehaviour
             toPlayB = value;
 
             playFunc = PlayB;
+
+            SEPlay();
         }
     }
 
@@ -421,6 +448,7 @@ public class Tutorial : MonoBehaviour
             toPlayC = value;
 
             playFunc = PlayC;
+            SEPlay();
         }
     }
 
@@ -467,7 +495,7 @@ public class Tutorial : MonoBehaviour
     void NextWindowDisplayByTap(Windows _windows, PlayFunc _nextFunc, Action _lastFunc)
     {
         // ウィンドウの親を表示
-        if(!_windows.order.activeSelf) _windows.order.SetActive(true);
+        if (!_windows.order.activeSelf) _windows.order.SetActive(true);
 
         // タップで次の説明へ
         if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
@@ -478,6 +506,7 @@ public class Tutorial : MonoBehaviour
             {
                 if (i == tapCount)
                 {
+                    SEPlay();
                     _windows.objects[i].SetActive(true);
                 }
                 else _windows.objects[i].SetActive(false);
@@ -506,5 +535,13 @@ public class Tutorial : MonoBehaviour
 
         // 設定ボタンを押せるかを設定
         obstruct.SetActive(_isDisplaing);
+    }
+
+    void SEPlay()
+    {
+        if (soundManager != null)
+        {
+            soundManager.SEPlay7();
+        }
     }
 }

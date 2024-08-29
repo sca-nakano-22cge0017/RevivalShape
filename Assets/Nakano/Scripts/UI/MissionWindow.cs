@@ -15,6 +15,9 @@ public class MissionWindow : MonoBehaviour
 
     private IEnumerator disp;
 
+    // SE
+    private SoundManager sm;
+
     void Awake()
     {
         disp = Display();
@@ -23,6 +26,8 @@ public class MissionWindow : MonoBehaviour
         {
             icons[i].enabled = false;
         }
+
+        sm = FindObjectOfType<SoundManager>();
     }
 
     private void OnEnable()
@@ -44,10 +49,19 @@ public class MissionWindow : MonoBehaviour
             {
                 icons[i].enabled = true;
                 rotateAnim[i].SetTrigger("Start");
+                SEPlay();
             }
         }
 
         dispEnd = true;
         yield break;
+    }
+
+    void SEPlay()
+    {
+        if( sm != null)
+        {
+            sm.SEPlay5();
+        }
     }
 }

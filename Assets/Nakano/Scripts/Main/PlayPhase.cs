@@ -372,10 +372,10 @@ public class PlayPhase : MonoBehaviour, IPhase
 
         StartCoroutine(DelayCoroutine(waitTime, () =>
         {
-            tutorial.ToPlayB = true;
-
             if (matchRate >= 100)
             {
+                tutorial.ToPlayB = true;
+
                 completeText.SetActive(true);
                 completeAnim.SetTrigger("Completed");
                 completeEffect.Play();
@@ -406,7 +406,6 @@ public class PlayPhase : MonoBehaviour, IPhase
             }
             else
             {
-                Debug.Log("Ž¸”s");
                 completeText.SetActive(false);
                 matchRateText.enabled = true;
                 StartCoroutine(MatchTextBlinking());
@@ -429,6 +428,8 @@ public class PlayPhase : MonoBehaviour, IPhase
             yield return new WaitForSeconds(UN_DISP_TIME);
             matchRateText.enabled = true;
         }
+
+        yield return new WaitForSeconds(DISP_TIME);
 
         if (stageController.IsTutorial)
         {

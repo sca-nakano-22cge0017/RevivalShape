@@ -164,21 +164,14 @@ public class StageController : MonoBehaviour
         canToCheckPhase = true;
         confirmWindow.SetActive(false);
 
-        // チュートリアルなら
-        if(stageName == "Tutorial")
-        {
-            isTutorial = true;
-            tutorial.TutorialStart();
-        }
-
         loadManager = FindObjectOfType<LoadManager>();
         if (loadManager != null)
         {
             // フェード終了後スタート
             StartCoroutine(DelayCoroutine(() => { return loadManager.DidFadeComplete; },
-                () => { timeManager.OnStart(); }));
+                () => { GameStart(); }));
         }
-        else timeManager.OnStart();
+        else GameStart();
     }
 
     void Update()
@@ -197,6 +190,18 @@ public class StageController : MonoBehaviour
             MainGameManage();
             ClearOrRetry();
         }
+    }
+
+    void GameStart()
+    {
+        // チュートリアルなら
+        if (stageName == "Tutorial")
+        {
+            isTutorial = true;
+            tutorial.TutorialStart();
+        }
+
+        timeManager.OnStart();
     }
 
     /// <summary>
