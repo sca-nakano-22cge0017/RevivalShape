@@ -162,7 +162,7 @@ public class StageController : MonoBehaviour
         stageDataLoader.StageDataGet(stageName);  // ステージの配置データをロード開始
 
         canToCheckPhase = true;
-        if(!confirmWindow.activeSelf) confirmWindow.SetActive(false);
+        confirmWindow.SetActive(false);
 
         // チュートリアルなら
         if(stageName == "Tutorial")
@@ -310,7 +310,7 @@ public class StageController : MonoBehaviour
         if (phase == PHASE.SELECT)
         {
             numberOfReconfirmation.text = "現在の回数：" + Reconfirmation.ToString() + "回";
-            if(!confirmWindow.activeSelf) confirmWindow.SetActive(true);
+            confirmWindow.SetActive(true);
             timeManager.OnStop();
         }
     }
@@ -325,7 +325,7 @@ public class StageController : MonoBehaviour
         if (phase == PHASE.SELECT)
         {
             canToCheckPhase = _canToCheckPhase;
-            if(!confirmWindow.activeSelf) confirmWindow.SetActive(false);
+            confirmWindow.SetActive(false);
 
             // 確認フェーズに戻るとき（『はい』を押されたとき）
             if (canToCheckPhase)
@@ -364,7 +364,7 @@ public class StageController : MonoBehaviour
             phase = PHASE.CHECK;
 
             // 設定ボタン
-            if(!optionButton.activeSelf) optionButton.SetActive(true);
+            optionButton.SetActive(true);
 
             // タップ状態のリセット
             cameraRotate.TapReset();
@@ -402,7 +402,7 @@ public class StageController : MonoBehaviour
         canToCheckPhase = false;
 
         // 設定ボタン
-        if (!optionButton.activeSelf) optionButton.SetActive(true);
+        optionButton.SetActive(true);
 
         // シート
         sheatCreate.SheatDisp(false, false);
@@ -434,7 +434,7 @@ public class StageController : MonoBehaviour
         canToCheckPhase = true;
 
         // 設定ボタン非表示
-        if (optionButton.activeSelf) optionButton.SetActive(false);
+        optionButton.SetActive(false);
 
         // シート
         sheatCreate.SheatDisp(true, false);

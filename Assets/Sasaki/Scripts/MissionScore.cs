@@ -25,7 +25,6 @@ public class MissionScore : MonoBehaviour
     public static int totalScore = 0;
 
     // 追加
-    private GameManager gameManager;
     private string stageName;
     [SerializeField] private StageController stageController;
     [SerializeField] private TimeManager timeManager;
@@ -43,11 +42,6 @@ public class MissionScore : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (GameObject.FindObjectOfType<GameManager>() != null)
-        {
-            gameManager = GameObject.FindObjectOfType<GameManager>();
-        }
-
         selectStageCheck();
 
         // 追加 ミッションクリアアイコンの非表示
@@ -165,7 +159,7 @@ public class MissionScore : MonoBehaviour
         Debug.Log(totalScore);
 
         // データ保存
-        if(gameManager != null) gameManager.StageDataUpdate(stageName, true, isMissionClear);
+        GameManager.StageDataUpdate(stageName, true, isMissionClear);
     }
 
     // 追加　UIの表示・数値の入力
@@ -188,19 +182,16 @@ public class MissionScore : MonoBehaviour
 
     void MenuMissionSetting()
     {
-        if (gameManager != null)
+        for (int i = 0; i < 3; i++)
         {
-            for (int i = 0; i < 3; i++)
+            if (!stageName.Contains("Stage"))
             {
-                if (!stageName.Contains("Stage"))
-                {
-                    missionText_menu[i].enabled = false;
-                    icons_menu[i].enabled = false;
-                }
-
-                if (gameManager.GetStageData(stageName) != null)
-                    icons_menu[i].sprite = gameManager.GetStageData(stageName).IsMissionClear[i] ? icons_sp[1] : icons_sp[0];
+                missionText_menu[i].enabled = false;
+                icons_menu[i].enabled = false;
             }
+
+            if (GameManager.GetStageData(stageName) != null)
+                icons_menu[i].sprite = GameManager.GetStageData(stageName).IsMissionClear[i] ? icons_sp[1] : icons_sp[0];
         }
     }
 }
