@@ -179,13 +179,13 @@ public class StageController : MonoBehaviour
         // ロードが終わっていなければ以降の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
 
-        if (phase != PHASE.PLAY || (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
+        if (phase != PHASE.PLAY && (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
         else isPause = false;
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
 
-        if ((loadManager != null && loadManager.DidFadeComplete) || loadManager == null && !isPause)
+        if (((loadManager != null && loadManager.DidFadeComplete) || loadManager == null))
         {
             MainGameManage();
             ClearOrRetry();
@@ -200,8 +200,7 @@ public class StageController : MonoBehaviour
             isTutorial = true;
             tutorial.TutorialStart();
         }
-
-        timeManager.OnStart();
+        else timeManager.OnStart();
     }
 
     /// <summary>
@@ -264,6 +263,8 @@ public class StageController : MonoBehaviour
     private void MainGameManage()
     {
         if (IsTutorial) tutorial.TutorialUpdate();
+
+        if (isPause) return;
 
         switch (phase)
         {

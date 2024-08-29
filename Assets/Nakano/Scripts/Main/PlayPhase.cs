@@ -374,7 +374,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             if (matchRate >= 100)
             {
-                tutorial.ToPlayB = true;
+                if (stageController.IsTutorial) tutorial.ToPlayB = true;
 
                 completeText.SetActive(true);
                 completeAnim.SetTrigger("Completed");
