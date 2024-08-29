@@ -1,78 +1,86 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
-    private PlayerData playerData = null;
-    [SerializeField] private DataSave dataSave;
+    [HideInInspector] public static PlayerData playerData = null;
 
-    // 追加
     [SerializeField, Header("チュートリアルやエクストラを含めないステージ数")] private int stageAmount = 20;
-    public int StageAmount { get { return stageAmount; } private set { } }
-    private int missionAmount = 3; // ミッション数
-    private bool didLoad = false; // データロードしたか
-    public bool DidLoad { get { return didLoad;} set { } }
-
     [SerializeField, Header("フレームレート")] int fps = 120;
 
-    // シングルトン
-    public static GameManager Instance;
+    private const int missionAmount = 3; // ミッション数
+
+    private static bool didLoad = false; // データロードしたか
+    public static bool DidLoad
+    {
+        get { return didLoad; }
+        private set { }
+    }
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void Start()
-    {
-        Application.targetFrameRate = fps;
-        DontDestroyOnLoad(this);
-
-        if (dataSave != null)
-        {
-            dataSave.FileCheck();
-        }
+        FpsSet();
+        DataSave.SetStageAmount(stageAmount);
     }
 
     private void Update()
     {
         // ファイルが存在するかの確認が完了したら
-        if (dataSave.DidFileChecked && !didLoad)
+        if (DataSave.SetDataPath() && DataSave.FileCheck() && !didLoad)
         {
-            while (dataSave.LoadPlayerData() == null)
+            while (DataSave.LoadPlayerData() == null)
             {
                 // データが無ければ初期化
-                dataSave.Initialize();
+                DataSave.Initialize();
             }
 
-            playerData = dataSave.LoadPlayerData();
+            playerData = DataSave.LoadPlayerData();
             didLoad = true; // 読み込み完了
         }
     }
 
-    public void DataReset()
+    void FpsSet()
     {
+        Application.targetFrameRate = fps;
+    }
+
+    /// <summary>
+    /// データリセット
+    /// </summary>
+    public static void DataReset()
+    {
+        DataSave.DataReset();
+
+        // 再読み込み
         didLoad = false;
+    }
+
+    /// <summary>
+    /// ステージ全開放
+    /// </summary>
+    public static void AllRelease()
+    {
+        bool[] mission = { true, true, true };
+        StageDataUpdate("Tutorial", true, mission);
+
+        for (int i = 1; i <= DataSave.GetStageAmount(); i++)
+        {
+            StageDataUpdate("Stage" + i.ToString(), true, mission);
+        }
     }
 
     /// <summary>
     /// ステージのクリア状況等を更新・保存
     /// </summary>
     /// <param name="stageName"></param>
-    public void StageDataUpdate(string _stageName, bool _isClear, bool[] _isMissionClear)
+    public static void StageDataUpdate(string _stageName, bool _isClear, bool[] _isMissionClear)
     {
         // 今回保存したステージの名前と、ステージ名が一致するDataListの要素を取得する
         foreach (var d in playerData.DataList)
         {
-            if(_stageName.ToLower() == d.StageName.ToLower())
+            if (_stageName.ToLower() == d.StageName.ToLower())
             {
                 // データ入力
                 d.IsClear = _isClear;
@@ -81,7 +89,7 @@ public class GameManager : MonoBehaviour
                 {
                     d.IsMissionClear[i] = _isMissionClear[i];
 
-                    if(_isMissionClear[i] == true && d.GotStar < 3)
+                    if (_isMissionClear[i] == true && d.GotStar < 3)
                     {
                         d.GotStar++;
                     }
@@ -90,7 +98,7 @@ public class GameManager : MonoBehaviour
         }
 
         // セーブ
-        dataSave.SavePlayerData(playerData);
+        DataSave.SavePlayerData(playerData);
     }
 
     /// <summary>
@@ -98,7 +106,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="_stageName">ステージ名</param>
     /// <returns>ステージデータ</returns>
-    public StageData GetStageData(string _stageName)
+    public static StageData GetStageData(string _stageName)
     {
         StageData data = new();
 

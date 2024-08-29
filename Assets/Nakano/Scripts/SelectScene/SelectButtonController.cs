@@ -12,7 +12,6 @@ public class SelectButtonController : MonoBehaviour
     //「ステージ番号①」：10ステージ毎の番号。0のときはステージ1～10, 1のときはステージ11～20。
     //「ステージ番号②」：通常ステージに振られている番号。ステージ1～100。
 
-    GameManager gameManager = null;
     private int stageAmount = 0;
 
     Dictionary<int, bool> stageRelease = new(); // 解放状態
@@ -41,11 +40,7 @@ public class SelectButtonController : MonoBehaviour
 
     void Start()
     {
-        if (GameObject.FindObjectOfType<GameManager>() != null)
-        {
-            gameManager = GameObject.FindObjectOfType<GameManager>();
-            stageAmount = gameManager.StageAmount;
-        }
+        stageAmount = DataSave.GetStageAmount();
 
         // ステージの解放状態を初期化　一番最初の10ステージは解放済みにする
         // i = ステージ番号①
@@ -63,20 +58,17 @@ public class SelectButtonController : MonoBehaviour
 
     private void Update()
     {
-        if(gameManager != null)
+        // セーブデータの読み込み完了後、一度だけ呼び出し
+        if (GameManager.DidLoad && !loaded)
         {
-            // セーブデータの読み込み完了後、一度だけ呼び出し
-            if (gameManager.DidLoad && !loaded)
+            loaded = true;
+
+            // UIの設定
+            FirstButtonsSetting();
+
+            if (SceneName.GetLastSceneName() == "MainScene")
             {
-                loaded = true;
-
-                // UIの設定
-                FirstButtonsSetting();
-
-                if (SceneName.GetLastSceneName() == "MainScene")
-                {
-                    if(selectNumber >= 0) FirstSelect(selectNumber);
-                }
+                if (selectNumber >= 0) FirstSelect(selectNumber);
             }
         }
     }
@@ -113,9 +105,9 @@ public class SelectButtonController : MonoBehaviour
         firstContent.sizeDelta = new Vector2(width, height);
 
         // Tutorial
-        if (gameManager.GetStageData("Tutorial") != null)
+        if (GameManager.GetStageData("Tutorial") != null)
         {
-            StageData data = gameManager.GetStageData("Tutorial");
+            StageData data = GameManager.GetStageData("Tutorial");
             var imageParent = tutorialButton.transform.Find("Mission");
             MissionIconDisp(imageParent, data);
         }
@@ -186,9 +178,9 @@ public class SelectButtonController : MonoBehaviour
             // Extra、Tutorial以外はミッションクリアのアイコン表示を変更
             if(stageName.Contains("Stage"))
             {
-                if (gameManager.GetStageData(stageName) != null)
+                if (GameManager.GetStageData(stageName) != null)
                 {
-                    StageData data = gameManager.GetStageData(stageName);
+                    StageData data = GameManager.GetStageData(stageName);
                     var imageParent = buttons_SecondSelect[i].transform.Find("Mission");
                     MissionIconDisp(imageParent, data);
                 }
@@ -231,8 +223,8 @@ public class SelectButtonController : MonoBehaviour
         {
             string stageName = "Stage" + (i + num).ToString();
 
-            if(gameManager.GetStageData(stageName) != null)
-                starsAmount += gameManager.GetStageData(stageName).GotStar;
+            if(GameManager.GetStageData(stageName) != null)
+                starsAmount += GameManager.GetStageData(stageName).GotStar;
         }
 
         // 次の10ステージを解放

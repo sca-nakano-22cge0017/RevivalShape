@@ -12,6 +12,6 @@ public class ResetButton : MonoBehaviour
 
     public void Reset()
     {
-        dataSave.RestartButton();
+        //dataSave.RestartButton();
     }
 }

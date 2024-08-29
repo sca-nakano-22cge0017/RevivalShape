@@ -26,19 +26,23 @@ public class StageData
 
 public class DataSave : MonoBehaviour
 {
-    string datapath;
+    private static string dataPath = " "; // ファイルパス
 
-    PlayerData playerData;
+    private static int stageAmount;
+    /// <summary>
+    /// ステージ数取得
+    /// </summary>
+    /// <returns>チュートリアルやエクストラを含めないステージ数</returns>
+    public static int GetStageAmount() { return stageAmount; }
+    public static void SetStageAmount(int _stageAmount) { if (_stageAmount > 0) stageAmount = _stageAmount; }
 
-    // 追加
-    [SerializeField] private GameManager gameManager;
-    private int stageAmount = 0; // チュートリアルやエクストラを含めないステージ数
-    private bool didFileChecked = false; // ファイル確認済みか
-    public bool DidFileChecked { get { return didFileChecked; } private set { didFileChecked = value; } }
-
-    private void Awake()
+    /// <summary>
+    /// ファイルのパスを取得する
+    /// </summary>
+    /// <returns>ファイルのパス</returns>
+    public static bool SetDataPath()
     {
-        stageAmount = gameManager.StageAmount; // ステージ数取得
+        string _dataPath;
 
         //パスを指定して読み込み
         string directoryName = Application.persistentDataPath + "/Resources";
@@ -49,58 +53,59 @@ public class DataSave : MonoBehaviour
             Directory.CreateDirectory(directoryName); //生成
         }
 #if UNITY_EDITOR
-        datapath = Application.dataPath + "/Resources/WinJson.json";
+        _dataPath = Application.dataPath + "/Resources/WinJson.json";
 #endif
 #if UNITY_ANDROID
-        datapath = Application.persistentDataPath + "/Resources/AndroidJson.json";
+        _dataPath = Application.persistentDataPath + "/Resources/AndroidJson.json";
 #endif
+
+        if (_dataPath == null || _dataPath == " ")
+        {
+            Debug.Log("ファイルのパスが取得できませんでした。");
+        }
+
+        dataPath = _dataPath;
+
+        return true;
     }
 
-    //セーブ
-    public void SavePlayerData(PlayerData player)
+    /// <summary>
+    /// ファイルの存在確認
+    /// </summary>
+    /// <returns>確認完了</returns>
+    public static bool FileCheck()
     {
-        StreamWriter writer = null;
+        //Jsonファイルがなければ生成、初期化
+        while (!File.Exists(dataPath))
+        {
+            //ファイル生成
+            FileStream fs = File.Create(dataPath);
+            fs.Close();
+            Initialize();
+        }
 
-        //playerデータをJsonに変換
-        string jsonstr = JsonUtility.ToJson(player);
-
-        //Jsonファイルに書き込み
-        writer = new StreamWriter(datapath, false);
-        writer.Write(jsonstr);
-        writer.Flush();
-        writer.Close();
+        return true; // ファイル確認完了
     }
 
-    //Jsonファイルを読み込み、ロードする
-    public PlayerData LoadPlayerData()
-    {
-        string datastr = "";
-        StreamReader reader;
-        reader = new StreamReader(datapath);
-        datastr = reader.ReadToEnd();
-        reader.Close();
-
-        //jsonファイルをオブジェクトに変更
-        return JsonUtility.FromJson<PlayerData> (datastr);
-    }
-
-    //Jsonファイルがない場合初期値をセーブし生成する
-    public void Initialize()
+    /// <summary>
+    /// データ初期化
+    /// </summary>
+    public static void Initialize()
     {
         PlayerData data = new PlayerData();
 
         // ステージ総数分初期化
         data.DataList = new();
-        for (int i = 0; i < stageAmount; i++)
+        for (int i = 0; i <= stageAmount; i++)
         {
             StageData stageData = new StageData();
 
-            if(i == 0) stageData.StageName = "Tutorial"; // 一番最初にチュートリアルのデータを入力
+            if (i == 0) stageData.StageName = "Tutorial"; // 一番最初にチュートリアルのデータを入力
             else stageData.StageName = "Stage" + i.ToString();
-            
+
             stageData.IsClear = false;
             stageData.GotStar = 0;
-            
+
             for (int m = 0; m < 3; m++)
             {
                 stageData.IsMissionClear[m] = false;
@@ -132,47 +137,50 @@ public class DataSave : MonoBehaviour
         SavePlayerData(data);
     }
 
-    //ファイルリセット
-    public void RestartButton()
+    /// <summary>
+    /// セーブ
+    /// </summary>
+    /// <param name="_playerData">データ</param>
+    public static void SavePlayerData(PlayerData _playerData)
     {
-        if (File.Exists(datapath))
+        StreamWriter writer = null;
+
+        //playerデータをJsonに変換
+        string jsonstr = JsonUtility.ToJson(_playerData);
+
+        //Jsonファイルに書き込み
+        writer = new StreamWriter(dataPath, false);
+        writer.Write(jsonstr);
+        writer.Flush();
+        writer.Close();
+    }
+
+    /// <summary>
+    /// ロード
+    /// </summary>
+    /// <returns>クリアデータ</returns>
+    public static PlayerData LoadPlayerData()
+    {
+        string datastr = "";
+        StreamReader reader;
+        reader = new StreamReader(dataPath);
+        datastr = reader.ReadToEnd();
+        reader.Close();
+
+        //jsonファイルをオブジェクトに変更
+        return JsonUtility.FromJson<PlayerData>(datastr);
+    }
+
+    /// <summary>
+    /// データリセット
+    /// </summary>
+    public static void DataReset()
+    {
+        if (File.Exists(dataPath))
         {
-            File.Delete(datapath);
+            File.Delete(dataPath);
         }
 
         FileCheck();
-
-        gameManager.DataReset(); // GameManager内のデータを書き換え
-    }
-
-    /// <summary>
-    /// ステージ全開放
-    /// </summary>
-    public void AllRelease()
-    {
-        bool[] mission = { true, true, true };
-        gameManager.StageDataUpdate("Tutorial", true, mission);
-
-        for (int i = 1; i <= stageAmount; i++)
-        {
-            gameManager.StageDataUpdate("Stage" + i.ToString(), true, mission);
-        }
-    }
-
-    /// <summary>
-    /// ファイルの存在確認
-    /// </summary>
-    public void FileCheck()
-    {
-        //Jsonファイルがなければ生成、初期化
-        while (!File.Exists(datapath))
-        {
-            //ファイル生成
-            FileStream fs = File.Create(datapath);
-            fs.Close();
-            Initialize();
-        }
-
-        didFileChecked = true; // ファイル確認完了
     }
 }
