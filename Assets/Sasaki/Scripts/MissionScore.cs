@@ -184,7 +184,7 @@ public class MissionScore : MonoBehaviour
     {
         for (int i = 0; i < 3; i++)
         {
-            if (!stageName.Contains("Stage"))
+            if (!stageName.Contains("Stage") && !stageName.Contains("Tutorial"))
             {
                 missionText_menu[i].enabled = false;
                 icons_menu[i].enabled = false;
