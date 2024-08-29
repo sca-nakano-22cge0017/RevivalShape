@@ -186,13 +186,13 @@ public class StageController : MonoBehaviour
         // ロードが終わっていなければ以降の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete) return;
 
-        if (phase != PHASE.PLAY && tutorial.TutorialCompleteByPhase) isPause = !timeManager.TimeActive;
+        if (phase != PHASE.PLAY || (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
         else isPause = false;
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
 
-        if ((loadManager != null && loadManager.DidFadeComplete) || loadManager == null)
+        if ((loadManager != null && loadManager.DidFadeComplete) || loadManager == null && !isPause)
         {
             MainGameManage();
             ClearOrRetry();
