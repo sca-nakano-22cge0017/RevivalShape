@@ -95,7 +95,7 @@ public class MissionScore : MonoBehaviour
                 judgeTime = missionTime[sc];
                 judgeConfirmation = missionConfirmation[sc];
                 judgeMiss = missionMiss[sc];
-                Debug.Log(sc);
+                //Debug.Log(sc);
 
                 // 追加 ミッション内容の表示
                 missionText[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
@@ -149,14 +149,14 @@ public class MissionScore : MonoBehaviour
         int cm = missCount - judgeMiss;
         if (cm < 0)
         {
-            Debug.Log("test");
+            //Debug.Log("test");
             scoreCount++;
             isMissionClear[2] = true;
         }
         else isMissionClear[2] = false;
 
         totalScore += scoreCount;
-        Debug.Log(totalScore);
+        //Debug.Log(totalScore);
 
         // データ保存
         GameManager.StageDataUpdate(stageName, true, isMissionClear);
@@ -166,12 +166,12 @@ public class MissionScore : MonoBehaviour
     public void ResultDisp()
     {
         time = Mathf.FloorToInt(timeManager.TotalTime);
-        Debug.Log(time);
+        //Debug.Log(time);
         reConfirmation = stageController.Reconfirmation;
         missCount = stageController.Miss;
 
         int min = Mathf.FloorToInt(time / 60.0f);
-        Debug.Log(min);
+        //Debug.Log(min);
         int sec = Mathf.FloorToInt(time - (min * 60.0f));
         timeText.text = min.ToString("d2") + ":" + sec.ToString("d2");
         reconfirmationText.text = reConfirmation.ToString();

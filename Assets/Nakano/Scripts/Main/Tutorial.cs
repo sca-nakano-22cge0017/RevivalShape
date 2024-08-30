@@ -24,7 +24,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Windows[] selectPhase;
     [SerializeField] private Windows[] playPhase;
 
-    [SerializeField] float firstCoolTime = 0.5f;
+    [SerializeField] float phaseChangeCoolTime = 0.5f;
     [SerializeField, Header("UI操作不可にする用Image")] GameObject obstruct;
     [SerializeField, Header("タップしてから次にタップできるようになるまでの時間")] float tapCoolTime = 0.5f;
 
@@ -60,7 +60,7 @@ public class Tutorial : MonoBehaviour
         obstruct.SetActive(true);
         timeManager.OnStop();
 
-        StartCoroutine(DelayCoroutine(firstCoolTime, () => 
+        StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () => 
         {
             tutorialCanvas.SetActive(true);
             playFunc = CheckA;
@@ -258,13 +258,16 @@ public class Tutorial : MonoBehaviour
             if(toSelectA) return;
             toSelectA = value;
 
-            playFunc = SelectA;
-            ExplainDisplaing(true);
+            StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () =>
+            {
+                playFunc = SelectA;
+                ExplainDisplaing(true);
 
-            obstruct.SetActive(false);
-            timeManager.OnStop();
+                obstruct.SetActive(false);
+                timeManager.OnStop();
 
-            SEPlay();
+                SEPlay();
+            }));
         }
     }
 
@@ -385,11 +388,14 @@ public class Tutorial : MonoBehaviour
     /// </summary>
     public void ToPlayA()
     {
-        playFunc = PlayA;
-        ExplainDisplaing(true);
-        timeManager.OnStop();
+        StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () =>
+        {
+            playFunc = PlayA;
+            ExplainDisplaing(true);
+            timeManager.OnStop();
 
-        SEPlay();
+            SEPlay();
+        }));
     }
 
     // 実行フェーズの説明
