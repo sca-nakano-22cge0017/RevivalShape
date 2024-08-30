@@ -8,6 +8,7 @@ TagManager:
   - SaveSoundManager
   - SaveSoundSetingManager
   - SaveSetingMenu
+  - ClearBlock
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - BackUI
   - Water
   - UI
-  - 
+  - ClearBlock
   - Outline
   - Shpere
   - 

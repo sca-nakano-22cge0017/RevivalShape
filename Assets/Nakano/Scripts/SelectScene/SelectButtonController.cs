@@ -159,8 +159,8 @@ public class SelectButtonController : MonoBehaviour
                 stageName = "Extra" + (num + 1).ToString();
                 buttons_SecondSelect[i].interactable = extraRelease[num];
 
-                // α版では11～20ステージのExtraは無し
-                if(num == 1)
+                // ベータ版ではExtra2～5は無し
+                if(num >= 1)
                 {
                     buttons_SecondSelect[i].gameObject.SetActive(false);
                     undispButton++;

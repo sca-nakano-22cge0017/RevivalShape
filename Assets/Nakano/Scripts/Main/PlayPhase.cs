@@ -17,6 +17,7 @@ public class PlayPhase : MonoBehaviour, IPhase
     [SerializeField] private Vibration vibration;
 
     [SerializeField] private Transform objParent; // 親オブジェクト
+    [SerializeField] private Transform clearObjParent;
 
     [SerializeField] private GameObject playPhaseUI;
 
@@ -142,6 +143,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             FastForward();
         }
 
+        MeshCombine();
         ClearCheck();
     }
 
@@ -167,6 +169,14 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             obj.GetComponent<MeshRenderer>().enabled = false;
         }
+
+        children = clearObjParent.GetComponentInChildren<Transform>();
+        foreach (Transform obj in children)
+        {
+            obj.GetComponent<MeshRenderer>().enabled = false;
+        }
+
+        RemoveMeshes();
     }
 
     /// <summary>
@@ -197,6 +207,17 @@ public class PlayPhase : MonoBehaviour, IPhase
             {
                 IsFastForward = false;
             }, 0.5f);
+    }
+
+    void MeshCombine()
+    {
+        meshCombiner.SetParent(clearObjParent);
+        meshCombiner.Combine(true);
+    }
+
+    void RemoveMeshes()
+    {
+        meshCombiner.Remove();
     }
 
     /// <summary>
@@ -238,6 +259,10 @@ public class PlayPhase : MonoBehaviour, IPhase
                         // 空白部分は生成しない
                         if (map[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Alpha) 
                             mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
+
+                        // 半透明ブロックは別オブジェクトの子として生成
+                        if (map[x, y, z] == ShapeData.Shape.Alpha)
+                            mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, clearObjParent);
                     }
                     else
                     {
@@ -317,7 +342,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             {
                 for (int x = 0; x < mapSize.x; x++)
                 {
-                    if (map[x, y, z] == ShapeData.Shape.Empty || map[x, y, z] == ShapeData.Shape.Alpha) continue;
+                    if (map[x, y, z] == ShapeData.Shape.Empty) continue;
 
                     if (mapObj[x, y, z])
                     {
@@ -374,7 +399,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             if (matchRate >= 100)
             {
-                if (stageController.IsTutorial) tutorial.ToPlayB = true;
+                tutorial.ToPlayB = true;
 
                 completeText.SetActive(true);
                 completeAnim.SetTrigger("Completed");

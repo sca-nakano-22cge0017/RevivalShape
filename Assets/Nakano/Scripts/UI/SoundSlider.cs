@@ -19,13 +19,10 @@ public class SoundSlider : MonoBehaviour
     void Start()
     {
         audio = FindObjectOfType<Audio>();
-        if(audio != null)
-        {
-            audioMixer = audio.GetComponent<AudioMixer>();
-            maxSound = audio.maxSound;
-            minSound = audio.minSound;
-            MasterSound = audio.MasterSound;
-        }
+        audioMixer = audio.GetComponent<AudioMixer>();
+        maxSound = audio.maxSound;
+        minSound = audio.minSound;
+        MasterSound = audio.MasterSound;
 
         InitializeSliders();
         AttachSliderListeners();
@@ -58,11 +55,8 @@ public class SoundSlider : MonoBehaviour
 
     private void AttachSliderListeners()
     {
-        if (audio != null)
-        {
-            BGMSlider.onValueChanged.AddListener(audio.SetBGM);
-            SESlider.onValueChanged.AddListener(audio.SetSE);
-            MasterSlider.onValueChanged.AddListener(audio.SetMaster);
-        }
+        BGMSlider.onValueChanged.AddListener(audio.SetBGM);
+        SESlider.onValueChanged.AddListener(audio.SetSE);
+        MasterSlider.onValueChanged.AddListener(audio.SetMaster);
     }
 }
