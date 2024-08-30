@@ -222,18 +222,18 @@ public class SelectButtonController : MonoBehaviour
         int starsAmount = 0;
 
         // 指定した10ステージの星獲得数を確認
-        for(int i = 1; i <= 10; i++)
+        for (int i = 1; i <= 10; i++)
         {
-            string stageName = "Stage" + (i + num).ToString();
+            string stageName = "Stage" + (i + num * 10).ToString();
 
-            if(GameManager.GetStageData(stageName) != null)
+            if (GameManager.GetStageData(stageName) != null)
                 starsAmount += GameManager.GetStageData(stageName).GotStar;
         }
-
+        
         // 次の10ステージを解放
         if (starsAmount >= needStarsForStageRelease)
         {
-            if(num <= stageAmount) stageRelease[num + 1] = true;
+            stageRelease[num + 1] = true;
         }
         // エクストラステージを解放
         if (starsAmount >= needStarsForExtraRelease)
