@@ -38,6 +38,8 @@ public class ResultWindow : MonoBehaviour
             resultText_num[i].enabled = true;
         }
 
+        yield return new WaitForSeconds(waitTime);
+
         dispEnd = true;
         yield break;
     }

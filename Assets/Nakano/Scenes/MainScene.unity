@@ -4102,6 +4102,7 @@ MonoBehaviour:
     - {fileID: 1982162481}
     - {fileID: 255406592}
     - {fileID: 119668956}
+  firstCoolTime: 0.5
   obstruct: {fileID: 737672334}
   tapCoolTime: 0.5
 --- !u!4 &385809804
@@ -8170,6 +8171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combinedMat: {fileID: 2100000, guid: 615ec2c3680afac428b5f4f4b6e9d0e2, type: 2}
+  shaderPass: Custom/SemiTransparent
 --- !u!1 &804938130
 GameObject:
   m_ObjectHideFlags: 0
@@ -14093,6 +14095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   combinedMat: {fileID: 2100000, guid: 615ec2c3680afac428b5f4f4b6e9d0e2, type: 2}
+  shaderPass: Custom/SemiTransparent
 --- !u!1 &1400797026
 GameObject:
   m_ObjectHideFlags: 0

@@ -53,6 +53,8 @@ public class MissionWindow : MonoBehaviour
             }
         }
 
+        yield return new WaitForSeconds(waitTime);
+
         dispEnd = true;
         yield break;
     }

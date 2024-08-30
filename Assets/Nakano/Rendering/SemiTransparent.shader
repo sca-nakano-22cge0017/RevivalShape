@@ -14,7 +14,7 @@ Shader "Custom/SemiTransparent"
         Tags { 
             "RenderType" = "Transparent" 
             "Queue" = "Transparent"
-            "RenderPipeline" = "UniversalRenderPipeline"}
+        }
 
         Blend SrcAlpha OneMinusSrcAlpha
 
@@ -32,7 +32,6 @@ Shader "Custom/SemiTransparent"
         Pass
         {
             // Ç±ÇÍÇ™ñ≥Ç¢Ç∆ï\é¶Ç≥ÇÍÇ»Ç¢
-            // éQçl:https://note.com/matuba1335/n/n3191312fbeb5
             Tags { "LightMode" = "UniversalForward" }
 
             Cull Back

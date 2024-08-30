@@ -399,7 +399,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             if (matchRate >= 100)
             {
-                tutorial.ToPlayB = true;
+                if(stageController.IsTutorial) tutorial.ToPlayB = true;
 
                 completeText.SetActive(true);
                 completeAnim.SetTrigger("Completed");
@@ -483,7 +483,7 @@ public class PlayPhase : MonoBehaviour, IPhase
                 if (missionWindow.DispEnd)
                 {
                     // チュートリアルの場合
-                    if(stageController.IsTutorial)
+                    if (stageController.IsTutorial)
                     {
                         // 0.5秒待って説明ウィンドウ表示
                         // 全ウィンドウの表示が完了したら0.5秒待って遷移
@@ -500,7 +500,7 @@ public class PlayPhase : MonoBehaviour, IPhase
                                 {
                                     stageController.IsClear = true;
                                 }));
-                                
+
                             }));
                         }));
                     }
