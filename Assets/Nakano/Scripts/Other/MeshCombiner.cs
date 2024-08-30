@@ -11,6 +11,7 @@ public class MeshCombiner : MonoBehaviour
 
     // 結合したメッシュのマテリアル
     [SerializeField] private Material combinedMat;
+    [SerializeField] private string shaderPass;
 
     public void SetParent(Transform _parent)
     {
@@ -55,6 +56,7 @@ public class MeshCombiner : MonoBehaviour
 
         // 結合したメッシュにマテリアルをセット
         parentMeshRenderer.material = combinedMat;
+        Debug.Log(parentMeshRenderer.material.shader);
 
         // 親オブジェクトを表示
         fieldParent.gameObject.SetActive(true);

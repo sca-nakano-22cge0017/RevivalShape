@@ -38,6 +38,9 @@ public class SelectButtonController : MonoBehaviour
 
     public static int selectNumber = 0; // 選択したステージ番号①
 
+    private const int needStarsForStageRelease = 25;
+    private const int needStarsForExtraRelease = 30;
+
     void Start()
     {
         stageAmount = DataSave.GetStageAmount();
@@ -228,12 +231,12 @@ public class SelectButtonController : MonoBehaviour
         }
 
         // 次の10ステージを解放
-        if (starsAmount >= 25)
+        if (starsAmount >= needStarsForStageRelease)
         {
-            if(num < stageAmount) stageRelease[num + 1] = true;
+            if(num <= stageAmount) stageRelease[num + 1] = true;
         }
         // エクストラステージを解放
-        if (starsAmount >= 30)
+        if (starsAmount >= needStarsForExtraRelease)
         {
             extraRelease[num] = true;
         }
