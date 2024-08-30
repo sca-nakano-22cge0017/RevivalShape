@@ -7,10 +7,11 @@ public class TapEffectScript : MonoBehaviour
     [SerializeField] private ParticleSystem tapEffect;
     [SerializeField] private Camera mainCamera;
 
+    private SoundManager sm;
     // Start is called before the first frame update
     void Start()
     {
-        //mainCamera = Camera.main;
+        sm = FindObjectOfType<SoundManager>();
     }
 
     // Update is called once per frame
@@ -18,6 +19,7 @@ public class TapEffectScript : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            sm.SEPlay1();
             var pos = Input.mousePosition;
             pos.z = Vector3.Distance(new Vector3(0,0,tapEffect.transform.position.z), mainCamera.transform.position);
 
