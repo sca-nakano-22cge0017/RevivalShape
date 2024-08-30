@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-
+using static Extensions;
 
 public class SoundManager : MonoBehaviour
 {
@@ -63,8 +63,16 @@ public class SoundManager : MonoBehaviour
         audioSourceSE.PlayOneShot(SE[3]);
         audioSourceSE.clip = SE[3];
     }
+    bool isPlaying_SE4 = false;
     public void SEPlay4()
     {
+        if(isPlaying_SE4) return;
+        else
+        {
+            isPlaying_SE4 = true;
+            StartCoroutine(DelayCoroutine(SE[4].length / 2, () => { isPlaying_SE4 = false; }));
+        }
+
         audioSourceSE.PlayOneShot(SE[4]);
         audioSourceSE.clip = SE[4];
     }
