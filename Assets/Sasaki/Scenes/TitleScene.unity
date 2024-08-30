@@ -1451,6 +1451,7 @@ GameObject:
   m_Component:
   - component: {fileID: 793840685}
   - component: {fileID: 793840684}
+  - component: {fileID: 793840686}
   m_Layer: 0
   m_Name: DebugButtons
   m_TagString: Untagged
@@ -1485,6 +1486,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &793840686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 793840683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 446e2de88f9e7144fafc166019674393, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &829115003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1921,7 +1934,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -1955,6 +1968,18 @@ MonoBehaviour:
       - m_Target: {fileID: 793840684}
         m_TargetAssemblyTypeName: DebugButtons, Assembly-CSharp
         m_MethodName: Release
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 793840686}
+        m_TargetAssemblyTypeName: ButtonSE, Assembly-CSharp
+        m_MethodName: SEPlay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2111,6 +2136,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1468188630969084071, guid: bbe99acb91527bf4aa98455f193755f2, type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468188630969084071, guid: bbe99acb91527bf4aa98455f193755f2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468188630969084071, guid: bbe99acb91527bf4aa98455f193755f2, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1587516935
+      objectReference: {fileID: 0}
     - target: {fileID: 2129089163656363968, guid: bbe99acb91527bf4aa98455f193755f2, type: 3}
       propertyPath: m_Name
       value: TapEffect
@@ -2220,7 +2257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -2254,6 +2291,18 @@ MonoBehaviour:
       - m_Target: {fileID: 793840684}
         m_TargetAssemblyTypeName: DebugButtons, Assembly-CSharp
         m_MethodName: Reset
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 793840686}
+        m_TargetAssemblyTypeName: ButtonSE, Assembly-CSharp
+        m_MethodName: SEPlay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3120,7 +3169,7 @@ Canvas:
   m_GameObject: {fileID: 1653814590}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 1635348079}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -3132,7 +3181,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &1653814594
 RectTransform:
@@ -3375,13 +3424,13 @@ MonoBehaviour:
   - {fileID: 0}
   SE:
   - {fileID: 0}
-  - {fileID: 8300000, guid: 9e992b64a23cd1a41a987e7816809107, type: 3}
-  - {fileID: 8300000, guid: 6d5166e7acf5d944c9e4fb6e6c64e009, type: 3}
-  - {fileID: 8300000, guid: ba2f74a47e419cd45b8f1750c990410a, type: 3}
-  - {fileID: 8300000, guid: f1e7ed0c4bef5e4419a24820ca665418, type: 3}
-  - {fileID: 8300000, guid: 4ba2a363921669f4a9a9e256b5d09659, type: 3}
+  - {fileID: 8300000, guid: 880f5212ed99092418bce667b3010162, type: 3}
+  - {fileID: 8300000, guid: 1cffbaed766522240bfaa7b12047883c, type: 3}
+  - {fileID: 8300000, guid: dce533e8b8e4a5d44aa9df58d6aca890, type: 3}
+  - {fileID: 8300000, guid: 909294127c5d0204ebfd76ea4b1cdd97, type: 3}
+  - {fileID: 8300000, guid: fdd23511422c9484286715f7309518b9, type: 3}
   - {fileID: 0}
-  - {fileID: 8300000, guid: b9540db3380518d4dbe9a3cc1764d131, type: 3}
+  - {fileID: 8300000, guid: abe2f11591186c24fada4a4444c2ed0e, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   audioSourceSE: {fileID: 607252196}
@@ -3746,8 +3795,8 @@ SceneRoots:
   - {fileID: 1635348080}
   - {fileID: 579340107}
   - {fileID: 1725695055}
-  - {fileID: 1653814594}
   - {fileID: 966303711}
+  - {fileID: 1653814594}
   - {fileID: 1156642914}
   - {fileID: 849447852}
   - {fileID: 182066054}
