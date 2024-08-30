@@ -17,15 +17,16 @@ public class MeshCombiner : MonoBehaviour
         fieldParent = _parent;
     }
 
-    public void Combine()
+    /// <summary>
+    /// メッシュ結合
+    /// </summary>
+    /// <param name="_childrenDisplay">結合したオブジェクトを表示するか</param>
+    public void Combine(bool _childrenDisplay)
     {
-        CombineMesh();
+        CombineMesh(_childrenDisplay);
     }
 
-    /// <Summary>
-    /// メッシュを結合
-    /// </Summary>
-    void CombineMesh()
+    void CombineMesh(bool _childrenDisplay)
     {
         MeshFilter parentMeshFilter = CheckParentComponent<MeshFilter>(fieldParent.gameObject);
         MeshRenderer parentMeshRenderer = CheckParentComponent<MeshRenderer>(fieldParent.gameObject);
@@ -45,7 +46,7 @@ public class MeshCombiner : MonoBehaviour
         {
             combine[i].mesh = meshFilterList[i].sharedMesh;
             combine[i].transform = meshFilterList[i].transform.localToWorldMatrix;
-            //meshFilterList[i].gameObject.SetActive(false);
+            meshFilterList[i].gameObject.SetActive(_childrenDisplay);
         }
 
         // 結合したメッシュをセット
@@ -58,6 +59,7 @@ public class MeshCombiner : MonoBehaviour
         // 親オブジェクトを表示
         fieldParent.gameObject.SetActive(true);
     }
+
 
     /// <Summary>
     /// 指定されたコンポーネントへの参照を取得

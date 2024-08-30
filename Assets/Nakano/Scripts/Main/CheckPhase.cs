@@ -11,6 +11,7 @@ public class CheckPhase : MonoBehaviour, IPhase
 
     // サンプルの親オブジェクト
     [SerializeField] private Transform objParent;
+    [SerializeField] private Transform clearObjParent;
 
     [SerializeField] private GameObject checkPhaseUI;
 
@@ -54,6 +55,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     {
         checkPhaseUI.SetActive(true);
         objParent.gameObject.SetActive(true);
+        clearObjParent.gameObject.SetActive(true);
 
         // オブジェクト生成
         SampleInstance();
@@ -72,6 +74,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     {
         checkPhaseUI.SetActive(false);
         objParent.gameObject.SetActive(false);
+        clearObjParent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -94,6 +97,8 @@ public class CheckPhase : MonoBehaviour, IPhase
             }
         }
 
+        bool hasClearBlock = false; // 半透明ブロックがあるかどうか
+
         // オブジェクト生成
         for (int z = 0; z < mapSize.z; z++)
         {
@@ -112,14 +117,26 @@ public class CheckPhase : MonoBehaviour, IPhase
                         mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
                         mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
                     }
+
+                    // 半透明ブロックは別オブジェクトの子として生成
+                    if (s == ShapeData.Shape.Alpha)
+                    {
+                        hasClearBlock = true;
+
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, clearObjParent);
+                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
+                    }
                 }
             }
         }
 
         sampleCreated = true;
 
-        // メッシュ結合
-        //meshCombiner.SetParent(objParent);
-        //meshCombiner.Combine();
+        // 半透明ブロックのメッシュ結合
+        if (hasClearBlock)
+        {
+            meshCombiner.SetParent(clearObjParent);
+            meshCombiner.Combine(false);
+        }
     }
 }

@@ -94,8 +94,6 @@ public class GameManager : MonoBehaviour
     /// <param name="stageName"></param>
     public static void StageDataUpdate(string _stageName, bool _isClear, bool[] _isMissionClear)
     {
-        if (playerData == null) return;
-
         // 今回保存したステージの名前と、ステージ名が一致するDataListの要素を取得する
         foreach (var d in playerData.DataList)
         {
@@ -128,8 +126,6 @@ public class GameManager : MonoBehaviour
     public static StageData GetStageData(string _stageName)
     {
         StageData data = new();
-
-        if(playerData == null) return null;
 
         foreach (var d in playerData.DataList)
         {
