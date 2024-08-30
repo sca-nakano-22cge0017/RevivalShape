@@ -24,6 +24,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Windows[] selectPhase;
     [SerializeField] private Windows[] playPhase;
 
+    [SerializeField] float firstCoolTime = 0.5f;
     [SerializeField, Header("UI操作不可にする用Image")] GameObject obstruct;
     [SerializeField, Header("タップしてから次にタップできるようになるまでの時間")] float tapCoolTime = 0.5f;
 
@@ -56,13 +57,15 @@ public class Tutorial : MonoBehaviour
 
     public void TutorialStart()
     {
-        tutorialCanvas.SetActive(true);
         obstruct.SetActive(true);
-        playFunc = CheckA;
-
         timeManager.OnStop();
 
-        SEPlay();
+        StartCoroutine(DelayCoroutine(firstCoolTime, () => 
+        {
+            tutorialCanvas.SetActive(true);
+            playFunc = CheckA;
+            SEPlay();
+        }));
     }
 
     public void TutorialUpdate()
