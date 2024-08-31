@@ -66,7 +66,7 @@ public class SoundManager : MonoBehaviour
     bool isPlaying_SE4 = false;
     public void SEPlay4()
     {
-        if(isPlaying_SE4) return;
+        if (isPlaying_SE4) return;
         else
         {
             isPlaying_SE4 = true;

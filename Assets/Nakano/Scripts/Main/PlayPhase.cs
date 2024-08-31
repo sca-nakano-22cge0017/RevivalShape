@@ -141,9 +141,9 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             Skip();
             FastForward();
+            MeshCombine();
         }
 
-        MeshCombine();
         ClearCheck();
     }
 
