@@ -43,14 +43,17 @@ public class ShapeObjects : MonoBehaviour
         sm = FindObjectOfType<SoundManager>();
 
         // U“®ŠÔæ“¾
-        vibrateTime_Normal = playPhase.GetVibrateTime()[0];
-        vibrateTime_FastForward = playPhase.GetVibrateTime()[1];
+        if(playPhase != null)
+        {
+            vibrateTime_Normal = playPhase.GetVibrateTime()[0];
+            vibrateTime_FastForward = playPhase.GetVibrateTime()[1];
+        }
     }
 
     private void Update()
     {
         // —‰º‘¬“xæ“¾AU“®ŠÔ•ÏX
-        if(playPhase.IsFastForward)
+        if(playPhase != null && playPhase.IsFastForward)
         {
             vibrateTime = vibrateTime_FastForward;
             fastForwardRatio = playPhase.FastForwardRatio;
@@ -61,7 +64,7 @@ public class ShapeObjects : MonoBehaviour
             vibrateTime = vibrateTime_Normal;
         }
 
-        if(stageController.phase != StageController.PHASE.PLAY) return;
+        if(stageController != null && stageController.phase != StageController.PHASE.PLAY) return;
 
         if(IsFall)
         {

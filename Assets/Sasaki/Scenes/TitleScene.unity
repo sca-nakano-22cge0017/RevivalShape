@@ -335,8 +335,8 @@ MonoBehaviour:
   BGMSlider: {fileID: 0}
   SESlider: {fileID: 0}
   MasterSlider: {fileID: 0}
-  maxSound: 20
-  minSound: -80
+  maxSound: 0
+  minSound: -40
   MasterSound: 0
 --- !u!82 &192339081
 AudioSource:

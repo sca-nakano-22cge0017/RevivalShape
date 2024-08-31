@@ -70,6 +70,8 @@ public class Tutorial : MonoBehaviour
 
     public void TutorialUpdate()
     {
+        if(!stageController || !timeManager) return;
+
         if (playFunc != null && !isTutorialComplete)
         {
             playFunc();

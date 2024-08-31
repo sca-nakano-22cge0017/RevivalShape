@@ -19,7 +19,7 @@ public class TapEffectScript : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            sm.SEPlay1();
+            if(sm != null) sm.SEPlay1();
             var pos = Input.mousePosition;
             pos.z = Vector3.Distance(new Vector3(0,0,tapEffect.transform.position.z), mainCamera.transform.position);
 

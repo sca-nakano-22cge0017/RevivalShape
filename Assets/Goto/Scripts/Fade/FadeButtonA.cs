@@ -34,21 +34,23 @@ public class FadeButtonA : MonoBehaviour
 
     public void FadeOut()
     {
-        fadeScript.StartFadeOut();
-        StartCoroutine(FadeOutOk());
-      
-        
-        soundManager.SEPlay6();
+        //fadeScript.StartFadeOut();
+        //StartCoroutine(FadeOutOk());
+
+        timeManager.OnStop();
+        FadePanel.SetActive(true);
+
+        if(soundManager != null) soundManager.SEPlay6();
         Debug.Log("se");
      
     }
     public void FadeIn()
     {
-        fadeScript.StartFadeIn();
-       
-        StartCoroutine(FadeOutOff());
-       
-       
+        //fadeScript.StartFadeIn();
+        //StartCoroutine(FadeOutOff());
+
+        FadePanel.SetActive(false);
+        timeManager.OnStart();
 
         //  Panel.SetActive(false);
     }

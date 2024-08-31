@@ -12,8 +12,8 @@ public class CameraRotate : MonoBehaviour
 {
     private Transform thisTransform;
 
-    [SerializeField] private StageController stageController;
     [SerializeField] private Tutorial tutorial;
+    [SerializeField] private StageController stageController;
     [SerializeField] private TapManager tapManager;
     [SerializeField] private Camera m_camera;
     private Vector3 mapSize;
