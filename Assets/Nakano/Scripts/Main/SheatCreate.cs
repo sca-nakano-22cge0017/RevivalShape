@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class SheatPrefabs
+{
+    public int height;
+    public int width;
+    public GameObject prefab;
+}
+
 /// <summary>
 /// シート管理
 /// </summary>
@@ -10,6 +18,9 @@ public class SheatCreate : MonoBehaviour
     [SerializeField] private StageController stageController;
 
     [SerializeField] private GameObject sheatPrefab;
+
+    [SerializeField] private SheatPrefabs[] prefabs;
+
     [SerializeField] private Transform sheatParent;
     [SerializeField] private GameObject marks;
 
@@ -35,12 +46,21 @@ public class SheatCreate : MonoBehaviour
         if (stageController)
             mapSize = stageController.MapSize;
 
-        // マップの広さ分シートをを生成
-        for (int x = 0; x < (int)mapSize.x; x++)
+        // マップの広さ分シートを生成
+        //for (int x = 0; x < (int)mapSize.x; x++)
+        //{
+        //    for (int z = 0; z < (int)mapSize.z; z++)
+        //    {
+        //        Instantiate(sheatPrefab, new Vector3(-x, createPosY, z), Quaternion.identity, sheatParent);
+        //    }
+        //}
+
+        // マップの広さ分シートを表示
+        for (int i = 0; i < prefabs.Length; i++)
         {
-            for (int z = 0; z < (int)mapSize.z; z++)
+            if ((int)mapSize.x == prefabs[i].width && (int)mapSize.z == prefabs[i].height)
             {
-                Instantiate(sheatPrefab, new Vector3(-x, createPosY, z), Quaternion.identity, sheatParent);
+                prefabs[i].prefab.SetActive(true);
             }
         }
 

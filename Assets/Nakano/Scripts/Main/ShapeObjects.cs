@@ -42,6 +42,8 @@ public class ShapeObjects : MonoBehaviour
         stageController = FindObjectOfType<StageController>();
         sm = FindObjectOfType<SoundManager>();
 
+        isVibrate = false;
+
         // U“®ŠÔæ“¾
         if(playPhase != null)
         {

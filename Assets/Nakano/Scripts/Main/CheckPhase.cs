@@ -1,5 +1,14 @@
 using UnityEngine;
 
+[System.Serializable]
+public class CombineTests
+{
+    public ShapeData.Shape shape;
+    public CombineTest combineTest;
+    public Transform parent;        // parentの子オブジェクトを全て結合する
+    public GameObject combinedObj;  // 結合後のオブジェクト
+}
+
 /// <summary>
 /// 確認フェーズ
 /// </summary>
@@ -8,16 +17,16 @@ public class CheckPhase : MonoBehaviour, IPhase
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageController stageController;
     [SerializeField] private MeshCombiner meshCombiner;
+    [SerializeField] private CombineTests[] combineTests;
+    [SerializeField, Header("結合するか")] private bool isCombine = false;
 
     // サンプルの親オブジェクト
     [SerializeField] private Transform objParent;
-    [SerializeField] private Transform clearObjParent;
 
     [SerializeField] private GameObject checkPhaseUI;
 
     private Vector3 mapSize;
 
-    private ShapeData.Shape[,,] map; // 配置データ
     private GameObject[,,] mapObj;   // サンプルのGameObject型配列
 
     private bool sampleCreated = false; // サンプル生成済みかどうか
@@ -31,7 +40,6 @@ public class CheckPhase : MonoBehaviour, IPhase
         mapSize = stageController.MapSize;
 
         // 配列 要素数指定
-        map = new ShapeData.Shape[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
         mapObj = new GameObject[(int)mapSize.x, (int)mapSize.y, (int)mapSize.z];
 
         for (int z = 0; z < mapSize.z; z++)
@@ -40,7 +48,6 @@ public class CheckPhase : MonoBehaviour, IPhase
             {
                 for (int x = 0; x < mapSize.x; x++)
                 {
-                    map[x, y, z] = ShapeData.Shape.Empty;
                     mapObj[x, y, z] = null;
                 }
             }
@@ -55,7 +62,6 @@ public class CheckPhase : MonoBehaviour, IPhase
     {
         checkPhaseUI.SetActive(true);
         objParent.gameObject.SetActive(true);
-        clearObjParent.gameObject.SetActive(true);
 
         // オブジェクト生成
         SampleInstance();
@@ -74,7 +80,6 @@ public class CheckPhase : MonoBehaviour, IPhase
     {
         checkPhaseUI.SetActive(false);
         objParent.gameObject.SetActive(false);
-        clearObjParent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -85,20 +90,6 @@ public class CheckPhase : MonoBehaviour, IPhase
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
 
-        // 正解の配置データを取得
-        for (int z = 0; z < mapSize.z; z++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                for (int x = 0; x < mapSize.x; x++)
-                {
-                    map[x, y, z] = stageController.CorrectAnswer[x, y, z];
-                }
-            }
-        }
-
-        bool hasClearBlock = false; // 半透明ブロックがあるかどうか
-
         // オブジェクト生成
         for (int z = 0; z < mapSize.z; z++)
         {
@@ -108,23 +99,14 @@ public class CheckPhase : MonoBehaviour, IPhase
                 {
                     Vector3 pos = new Vector3(-x, y, z);
 
-                    ShapeData.Shape s = map[x, y, z];
+                    ShapeData.Shape s = stageController.CorrectAnswer[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
                     // 空白マスは生成しない
-                    if (s != ShapeData.Shape.Empty && s != ShapeData.Shape.Alpha)
+                    if (s != ShapeData.Shape.Empty)
                     {
-                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
-                    }
-
-                    // 半透明ブロックは別オブジェクトの子として生成
-                    if (s == ShapeData.Shape.Alpha)
-                    {
-                        hasClearBlock = true;
-
-                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, clearObjParent);
-                        mapObj[x, y, z].GetComponent<ShapeObjects>().IsVibrate = false; // 振動オフ
+                        Transform parent = GetParent(s);
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, parent);
                     }
                 }
             }
@@ -132,11 +114,43 @@ public class CheckPhase : MonoBehaviour, IPhase
 
         sampleCreated = true;
 
-        // 半透明ブロックのメッシュ結合
-        if (hasClearBlock)
+        if(isCombine) Combine();
+    }
+
+    // メッシュ結合
+    void Combine()
+    {
+        for (int i = 0; i < combineTests.Length; i++)
         {
-            meshCombiner.SetParent(clearObjParent);
-            meshCombiner.Combine(false);
+            if (combineTests[i].shape != ShapeData.Shape.Empty)
+            {
+                Transform parent = combineTests[i].parent;
+                CombineTest ct = combineTests[i].combineTest;
+                ct.Combine(stageController.StageName, combineTests[i].shape, parent);
+            }
         }
+    }
+
+    Transform GetParent(ShapeData.Shape _shape)
+    {
+        Transform objParent = null;
+
+        for (int i = 0; i < combineTests.Length; i++)
+        {
+            if (combineTests[i].shape == _shape)
+            {
+                objParent = combineTests[i].parent;
+            }
+        }
+
+        return objParent;
+    }
+
+    /// <summary>
+    /// メッシュ結合後のオブジェクトを取得
+    /// </summary>
+    void GetCombinedObject()
+    {
+
     }
 }
