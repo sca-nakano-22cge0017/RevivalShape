@@ -57,12 +57,12 @@ public class Tutorial : MonoBehaviour
 
     public void TutorialStart()
     {
+        tutorialCanvas.SetActive(true);
         obstruct.SetActive(true);
         timeManager.OnStop();
 
         StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () => 
         {
-            tutorialCanvas.SetActive(true);
             playFunc = CheckA;
             SEPlay();
         }));
@@ -260,14 +260,13 @@ public class Tutorial : MonoBehaviour
             if(toSelectA) return;
             toSelectA = value;
 
+            ExplainDisplaing(true);
+            timeManager.OnStop();
+
             StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () =>
             {
                 playFunc = SelectA;
-                ExplainDisplaing(true);
-
                 obstruct.SetActive(false);
-                timeManager.OnStop();
-
                 SEPlay();
             }));
         }
@@ -369,7 +368,8 @@ public class Tutorial : MonoBehaviour
     {
         if (toSelectF) NextFunctionByTap(selectPhase[4], SelectF, () => 
         {
-            if (!selectPhase[5].order.activeSelf) selectPhase[5].order.SetActive(true);
+            if (!selectPhase[5].order.activeSelf) 
+                selectPhase[5].order.SetActive(true);
             SEPlay();
         });
     }

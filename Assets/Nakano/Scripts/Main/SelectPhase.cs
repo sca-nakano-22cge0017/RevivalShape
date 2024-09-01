@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using static Extensions;
@@ -28,6 +26,8 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     // 入力ボタン
     [SerializeField] private GameObject buttonParent;
+    [SerializeField] private RectTransform buttonParent_rc;
+    [SerializeField] private GridLayoutGroup buttonParent_glg;
     [SerializeField] private GameObject buttonPrefab;
     [SerializeField, Header("ボタン表示範囲")] private Vector2 buttonRange;
 
@@ -46,9 +46,10 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     // 各図形毎のUI
     [SerializeField] private select.ShapesUI[] shapesUI;
-    
+
     // 削除モード
     [SerializeField, Header("削除モードのボタン")] private GameObject eraserModeButton;
+    [SerializeField] private Image eraserModeButton_img;
     [SerializeField, Header("削除モードのウィンドウ")] private GameObject eraserModeWindow;
     /// <summary>
     /// 削除モードか
@@ -58,15 +59,17 @@ public class SelectPhase : MonoBehaviour, IPhase
 
     // 確認モード
     [SerializeField, Header("確認モードのボタン")] private GameObject checkModeButton;
+    [SerializeField] private Image checkModeButton_img;
     [SerializeField, Header("確認モードのウィンドウ")] private GameObject checkModeWindow;
-    [SerializeField] private GameObject stepsParent;     // 画像を配置する場所
-    [SerializeField] private GameObject stepsPrefab;     // 生成する画像
-    private Image[] steps;                               // 表示する画像　Spriteを変更する
+    [SerializeField] private GameObject stepsParent;       // 画像を配置する場所
+    [SerializeField] private RectTransform stepsParent_rc; // stepsParentのRectTransform
+    [SerializeField] private GameObject stepsPrefab;       // 生成する画像
+    private Image[] steps;                                 // 表示する画像　Spriteを変更する
     /// <summary>
     /// 確認モードか
     /// </summary>
     public bool IsCheck { get; private set; } = false;
-    private Vector2 checkPos = new Vector2(0, 0);     // 確認するマスの座標
+    private Vector2 checkPos = Vector2.zero;    // 確認するマスの座標
 
     // 確認カメラモードのウィンドウを消去できるか
     private bool canCheckWindowUnDisp = false;
@@ -109,8 +112,8 @@ public class SelectPhase : MonoBehaviour, IPhase
         shapeType = stageController.ShapeType;
 
         // ボタンの親オブジェクトのサイズ調整
-        buttonParent.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
-        buttonParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
+        buttonParent_rc.sizeDelta = new Vector2(buttonRange.x, buttonRange.y);
+        buttonParent_glg.cellSize = new Vector2(buttonRange.x / mapSize.x, buttonRange.y / mapSize.z);
 
         // 配列の要素数設定
         selectButtons = new SelectPhaseButton[(int)mapSize.x, (int)mapSize.z];
@@ -146,7 +149,7 @@ public class SelectPhase : MonoBehaviour, IPhase
 
         // 確認カメラモードのウィンドウ設定
         steps = new Image[(int)mapSize.y];
-        stepsParent.GetComponent<RectTransform>().transform.localPosition = new Vector2(0, 900 + mapSize.y * 50);
+        stepsParent_rc.transform.localPosition = new Vector2(0, 900 + mapSize.y * 50);
         for (int y = 0; y < (int)mapSize.y; y++)
         {
             steps[y] = Instantiate(stepsPrefab, stepsParent.transform).GetComponent<Image>();
@@ -255,36 +258,36 @@ public class SelectPhase : MonoBehaviour, IPhase
         }
     }
 
+    Color clear = new Color(1, 1, 1, 0);
+    Color unClear = new Color(1, 1, 1, 1);
+
     /// <summary>
     /// 各モードの表示設定
     /// </summary>
     void ModeUIDispSet()
     {
-        Color clear = new Color(1, 1, 1, 0);
-        Color unClear = new Color(1, 1, 1, 1);
-
         if (IsEraser || IsCheck)
         {
             // モード時は背景暗く
             modeBG.SetActive(true);
 
-            GameObject disp = null;
-            GameObject unDisp = null;
+            Image disp = null;
+            Image unDisp = null;
 
             if (IsCheck)
             {
-                disp = checkModeButton;
-                unDisp = eraserModeButton;
+                disp = checkModeButton_img;
+                unDisp = eraserModeButton_img;
             }
             if (IsEraser)
             {
-                unDisp = checkModeButton;
-                disp = eraserModeButton;
+                unDisp = checkModeButton_img;
+                disp = eraserModeButton_img;
             }
 
             // モード中はボタンを白く光らせる
-            disp.GetComponent<Image>().color = unClear;
-            unDisp.GetComponent<Image>().color = clear;
+            disp.color = unClear;
+            unDisp.color = clear;
 
             // 表示順変更
             unDisp.transform.SetAsFirstSibling();
@@ -292,8 +295,8 @@ public class SelectPhase : MonoBehaviour, IPhase
         }
         else
         {
-            checkModeButton.GetComponent<Image>().color = clear;
-            eraserModeButton.GetComponent<Image>().color = clear;
+            checkModeButton_img.color = clear;
+            eraserModeButton_img.color = clear;
 
             modeBG.SetActive(false);
         }
@@ -355,11 +358,11 @@ public class SelectPhase : MonoBehaviour, IPhase
             var shape = playerAnswer[(int)checkPos.x, i, (int)checkPos.y];
 
             // 画像変更
-            foreach (var ui in shapesUI)
+            for (int ui = 0; ui < shapesUI.Length; ui++)
             {
-                if (ui.shape == shape)
+                if(shape == shapesUI[ui].shape)
                 {
-                    steps[i].sprite = ui.sprite;
+                    steps[i].sprite = shapesUI[ui].sprite;
                 }
             }
         }
@@ -425,9 +428,9 @@ public class SelectPhase : MonoBehaviour, IPhase
     /// </summary>
     void SelectingShapeDisp()
     {
-        for(int i = 0; i < shapesUI.Length; i++)
+        for (int i = 0; i < shapesUI.Length; i++)
         {
-            if(selectingShape == shapesUI[i].shape)
+            if (selectingShape == shapesUI[i].shape)
             {
                 selectingShapeImage.sprite = shapesUI[i].sprite;
             }

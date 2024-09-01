@@ -32,6 +32,10 @@ public class MeshCombiner : MonoBehaviour
         MeshRenderer parentMeshRenderer = CheckParentComponent<MeshRenderer>(fieldParent.gameObject);
 
         MeshFilter[] meshFilters = fieldParent.GetComponentsInChildren<MeshFilter>();
+
+        // ƒƒbƒVƒ…‚ªˆê‚Â‚à–³‚¯‚ê‚ÎI—¹
+        if(meshFilters.Length <= 0) return;
+
         List<MeshFilter> meshFilterList = new List<MeshFilter>();
 
         for (int i = 1; i < meshFilters.Length; i++)

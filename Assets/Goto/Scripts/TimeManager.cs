@@ -81,6 +81,7 @@ public class TimeManager : MonoBehaviour
     public void OnStart()
     {
         timeActive = true;
+        Debug.Log("ŠJŽn");
     }
     public void OnStop()
     {

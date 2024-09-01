@@ -99,11 +99,11 @@ public class MissionScore : MonoBehaviour
 
                 // 追加 ミッション内容の表示
                 missionText[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
-                missionText[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+                missionText[1].text = "確認回数" + judgeConfirmation.ToString() + "回以内";
                 missionText[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
 
                 missionText_menu[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
-                missionText_menu[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+                missionText_menu[1].text = "確認回数" + judgeConfirmation.ToString() + "回以内";
                 missionText_menu[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
             }
         }
@@ -116,11 +116,11 @@ public class MissionScore : MonoBehaviour
 
             // 追加 ミッション内容の表示
             missionText[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
-            missionText[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+            missionText[1].text = "確認回数" + judgeConfirmation.ToString() + "回以内";
             missionText[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
 
             missionText_menu[0].text = "プレイ時間" + judgeTime.ToString() + "秒以内";
-            missionText_menu[1].text = "再確認数" + judgeConfirmation.ToString() + "回以内";
+            missionText_menu[1].text = "確認回数" + judgeConfirmation.ToString() + "回以内";
             missionText_menu[2].text = "ミス回数" + judgeMiss.ToString() + "回以内";
         }
     }

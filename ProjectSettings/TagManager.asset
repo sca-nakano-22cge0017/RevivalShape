@@ -9,6 +9,9 @@ TagManager:
   - SaveSoundSetingManager
   - SaveSetingMenu
   - ClearBlock
+  - Cube
+  - Sphere
+  - Piramid
   layers:
   - Default
   - TransparentFX

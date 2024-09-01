@@ -42,23 +42,4 @@ public class Extensions : MonoBehaviour
         yield return new WaitForSeconds(_seconds);
         _action?.Invoke();
     }
-
-    /// <summary>
-    /// _flagの返り値がtrueになったら_actionを実行
-    /// </summary>
-    /// <param name="_flag">処理実行のフラグ</param>
-    /// <param name="_action">処理</param>
-    /// <returns></returns>
-    public static IEnumerator DelayCoroutine(Func<bool> _flag, Action _action)
-    {
-        bool flag = false;
-
-        while (!flag)
-        {
-            flag = _flag.Invoke();
-            yield return null;
-        }
-
-        _action?.Invoke();
-    }
 }

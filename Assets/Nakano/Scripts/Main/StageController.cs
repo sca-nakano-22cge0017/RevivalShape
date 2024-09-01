@@ -1,9 +1,6 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static Extensions;
 
 /// <summary>
 /// メインゲーム制御
@@ -42,7 +39,7 @@ public class StageController : MonoBehaviour
     /// <summary>
     /// チュートリアルステージかどうか
     /// </summary>
-    public bool IsTutorial { get { return isTutorial;} private set { isTutorial = value; } }
+    public bool IsTutorial { get { return isTutorial; } private set { isTutorial = value; } }
 
     private bool canToCheckPhase = true; // 選択フェーズから確認フェーズに移行できるか
     [SerializeField, Header("選択→確認移行時の確認ウィンドウ")] private GameObject confirmWindow;
@@ -60,11 +57,11 @@ public class StageController : MonoBehaviour
     /// ミス回数
     /// </summary>
     public int Miss { get; private set; } = 0;
-    
+
     /// <summary>
-    /// 再確認回数
+    /// 確認回数
     /// </summary>
-    public int Reconfirmation { get; private set; } = 0;
+    public int Reconfirmation { get; private set; } = 1;
 
     /// <summary>
     /// 使用図形の種類一覧
@@ -151,6 +148,8 @@ public class StageController : MonoBehaviour
         }
     }
 
+    private bool gameStart = false;
+
     private void Awake()
     {
         timeManager.OnStop();
@@ -164,12 +163,14 @@ public class StageController : MonoBehaviour
         canToCheckPhase = true;
         confirmWindow.SetActive(false);
 
+        // チュートリアルなら
+        if (stageName == "Tutorial") isTutorial = true;
+
         loadManager = FindObjectOfType<LoadManager>();
         if (loadManager != null)
         {
             // フェード終了後スタート
-            StartCoroutine(DelayCoroutine(() => { return loadManager.DidFadeComplete; },
-                () => { GameStart(); }));
+            StartCoroutine(CheckLoadCompleted());
         }
         else GameStart();
     }
@@ -177,31 +178,38 @@ public class StageController : MonoBehaviour
     void Update()
     {
         // ロードが終わっていなければ以降の処理に進ませない
-        if (!stageDataLoader.stageDataLoadComlete) return;
+        if (!stageDataLoader.stageDataLoadComlete && gameStart) return;
 
-        if (phase != PHASE.PLAY || (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
-        else isPause = false;
+        if (phase != PHASE.PLAY && (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
+        else
+        {
+            isPause = false;
+        }
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
 
-        if ((loadManager != null && loadManager.DidFadeComplete) || loadManager == null && !isPause)
+        if (((loadManager != null && loadManager.DidFadeComplete) || loadManager == null) && !isPause)
         {
             MainGameManage();
             ClearOrRetry();
         }
     }
 
+    IEnumerator CheckLoadCompleted()
+    {
+        yield return new WaitUntil(() => loadManager.DidFadeComplete);
+
+        GameStart();
+    }
+
     void GameStart()
     {
         // チュートリアルなら
-        if (stageName == "Tutorial")
-        {
-            isTutorial = true;
-            tutorial.TutorialStart();
-        }
+        if (isTutorial) tutorial.TutorialStart();
+        else timeManager.OnStart();
 
-        timeManager.OnStart();
+        gameStart = true;
     }
 
     /// <summary>
@@ -263,14 +271,14 @@ public class StageController : MonoBehaviour
     /// </summary>
     private void MainGameManage()
     {
-        if (IsTutorial) tutorial.TutorialUpdate();
+        if (isTutorial) tutorial.TutorialUpdate();
 
         switch (phase)
         {
             case PHASE.CHECK:
                 cameraRotate.CameraUpdate();
                 break;
-            
+
             case PHASE.SELECT:
                 selectPhase.PhaseUpdate();
                 break;
@@ -286,7 +294,7 @@ public class StageController : MonoBehaviour
     /// </summary>
     private void ClearOrRetry()
     {
-        if((isTutorial && !tutorial.IsTutorialComplete) || isPause) return;
+        if ((isTutorial && !tutorial.IsTutorialComplete) || isPause) return;
 
         // クリア時の遷移処理
         if (IsClear && Input.touchCount >= 1)
@@ -314,7 +322,7 @@ public class StageController : MonoBehaviour
         // 選択フェーズから確認フェーズに戻るボタンを押したときに呼ばれる
         if (phase == PHASE.SELECT)
         {
-            numberOfReconfirmation.text = "現在の回数：" + Reconfirmation.ToString() + "回";
+            numberOfReconfirmation.text = "現在の確認回数：" + Reconfirmation.ToString() + "回";
             confirmWindow.SetActive(true);
             timeManager.OnStop();
         }
@@ -402,7 +410,7 @@ public class StageController : MonoBehaviour
 
         phase = PHASE.SELECT;
 
-        if(isTutorial) tutorial.ToSelectA = true;
+        if (isTutorial) tutorial.ToSelectA = true;
 
         canToCheckPhase = false;
 
