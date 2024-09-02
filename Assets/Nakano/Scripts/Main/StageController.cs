@@ -180,11 +180,10 @@ public class StageController : MonoBehaviour
         // ロードが終わっていなければ以降の処理に進ませない
         if (!stageDataLoader.stageDataLoadComlete && gameStart) return;
 
-        if (phase != PHASE.PLAY && (isTutorial && tutorial.TutorialCompleteByPhase)) isPause = !timeManager.TimeActive;
-        else
-        {
-            isPause = false;
-        }
+        // 実行フェーズ/チュートリアルでの説明中は時間計測が行われているかどうかに関わらずポーズ状態を解除
+        if (phase == PHASE.PLAY) isPause = false;
+        else if (isTutorial && !tutorial.TutorialCompleteByPhase) isPause = false;
+        else isPause = !timeManager.TimeActive;
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
