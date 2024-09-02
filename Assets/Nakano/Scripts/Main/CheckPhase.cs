@@ -16,12 +16,13 @@ public class CheckPhase : MonoBehaviour, IPhase
 {
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageController stageController;
-    [SerializeField] private MeshCombiner meshCombiner;
-    [SerializeField] private CombineTests[] combineTests;
-    [SerializeField, Header("結合するか")] private bool isCombine = false;
 
-    // サンプルの親オブジェクト
-    [SerializeField] private Transform objParent;
+    [SerializeField, Header("1から生成するか")] private bool isCreate = false;
+
+    [SerializeField, Header("生成場所")] private Transform createParent;
+    [SerializeField, Header("サンプルの親オブジェクト")] private Transform sampleParent;
+    [SerializeField, Header("各ステージのサンプル")] private GameObject[] samples;
+    [SerializeField, Header("各ステージのサンプル TutorialとExtra")] private GameObject[] samplesOther;
 
     [SerializeField] private GameObject checkPhaseUI;
 
@@ -34,7 +35,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void Initialize()
     {
         checkPhaseUI.SetActive(false);
-        objParent.gameObject.SetActive(false);
+        sampleParent.gameObject.SetActive(false);
 
         // マップサイズ取得
         mapSize = stageController.MapSize;
@@ -61,7 +62,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void PhaseStart()
     {
         checkPhaseUI.SetActive(true);
-        objParent.gameObject.SetActive(true);
+        sampleParent.gameObject.SetActive(true);
 
         // オブジェクト生成
         SampleInstance();
@@ -79,7 +80,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void PhaseEnd()
     {
         checkPhaseUI.SetActive(false);
-        objParent.gameObject.SetActive(false);
+        sampleParent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -87,6 +88,12 @@ public class CheckPhase : MonoBehaviour, IPhase
     /// </summary>
     private void SampleInstance()
     {
+        if(!isCreate)
+        {
+            SampleDisplay();
+            return;
+        }
+
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
 
@@ -105,52 +112,64 @@ public class CheckPhase : MonoBehaviour, IPhase
                     // 空白マスは生成しない
                     if (s != ShapeData.Shape.Empty)
                     {
-                        Transform parent = GetParent(s);
-                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, parent);
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, createParent);
                     }
                 }
             }
         }
 
         sampleCreated = true;
-
-        if(isCombine) Combine();
-    }
-
-    // メッシュ結合
-    void Combine()
-    {
-        for (int i = 0; i < combineTests.Length; i++)
-        {
-            if (combineTests[i].shape != ShapeData.Shape.Empty)
-            {
-                Transform parent = combineTests[i].parent;
-                CombineTest ct = combineTests[i].combineTest;
-                ct.Combine(stageController.StageName, combineTests[i].shape, parent);
-            }
-        }
-    }
-
-    Transform GetParent(ShapeData.Shape _shape)
-    {
-        Transform objParent = null;
-
-        for (int i = 0; i < combineTests.Length; i++)
-        {
-            if (combineTests[i].shape == _shape)
-            {
-                objParent = combineTests[i].parent;
-            }
-        }
-
-        return objParent;
     }
 
     /// <summary>
-    /// メッシュ結合後のオブジェクトを取得
+    /// 生成・結合済みサンプルを表示
     /// </summary>
-    void GetCombinedObject()
+    private void SampleDisplay()
     {
+        string stageName = stageController.StageName;
 
+        if (stageName.Contains("Stage"))
+        {
+            string _stageName = stageName.Replace("Stage", "");
+
+            if (int.TryParse(_stageName, out int n))
+            {
+                if (n - 1 >= 0 && n - 1 < samples.Length)
+                {
+                    if (!SampleNullCheck(samples[n - 1])) samples[n - 1].SetActive(true);
+                }
+
+                return;
+            }
+        }
+
+        else if (stageName.Contains("Tutorial"))
+        {
+            if (!SampleNullCheck(samplesOther[0])) samplesOther[0].SetActive(true);
+        }
+
+        else if (stageName.Contains("Extra"))
+        {
+            string _stageName = stageName.Replace("Extra", "");
+
+            if (int.TryParse(_stageName, out int n))
+            {
+                if (!SampleNullCheck(samplesOther[n])) samplesOther[n].SetActive(true);
+            }
+        }
+    }
+
+    bool SampleNullCheck(GameObject _object)
+    {
+        bool isNull = false;
+
+        if (_object == null)
+        {
+            isNull = true;
+            isCreate = true;
+            SampleInstance();
+        }
+
+        return isNull;
     }
 }
