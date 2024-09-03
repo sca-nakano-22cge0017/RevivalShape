@@ -182,8 +182,14 @@ public class StageController : MonoBehaviour
 
         // 実行フェーズ/チュートリアルでの説明中は時間計測が行われているかどうかに関わらずポーズ状態を解除
         if (phase == PHASE.PLAY) isPause = false;
-        else if (isTutorial && !tutorial.TutorialCompleteByPhase) isPause = false;
         else isPause = !timeManager.TimeActive;
+
+        if (isTutorial)
+        {
+            if (!tutorial.TutorialCompleteByPhase) isPause = false;
+            else isPause = !timeManager.TimeActive;
+        }
+
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
@@ -191,7 +197,7 @@ public class StageController : MonoBehaviour
         if (((loadManager != null && loadManager.DidFadeComplete) || loadManager == null) && !isPause)
         {
             MainGameManage();
-            ClearOrRetry();
+            Clear();
         }
     }
 
@@ -284,14 +290,16 @@ public class StageController : MonoBehaviour
 
             case PHASE.PLAY:
                 playPhase.PhaseUpdate();
+
+                if (isRetry) cameraRotate.CameraUpdate();
                 break;
         }
     }
 
     /// <summary>
-    /// クリア/リトライ時の処理
+    /// クリア時の処理
     /// </summary>
-    private void ClearOrRetry()
+    private void Clear()
     {
         if ((isTutorial && !tutorial.IsTutorialComplete) || isPause) return;
 
@@ -303,9 +311,14 @@ public class StageController : MonoBehaviour
 
             IsClear = false;
         }
+    }
 
-        // 再挑戦時の処理
-        if (IsRetry && Input.touchCount >= 1)
+    /// <summary>
+    /// 再挑戦時の処理
+    /// </summary>
+    public void Retry()
+    {
+        if (IsRetry)
         {
             // 確認フェーズに戻る
             testButton.BackToggle();

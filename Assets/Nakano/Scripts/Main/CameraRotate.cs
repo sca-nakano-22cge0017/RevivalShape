@@ -144,10 +144,13 @@ public class CameraRotate : MonoBehaviour
         thisTransform.LookAt(target, thisTransform.up);
     }
 
-    public void CameraUpdate()
+    private void Update()
     {
         TweenPauseControll();
+    }
 
+    public void CameraUpdate()
+    {
         if(!stageController.IsPause)
         {
             if (isRestoring)
@@ -865,6 +868,7 @@ public class CameraRotate : MonoBehaviour
         thisTransform.position = new Vector3(target.x, buttom, height);
         thisTransform.LookAt(target, thisTransform.up);
 
+        didSwip = true;
         currentCameraPos = CameraPos.UP;
     }
 
@@ -873,7 +877,8 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void FromPlayPhase()
     {
-        didSwip = true;
+        //currentCameraPos = CameraPos.UP;
+        //didSwip = true;
         RotateReset(false);
     }
 
