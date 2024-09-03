@@ -26,32 +26,9 @@ public class CombineTest : MonoBehaviour
     /// <param name="_stageName">ステージ名</param>
     /// <param name="_shape">図形</param>
     /// <param name="_parent">結合するブロックの親オブジェクト</param>
-    public void Combine(string _stageName, ShapeData.Shape _shape, Transform _parent)
+    public void Combine(ShapeData.Shape _shape, Transform _parent)
     {
-        StartCoroutine(CombineCoroutine(_stageName, _shape, _parent));
-    }
-
-    /// <summary>
-    /// テクスチャの取得 Addressableを使用
-    /// </summary>
-    /// <param name="_stageName"></param>
-    /// <param name="_shape"></param>
-    void GetTexture(string _stageName, ShapeData.Shape _shape)
-    {
-        string fileName = fileFormat1 + _stageName + "/" + _shape + fileFormat2;
-        AsyncOperationHandle<MB2_TextureBakeResults> m_TextHandle;
-
-        // マップサイズのデータを取得
-        Addressables.LoadAssetAsync<MB2_TextureBakeResults>(fileName).Completed += handle => {
-            m_TextHandle = handle;
-            if (handle.Result == null)
-            {
-                Debug.Log("Load Error");
-                return;
-            }
-            texture = handle.Result;
-            isTextureLoaded = true;
-        };
+        CombineMesh(_parent);
     }
 
     void CombineMesh(Transform _parent)
@@ -77,14 +54,5 @@ public class CombineTest : MonoBehaviour
 
         // 結合元となるゲームオブジェクトを削除する
         _parent.gameObject.SetActive(false);
-    }
-
-    IEnumerator CombineCoroutine(string _stageName, ShapeData.Shape _shape, Transform _parent)
-    {
-        GetTexture(_stageName, _shape);
-
-        yield return new WaitUntil(() => isTextureLoaded);
-
-        CombineMesh(_parent);
     }
 }

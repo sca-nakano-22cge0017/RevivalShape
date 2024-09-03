@@ -1,14 +1,5 @@
 using UnityEngine;
 
-[System.Serializable]
-public class CombineTests
-{
-    public ShapeData.Shape shape;
-    public CombineTest combineTest;
-    public Transform parent;        // parentの子オブジェクトを全て結合する
-    public GameObject combinedObj;  // 結合後のオブジェクト
-}
-
 /// <summary>
 /// 確認フェーズ
 /// </summary>
@@ -17,12 +8,9 @@ public class CheckPhase : MonoBehaviour, IPhase
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private StageController stageController;
 
-    [SerializeField, Header("1から生成するか")] private bool isCreate = false;
+    [SerializeField] private Combiners[] combiners;
 
-    [SerializeField, Header("生成場所")] private Transform createParent;
-    [SerializeField, Header("サンプルの親オブジェクト")] private Transform sampleParent;
-    [SerializeField, Header("各ステージのサンプル")] private GameObject[] samples;
-    [SerializeField, Header("各ステージのサンプル TutorialとExtra")] private GameObject[] samplesOther;
+    [SerializeField, Header("生成場所")] private Transform samplesParent;
 
     [SerializeField] private GameObject checkPhaseUI;
 
@@ -35,7 +23,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void Initialize()
     {
         checkPhaseUI.SetActive(false);
-        sampleParent.gameObject.SetActive(false);
+        samplesParent.gameObject.SetActive(false);
 
         // マップサイズ取得
         mapSize = stageController.MapSize;
@@ -62,7 +50,9 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void PhaseStart()
     {
         checkPhaseUI.SetActive(true);
-        sampleParent.gameObject.SetActive(true);
+        samplesParent.gameObject.SetActive(true);
+
+        UsedBlocksCheck();
 
         // オブジェクト生成
         SampleInstance();
@@ -80,7 +70,7 @@ public class CheckPhase : MonoBehaviour, IPhase
     public void PhaseEnd()
     {
         checkPhaseUI.SetActive(false);
-        sampleParent.gameObject.SetActive(false);
+        samplesParent.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -88,12 +78,6 @@ public class CheckPhase : MonoBehaviour, IPhase
     /// </summary>
     private void SampleInstance()
     {
-        if(!isCreate)
-        {
-            SampleDisplay();
-            return;
-        }
-
         // 生成済みなら再度生成しない
         if (sampleCreated) return;
 
@@ -108,68 +92,65 @@ public class CheckPhase : MonoBehaviour, IPhase
 
                     ShapeData.Shape s = stageController.CorrectAnswer[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
-
+                    Transform parent = GetCreateParent(s);
+                    
                     // 空白マスは生成しない
                     if (s != ShapeData.Shape.Empty)
                     {
-                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, createParent);
+                        mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, parent);
                     }
                 }
             }
         }
 
         sampleCreated = true;
+
+        MeshCombine();
+    }
+
+    void UsedBlocksCheck()
+    {
+        for (int s = 0; s < stageController.ShapeType.Length; s++)
+        {
+            for (int c = 0; c < combiners.Length; c++)
+            {
+                if(combiners[c].shape == stageController.ShapeType[s])
+                {
+                    combiners[c].isShapeUsed = true;
+                }
+            }
+        }
+    }
+
+    void MeshCombine()
+    {
+        for (int i = 0; i < combiners.Length; i++)
+        {
+            if (combiners[i].isShapeUsed)
+            {
+                combiners[i].meshCombiner.SetParent(combiners[i].parent);
+                combiners[i].meshCombiner.Combine(true, false);
+            }
+        }
     }
 
     /// <summary>
-    /// 生成・結合済みサンプルを表示
+    /// 生成ブロックに応じて生成する親オブジェクトを返す
     /// </summary>
-    private void SampleDisplay()
+    /// <param name="_shape"></param>
+    Transform GetCreateParent(ShapeData.Shape _shape)
     {
-        string stageName = stageController.StageName;
+        Transform parent = null;
 
-        if (stageName.Contains("Stage"))
+        for (int i = 0; i < combiners.Length; i++)
         {
-            string _stageName = stageName.Replace("Stage", "");
-
-            if (int.TryParse(_stageName, out int n))
+            if (combiners[i].shape == _shape)
             {
-                if (n - 1 >= 0 && n - 1 < samples.Length)
-                {
-                    if (!SampleNullCheck(samples[n - 1])) samples[n - 1].SetActive(true);
-                }
-
-                return;
+                parent = combiners[i].parent;
+                break;
             }
         }
 
-        else if (stageName.Contains("Tutorial"))
-        {
-            if (!SampleNullCheck(samplesOther[0])) samplesOther[0].SetActive(true);
-        }
-
-        else if (stageName.Contains("Extra"))
-        {
-            string _stageName = stageName.Replace("Extra", "");
-
-            if (int.TryParse(_stageName, out int n))
-            {
-                if (!SampleNullCheck(samplesOther[n])) samplesOther[n].SetActive(true);
-            }
-        }
-    }
-
-    bool SampleNullCheck(GameObject _object)
-    {
-        bool isNull = false;
-
-        if (_object == null)
-        {
-            isNull = true;
-            isCreate = true;
-            SampleInstance();
-        }
-
-        return isNull;
+        return parent;
     }
 }

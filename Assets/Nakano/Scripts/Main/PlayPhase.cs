@@ -3,6 +3,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Extensions;
 
+[System.Serializable]
+public class Combiners
+{
+    public ShapeData.Shape shape;
+    [HideInInspector] public bool isShapeUsed = false;
+    public MeshCombiner meshCombiner;
+    public Transform parent;
+}
+
 /// <summary>
 /// 実行フェーズ
 /// </summary>
@@ -14,9 +23,10 @@ public class PlayPhase : MonoBehaviour, IPhase
     [SerializeField] private TapManager tapManager;
     [SerializeField] private MeshCombiner meshCombiner;
     [SerializeField] private Vibration vibration;
+    [SerializeField] private SheatCreate sheatCreate;
+    [SerializeField] private Combiners[] combiners;
 
     [SerializeField] private Transform objParent; // 親オブジェクト
-    [SerializeField] private Transform clearObjParent;
 
     [SerializeField] private GameObject playPhaseUI;
 
@@ -150,7 +160,7 @@ public class PlayPhase : MonoBehaviour, IPhase
             MeshCombine();
         }
 
-        ClearCheck();
+        SceneChangeCheck();
     }
 
     /// <summary>
@@ -170,16 +180,14 @@ public class PlayPhase : MonoBehaviour, IPhase
         tapManager.DoubleTapReset();
 
         // ブロック非表示
-        Transform children = objParent.GetComponentInChildren<Transform>();
-        foreach (Transform obj in children)
+        Transform children;
+        for (int i = 0; i < combiners.Length; i++)
         {
-            obj.GetComponent<MeshRenderer>().enabled = false;
-        }
-
-        children = clearObjParent.GetComponentInChildren<Transform>();
-        foreach (Transform obj in children)
-        {
-            obj.GetComponent<MeshRenderer>().enabled = false;
+            children = combiners[i].parent.GetComponentInChildren<Transform>();
+            foreach (Transform obj in children)
+            {
+                obj.GetComponent<MeshRenderer>().enabled = false;
+            }
         }
 
         RemoveMeshes();
@@ -217,13 +225,28 @@ public class PlayPhase : MonoBehaviour, IPhase
 
     void MeshCombine()
     {
-        meshCombiner.SetParent(clearObjParent);
-        meshCombiner.Combine(true);
+        for(int i = 0; i < combiners.Length; i++)
+        {
+            if (combiners[i].isShapeUsed)
+            {
+                combiners[i].meshCombiner.SetParent(combiners[i].parent);
+                combiners[i].meshCombiner.Combine(true, false);
+            }
+        }
     }
 
     void RemoveMeshes()
     {
-        if(isBlocksCreated) meshCombiner.Remove();
+        if(isBlocksCreated)
+        {
+            for (int i = 0; i < combiners.Length; i++)
+            {
+                if (combiners[i].isShapeUsed)
+                {
+                    combiners[i].meshCombiner.Remove();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -257,22 +280,20 @@ public class PlayPhase : MonoBehaviour, IPhase
                     ShapeData.Shape s = map[x, y, z];
                     GameObject obj = shapeData.ShapeToPrefabs(s);
 
+                    UsedBlocksCheck(s);
+
                     // 前の解答と異なっていたら生成し直す
                     if (map[x, y, z] != lastAnswer[x, y, z])
                     {
                         if (mapObj[x, y, z]) Destroy(mapObj[x, y, z]);
 
-                        // 空白部分は生成しない
-                        if (map[x, y, z] != ShapeData.Shape.Empty && map[x, y, z] != ShapeData.Shape.Alpha)
+                        //// 空白部分は生成しない
+                        if (map[x, y, z] != ShapeData.Shape.Empty)
                         {
-                            mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, objParent);
-                            if (!isBlocksCreated) isBlocksCreated = true;
-                        }
+                            Transform parent = GetCreateParent(s);
 
-                        // 半透明ブロックは別オブジェクトの子として生成
-                        if (map[x, y, z] == ShapeData.Shape.Alpha)
-                        {
-                            mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, clearObjParent);
+                            mapObj[x, y, z] = Instantiate(obj, pos, Quaternion.identity, parent);
+
                             if (!isBlocksCreated) isBlocksCreated = true;
                         }
                     }
@@ -479,10 +500,15 @@ public class PlayPhase : MonoBehaviour, IPhase
             yield return new WaitUntil(() => tutorial.EndPlayC);
         }
 
+        Failed();
+
         stageController.IsRetry = true;
     }
 
-    void ClearCheck()
+    /// <summary>
+    /// シーン遷移できるか確認する
+    /// </summary>
+    void SceneChangeCheck()
     {
         // リザルト表示完了後にタップしたら
         if (resultWindow.DispEnd && toClearWindow && Input.touchCount >= 1)
@@ -515,6 +541,14 @@ public class PlayPhase : MonoBehaviour, IPhase
         }
     }
 
+    /// <summary>
+    /// 失敗時の一度きりの処理
+    /// </summary>
+    void Failed()
+    {
+        sheatCreate.SheatDisp(true, true);
+    }
+
     IEnumerator SceneChangeForTutorial()
     {
         // 0.5秒待って説明ウィンドウ表示
@@ -530,6 +564,9 @@ public class PlayPhase : MonoBehaviour, IPhase
         stageController.IsClear = true;
     }
 
+    /// <summary>
+    /// シーン移動
+    /// </summary>
     void SceneChange()
     {
         // 0.2秒待って遷移
@@ -537,6 +574,40 @@ public class PlayPhase : MonoBehaviour, IPhase
         {
             stageController.IsClear = true;
         }));
+    }
+
+    /// <summary>
+    /// プレイヤーの回答に使用されているブロックの種類を確認する
+    /// </summary>
+    void UsedBlocksCheck(ShapeData.Shape _shape)
+    {
+        if(_shape == ShapeData.Shape.Empty) return;
+
+        for (int i = 0; i < combiners.Length; i++)
+        {
+            if(combiners[i].shape == _shape && !combiners[i].isShapeUsed)
+                combiners[i].isShapeUsed = true;
+        }
+    }
+
+    /// <summary>
+    /// 生成ブロックに応じて生成する親オブジェクトを返す
+    /// </summary>
+    /// <param name="_shape"></param>
+    Transform GetCreateParent(ShapeData.Shape _shape)
+    {
+        Transform parent = null;
+
+        for(int i = 0; i < combiners.Length; i++)
+        {
+            if(combiners[i].shape == _shape)
+            {
+                parent = combiners[i].parent;
+                break;
+            }
+        }
+
+        return parent;
     }
 
     /// <summary>

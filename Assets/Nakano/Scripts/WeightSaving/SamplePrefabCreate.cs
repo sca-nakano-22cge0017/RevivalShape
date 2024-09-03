@@ -102,7 +102,7 @@ public class SamplePrefabCreate : MonoBehaviour
             {
                 Transform parent = GetParent(shapeType[i]);
                 CombineTest ct = GetCombineTest(shapeType[i]);
-                ct.Combine(stageName, shapeType[i], parent);
+                //ct.Combine(stageName, shapeType[i], parent);
             }
         }
     }
