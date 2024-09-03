@@ -15,10 +15,6 @@ public class CombineTest : MonoBehaviour
     [SerializeField] private MB3_MeshBaker meshbaker;
     private GameObject[] mObjArray;
     private MB2_TextureBakeResults texture;
-    bool isTextureLoaded = false;
-
-    [SerializeField] private string fileFormat1 = "";
-    [SerializeField] private string fileFormat2 = "";
 
     /// <summary>
     /// メッシュ結合・テクスチャの追加

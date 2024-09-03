@@ -72,6 +72,7 @@ public class SelectButtonController : MonoBehaviour
             if (SceneName.GetLastSceneName() == "MainScene")
             {
                 if (selectNumber >= 0) FirstSelect(selectNumber);
+                ScrollBarSetting();
             }
         }
     }
@@ -139,6 +140,9 @@ public class SelectButtonController : MonoBehaviour
         firstSelectPanel.SetActive(false);
         secondSelectPanel.SetActive(true);
 
+        // スクロールを初期位置に戻す
+        secondScrollbar.value = 1;
+
         SecondButtonsSetting(num);
     }
 
@@ -148,9 +152,6 @@ public class SelectButtonController : MonoBehaviour
     /// <param name="num">選択したステージ番号①</param>
     void SecondButtonsSetting(int num)
     {
-        // スクロールを初期位置に戻す
-        secondScrollbar.value = 1;
-
         int undispButton = 0; // 非表示にするボタンの数
 
         for (int i = 0; i < buttons_SecondSelect.Length; i++)
@@ -161,13 +162,6 @@ public class SelectButtonController : MonoBehaviour
             {
                 stageName = "Extra" + (num + 1).ToString();
                 buttons_SecondSelect[i].interactable = extraRelease[num];
-
-                // ベータ版ではExtra2～5は無し
-                if(num >= 1)
-                {
-                    buttons_SecondSelect[i].gameObject.SetActive(false);
-                    undispButton++;
-                }
             }
             else
             {
@@ -240,5 +234,32 @@ public class SelectButtonController : MonoBehaviour
         {
             extraRelease[num] = true;
         }
+    }
+
+    /// <summary>
+    /// スクロールバーを調整
+    /// </summary>
+    void ScrollBarSetting()
+    {
+        if (SelectButton.SelectStage == null) return;
+
+        string stageName = SelectButton.SelectStage;
+        
+        if (stageName.Contains("Stage"))
+        {
+            string _stageNumber = stageName.Replace("Stage", "");
+            if(int.TryParse(_stageNumber, out int num))
+            {
+                num = num % 10;
+                
+                Debug.Log(num + "/  test : " + (1f - (1f / 8f * ((float)num - 1f))));
+                if (num <= 8)
+                {
+                    secondScrollbar.value = 1f - (1f / 8f * ((float)num - 1f));
+                }
+                else secondScrollbar.value = 0f;
+            }
+        }
+        else secondScrollbar.value = 0f;
     }
 }
