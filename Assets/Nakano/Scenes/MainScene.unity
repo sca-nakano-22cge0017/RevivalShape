@@ -5297,7 +5297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d822cbd67c27b1f46857ea3e55903b57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missionScore: {fileID: 0}
+  missionScore: {fileID: 1471772889}
   icons:
   - {fileID: 965497066}
   - {fileID: 395892852}
