@@ -21,7 +21,7 @@ public class PlayPhase : MonoBehaviour, IPhase
     [SerializeField] private Tutorial tutorial;
     [SerializeField] private ShapeData shapeData;
     [SerializeField] private TapManager tapManager;
-    [SerializeField] private MeshCombiner meshCombiner;
+    [SerializeField] private CameraRotate cameraRotate;
     [SerializeField] private Vibration vibration;
     [SerializeField] private SheatCreate sheatCreate;
     [SerializeField] private Combiners[] combiners;
@@ -79,7 +79,13 @@ public class PlayPhase : MonoBehaviour, IPhase
     /// </summary>
     const float SCENE_CHANGE_TIME = 0.2f;
 
+    // 一つ以上ブロックを生成しているか
     bool isBlocksCreated = false;
+
+    // リトライ
+    private bool isStandBy = false;
+    [SerializeField] private GameObject retryButton;
+    [SerializeField] private GameObject standByBG;
 
     public void Initialize()
     {
@@ -92,6 +98,8 @@ public class PlayPhase : MonoBehaviour, IPhase
         missionWindow.gameObject.SetActive(false);
         matchUI.SetActive(false);
         matchRateText.enabled = false;
+        retryButton.SetActive(false);
+        standByBG.SetActive(false);
 
         toClearWindow = false;
 
@@ -145,6 +153,8 @@ public class PlayPhase : MonoBehaviour, IPhase
         matchRate = 0;
         isSkip = false;
         IsFastForward = false;
+        isBlocksCreated = false;
+        isStandBy = false;
 
         AnswerInstance();
     }
@@ -175,6 +185,8 @@ public class PlayPhase : MonoBehaviour, IPhase
         playPhaseUI.SetActive(false);
         resultWindow.gameObject.SetActive(false);
         missionWindow.gameObject.SetActive(false);
+        retryButton.SetActive(false);
+        standByBG.SetActive(false);
 
         tapManager.LongTapReset();
         tapManager.DoubleTapReset();
@@ -407,6 +419,8 @@ public class PlayPhase : MonoBehaviour, IPhase
             }
         }
 
+        MeshCombine();
+
         isFalling = false;
 
         if (stageController.IsTutorial)
@@ -547,6 +561,8 @@ public class PlayPhase : MonoBehaviour, IPhase
     void Failed()
     {
         sheatCreate.SheatDisp(true, true);
+        retryButton.SetActive(true);
+        cameraRotate.RotateReset(false);
     }
 
     IEnumerator SceneChangeForTutorial()
@@ -618,5 +634,40 @@ public class PlayPhase : MonoBehaviour, IPhase
     {
         float[] t = { fallVibrateTime_Normal, fallVibrateTime_FastForward };
         return t;
+    }
+
+    /// <summary>
+    /// スタンバイ状態
+    /// </summary>
+    public void StandBy()
+    {
+        if (!isStandBy)
+        {
+            standByBG.SetActive(true);
+            StartCoroutine(DelayCoroutine(0.01f, () =>
+            {
+                isStandBy = true;
+            }));
+        }
+    }
+
+    /// <summary>
+    /// スタンバイ状態解除
+    /// </summary>
+    public void CancellStandBy()
+    {
+        standByBG.SetActive(false);
+        isStandBy = false;
+    }
+
+    /// <summary>
+    /// リトライ
+    /// </summary>
+    public void Retry()
+    {
+        if (isStandBy)
+        {
+            stageController.Retry();
+        }
     }
 }

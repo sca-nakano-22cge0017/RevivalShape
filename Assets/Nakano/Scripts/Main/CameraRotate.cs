@@ -483,6 +483,13 @@ public class CameraRotate : MonoBehaviour
                 else if (didSwip && ty > 0)
                     down  = currentCameraPos;
             }
+            else
+            {
+                if (didSwip && ty > 0)
+                    up = currentCameraPos;
+                else if (didSwip && ty < 0)
+                    down = currentCameraPos;
+            }
 
             RotateDirSet(up, down, right, left);
 

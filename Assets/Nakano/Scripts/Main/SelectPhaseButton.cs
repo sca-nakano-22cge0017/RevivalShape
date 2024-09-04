@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// 選択フェーズで使用するボタン
@@ -13,6 +14,7 @@ public class SelectPhaseButton : MonoBehaviour
     [SerializeField] private Animator textMoveAnim;
     [SerializeField] private Text currentText;
     [SerializeField] private Text nextText;
+    [SerializeField] private CountUpAnimation countUpAnimation;
 
     public SelectPhase selectPhase{ get; set;}
 
@@ -51,7 +53,7 @@ public class SelectPhaseButton : MonoBehaviour
     private bool isCheck = false;
     public bool IsCheck{ get { return isCheck; } set { isCheck = value; } } // 確認するマスのボタンか
 
-    private bool isInAnimation = false; // アニメーション中か
+    public bool isInAnimation = false; // アニメーション中か
 
     // SE
     private SoundManager sm;
@@ -89,6 +91,8 @@ public class SelectPhaseButton : MonoBehaviour
                 isLongTap = true;
                 isCountForLongTap = false;
                 tapStartTime = 0;
+
+                selectPhase.IsLongTap = true;
             }
         }
 
@@ -129,7 +133,7 @@ public class SelectPhaseButton : MonoBehaviour
 
     public void PointerEnter()
     {
-        if(selectPhase.CanSwipInput) CountUp();
+        if (!selectPhase.IsLongTap && selectPhase.CanSwipInput) CountUp();
     }
 
     public void PointerUp()
@@ -140,7 +144,7 @@ public class SelectPhaseButton : MonoBehaviour
 
     public void PointerExit()
     {
-        CountEnd();
+        if (!selectPhase.IsLongTap) CountEnd();
     }
 
     /// <summary>
@@ -178,12 +182,14 @@ public class SelectPhaseButton : MonoBehaviour
         isLongTap = false;
         isCountForLongTap = false;
         tapStartTime = 0;
+
+        selectPhase.IsLongTap = false;
     }
 
     void NumberChange()
     {
         // アニメーション中ならスキップ
-        if(isInAnimation) return;
+        if (isInAnimation) return;
 
         if (!isEraserMode && inputNum < max)
         {
@@ -205,26 +211,25 @@ public class SelectPhaseButton : MonoBehaviour
     IEnumerator CountAnimation()
     {
         isInAnimation = true;
-
+        
         int add = isEraserMode ? -1 : 1;
         string animBoolName = isEraserMode ? "CountDown" : "CountUp";
 
-        currentText.text = inputNum.ToString();
-        nextText.text = (inputNum + add).ToString();
-
-        // アニメーション中の場合は終わるまで待機
-        yield return new WaitUntil(() => textMoveAnim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
-        textMoveAnim.SetTrigger(animBoolName);
-
         inputNum += add;
 
-        if(!isEraserMode) selectPhase.ShapeInput(Position); // 図形追加
+        if (!isEraserMode) selectPhase.ShapeInput(Position); // 図形追加
         else selectPhase.ShapeDelete(Position); // 図形削除
 
+        nextText.text = inputNum.ToString();
+
+        textMoveAnim.SetTrigger(animBoolName);
+
         // アニメーション終了後、テキストを更新
-        yield return new WaitUntil(() => textMoveAnim.GetCurrentAnimatorStateInfo(0).IsName("Default"));
+        yield return new WaitUntil(() => countUpAnimation.isAnimationEnd);
+
         currentText.text = inputNum.ToString();
 
+        countUpAnimation.isAnimationEnd = false;
         isInAnimation = false;
     }
 
