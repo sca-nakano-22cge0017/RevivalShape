@@ -90,6 +90,12 @@ public class SelectPhase : MonoBehaviour, IPhase
         }
     }
 
+    private bool isLongTap = false;
+    /// <summary>
+    /// ボタンを長押ししているか
+    /// </summary>
+    public bool IsLongTap { get { return isLongTap; } set { isLongTap = value; } }
+
     // 全消し
     [SerializeField, Header("全消し確認ウィンドウ")] private GameObject confirmWindow;
     [SerializeField, Header("全消しを機能させるか")] private bool canReset = true;
@@ -149,7 +155,7 @@ public class SelectPhase : MonoBehaviour, IPhase
 
         // 確認カメラモードのウィンドウ設定
         steps = new Image[(int)mapSize.y];
-        stepsParent_rc.transform.localPosition = new Vector2(0, 900 + mapSize.y * 50);
+        stepsParent_rc.transform.localPosition = new Vector2(0, 1105 + (mapSize.y - 4) * 110);
         for (int y = 0; y < (int)mapSize.y; y++)
         {
             steps[y] = Instantiate(stepsPrefab, stepsParent.transform).GetComponent<Image>();

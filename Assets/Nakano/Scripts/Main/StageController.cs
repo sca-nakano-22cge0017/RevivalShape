@@ -35,6 +35,9 @@ public class StageController : MonoBehaviour
     [SerializeField] private TestButton testButton;
     [SerializeField] private GameObject optionButton;
 
+    [SerializeField, Header("フェーズ以降直後の操作妨害用")] private GameObject obstruct;
+    [SerializeField, Header("フェーズ以降直後の操作不可時間")] private float unControllableTime = 0.2f;
+
     private bool isTutorial = false;
     /// <summary>
     /// チュートリアルステージかどうか
@@ -267,6 +270,7 @@ public class StageController : MonoBehaviour
 
         // 確認フェーズに移行
         ToCheckPhase();
+        UIControllable();
 
         dataGot = true;
     }
@@ -318,11 +322,11 @@ public class StageController : MonoBehaviour
     /// </summary>
     public void Retry()
     {
-        if (IsRetry)
+        if (isRetry)
         {
             // 確認フェーズに戻る
             testButton.BackToggle();
-            IsRetry = false;
+            isRetry = false;
         }
     }
 
@@ -376,11 +380,13 @@ public class StageController : MonoBehaviour
         switch (phase)
         {
             case PHASE.SELECT:
+                UIUnControllable();
                 break;
             case PHASE.PLAY:
                 playPhase.PhaseEnd();
                 Miss++;
                 cameraRotate.FromPlayPhase();
+                UIUnControllable();
                 break;
         }
 
@@ -414,9 +420,11 @@ public class StageController : MonoBehaviour
         {
             case PHASE.CHECK:
                 checkPhase.PhaseEnd();
+                UIUnControllable();
                 break;
             case PHASE.PLAY:
                 playPhase.PhaseEnd();
+                UIUnControllable();
                 break;
         }
 
@@ -446,9 +454,11 @@ public class StageController : MonoBehaviour
         {
             case PHASE.CHECK:
                 checkPhase.PhaseEnd();
+                UIUnControllable();
                 break;
             case PHASE.SELECT:
                 selectPhase.PhaseEnd();
+                UIUnControllable();
                 break;
         }
 
@@ -469,5 +479,22 @@ public class StageController : MonoBehaviour
 
         // 実行フェーズ開始処理
         playPhase.PhaseStart();
+    }
+
+    /// <summary>
+    /// UI操作不可状態に変更
+    /// </summary>
+    void UIUnControllable()
+    {
+        obstruct.SetActive(true);
+        Invoke("UIControllable", unControllableTime);
+    }
+
+    /// <summary>
+    /// UI操作可能状態に変更
+    /// </summary>
+    void UIControllable()
+    {
+        obstruct.SetActive(false);
     }
 }
