@@ -149,6 +149,10 @@ public class Tutorial : MonoBehaviour
     // ドラッグ操作の説明
     void CheckB()
     {
+        if (checkPhase[0].order.activeSelf)
+        {
+            checkPhase[0].order.SetActive(false);
+        }
     }
 
     // 左方向へスワイプしたか
@@ -197,6 +201,10 @@ public class Tutorial : MonoBehaviour
     // リセットボタンの説明
     void CheckC()
     {
+        if (checkPhase[1].order.activeSelf)
+        {
+            checkPhase[1].order.SetActive(false);
+        }
     }
 
     // リセットボタンを押す
@@ -242,6 +250,10 @@ public class Tutorial : MonoBehaviour
     // ダブルタップの説明
     void CheckD()
     {
+        if (checkPhase[2].order.activeSelf)
+        {
+            checkPhase[2].order.SetActive(false);
+        }
     }
 
     // ダブルタップの回転演出が終わったか
@@ -268,6 +280,11 @@ public class Tutorial : MonoBehaviour
     // 次のフェーズへの移行ボタンの説明
     void CheckE()
     {
+        if (checkPhase[3].order.activeSelf)
+        {
+            checkPhase[3].order.SetActive(false);
+        }
+
         NextWindowDisplayByTap(checkPhase[4], () => { }, () => 
         {
             ExplainDisplaing(false);
@@ -304,17 +321,24 @@ public class Tutorial : MonoBehaviour
     {
         NextWindowDisplayByTap(selectPhase[0], SelectB, () => 
         {
-            if (!selectPhase[1].order.activeSelf)
+            StartCoroutine(DelayCoroutine(tapCoolTime, () =>
             {
-                selectPhase[1].order.SetActive(true);
-                SEPlay();
-            }
+                if (!selectPhase[1].order.activeSelf)
+                {
+                    selectPhase[1].order.SetActive(true);
+                    SEPlay();
+                }
+            }));
         });
     }
 
     // シートの説明
     void SelectB()
     {
+        if (selectPhase[0].order.activeSelf)
+        {
+            selectPhase[0].order.SetActive(false);
+        }
     }
 
     // シートに数字を入力したか
@@ -355,7 +379,12 @@ public class Tutorial : MonoBehaviour
     // 消しゴムの説明
     void SelectC()
     {
-        if(toSelectD) NextFunctionByTap(selectPhase[2], SelectD, () => 
+        if (selectPhase[1].order.activeSelf)
+        {
+            selectPhase[1].order.SetActive(false);
+        }
+
+        if (toSelectD) NextFunctionByTap(selectPhase[2], SelectD, () => 
         {
             if (!selectPhase[3].order.activeSelf)
             {
@@ -374,6 +403,11 @@ public class Tutorial : MonoBehaviour
     // 虫眼鏡の説明
     void SelectD()
     {
+        if (selectPhase[2].order.activeSelf)
+        {
+            selectPhase[2].order.SetActive(false);
+        }
+
         if (toSelectE) NextFunctionByTap(selectPhase[3], SelectE, () => 
         {
             if (!selectPhase[4].order.activeSelf)
@@ -393,6 +427,11 @@ public class Tutorial : MonoBehaviour
     // タブの説明
     void SelectE()
     {
+        if (selectPhase[3].order.activeSelf)
+        {
+            selectPhase[3].order.SetActive(false);
+        }
+
         if (toSelectF) NextFunctionByTap(selectPhase[4], SelectF, () => 
         {
             if (!selectPhase[5].order.activeSelf) 
@@ -405,6 +444,11 @@ public class Tutorial : MonoBehaviour
     // 次のフェーズへの移行ボタンの説明
     void SelectF()
     {
+        if (selectPhase[4].order.activeSelf)
+        {
+            selectPhase[4].order.SetActive(false);
+        }
+
         NextWindowDisplayByTap(selectPhase[5], () => { }, () => 
         {
             ExplainDisplaing(false);
@@ -462,6 +506,11 @@ public class Tutorial : MonoBehaviour
     // クリア条件の説明
     void PlayB()
     {
+        if (playPhase[0].order.activeSelf)
+        {
+            playPhase[0].order.SetActive(false);
+        }
+
         NextWindowDisplayByTap(playPhase[1], () => { }, () => 
         {
             endPlayB = true;
@@ -496,6 +545,11 @@ public class Tutorial : MonoBehaviour
     // ミッションの説明、チュートリアルの終了
     void PlayC()
     {
+        if (playPhase[1].order.activeSelf)
+        {
+            playPhase[1].order.SetActive(false);
+        }
+
         NextWindowDisplayByTap(playPhase[2], () => { }, () => 
         {
             ExplainDisplaing(false);
