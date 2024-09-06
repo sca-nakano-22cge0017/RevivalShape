@@ -644,7 +644,7 @@ public class PlayPhase : MonoBehaviour, IPhase
         if (!isStandBy)
         {
             standByBG.SetActive(true);
-            StartCoroutine(DelayCoroutine(0.01f, () =>
+            StartCoroutine(DelayCoroutine(0.1f, () =>
             {
                 isStandBy = true;
             }));

@@ -48,7 +48,7 @@ public class Tutorial : MonoBehaviour
     public string MethodName { get { return methodName; } private set { methodName = value; } }
 
     private bool isCoolTime = false;
-    private WaitForSeconds coolTime = new WaitForSeconds(0.8f); // 次のウィンドウ表示までのクールタイム
+    private WaitForSeconds coolTime = new WaitForSeconds(0.1f); // 次のウィンドウ表示までのクールタイム
 
     // SE
     private SoundManager soundManager;
@@ -103,7 +103,18 @@ public class Tutorial : MonoBehaviour
                     SEPlay();
                 }
             }));
+
+            StartCoroutine(DelayCoroutine(tapCoolTime, () => {
+                isCheckB_1 = true;
+            }));
         });
+    }
+
+    private bool isCheckB_1 = false;
+    public bool IsCheckB_1
+    {
+        get { return isCheckB_1; }
+        private set { }
     }
 
     // 右方向へスワイプしたか
@@ -494,6 +505,8 @@ public class Tutorial : MonoBehaviour
         });
     }
 
+    bool isFirstChange = true;
+
     /// <summary>
     /// タップで次の関数へ移行する
     /// </summary>
@@ -501,16 +514,27 @@ public class Tutorial : MonoBehaviour
     /// <param name="_nextFunc">次の関数</param>
     void NextFunctionByTap(Windows _unDispWindow, PlayFunc _nextFunc, Action _lastFunc)
     {
-        if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (isFirstChange)
         {
-            if (_unDispWindow.order.activeSelf)
-            {
-                _unDispWindow.order.SetActive(false);
-            }
-
-            playFunc = _nextFunc;
-            _lastFunc?.Invoke();
+            StartCoroutine(CoolTime());
+            isFirstChange = false;
         }
+
+        StartCoroutine(CoolTimeEnd(() => {
+            if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                if (_unDispWindow.order.activeSelf)
+                {
+                    _unDispWindow.order.SetActive(false);
+                }
+
+                playFunc = _nextFunc;
+                _lastFunc?.Invoke();
+                isFirstChange = true;
+
+                StartCoroutine(CoolTime());
+            }
+        }));
     }
 
     /// <summary>
@@ -521,34 +545,50 @@ public class Tutorial : MonoBehaviour
     /// <param name="_lastFunc">ウィンドウを閉じるときに行う処理</param>
     void NextWindowDisplayByTap(Windows _windows, PlayFunc _nextFunc, Action _lastFunc)
     {
-        // ウィンドウの親を表示
-        if (!_windows.order.activeSelf) _windows.order.SetActive(true);
-
-        // タップで次の説明へ
-        if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (isFirstChange)
         {
-            tapCount++;
+            // ウィンドウの親を表示
+            if (!_windows.order.activeSelf) _windows.order.SetActive(true);
 
-            for (int i = 0; i < _windows.objects.Length; i++)
-            {
-                if (i == tapCount)
-                {
-                    SEPlay();
-                    _windows.objects[i].SetActive(true);
-                }
-                else _windows.objects[i].SetActive(false);
-            }
-
-            if (tapCount >= _windows.objects.Length)
-            {
-                _windows.order.SetActive(false);
-                tapCount = 0;
-
-                playFunc = _nextFunc;
-
-                _lastFunc?.Invoke();
-            }
+            StartCoroutine(CoolTime());
+            isFirstChange = false;
         }
+
+        StartCoroutine(CoolTimeEnd(() => {
+            // タップで次の説明へ
+            if (Input.touchCount >= 1 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                tapCount++;
+
+                for (int i = 0; i < _windows.objects.Length; i++)
+                {
+                    if (i == tapCount)
+                    {
+                        SEPlay();
+                        _windows.objects[i].SetActive(true);
+                    }
+                    else _windows.objects[i].SetActive(false);
+                }
+
+                if (tapCount >= _windows.objects.Length)
+                {
+                    _windows.order.SetActive(false);
+                    tapCount = 0;
+
+                    StartCoroutine(CoolTime());
+                    StartCoroutine(CoolTimeEnd(() =>
+                    {
+                        playFunc = _nextFunc;
+
+                        _lastFunc?.Invoke();
+                        isFirstChange = true;
+                    }));
+                    return;
+                }
+
+                StartCoroutine(CoolTime());
+            }
+        }));
     }
 
     /// <summary>
@@ -570,5 +610,18 @@ public class Tutorial : MonoBehaviour
         {
             soundManager.SEPlay7();
         }
+    }
+
+    IEnumerator CoolTime()
+    {
+        isCoolTime = true;
+        yield return coolTime;
+        isCoolTime = false;
+    }
+
+    IEnumerator CoolTimeEnd(Action _action)
+    {
+        yield return new WaitUntil(() => !isCoolTime);
+        _action?.Invoke();
     }
 }
