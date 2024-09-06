@@ -250,9 +250,8 @@ public class SelectButtonController : MonoBehaviour
             string _stageNumber = stageName.Replace("Stage", "");
             if(int.TryParse(_stageNumber, out int num))
             {
-                num = num % 10;
-                
-                Debug.Log(num + "/  test : " + (1f - (1f / 8f * ((float)num - 1f))));
+                if (num % 10 != 0) num = num % 10;
+
                 if (num <= 8)
                 {
                     secondScrollbar.value = 1f - (1f / 8f * ((float)num - 1f));

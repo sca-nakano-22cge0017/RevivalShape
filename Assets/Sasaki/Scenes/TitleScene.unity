@@ -3055,7 +3055,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.9098039, g: 0.89411765, b: 0.80784315, a: 1}
+  m_BackGroundColor: {r: 0.84313726, g: 0.83137256, b: 0.7647059, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -3358,7 +3358,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1725695052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3539,11 +3539,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 978086946542673787, guid: 8afa164a0f6d4d0418e1d86824d9cf8f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -6
       objectReference: {fileID: 0}
     - target: {fileID: 978086946542673787, guid: 8afa164a0f6d4d0418e1d86824d9cf8f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 8.6
       objectReference: {fileID: 0}
     - target: {fileID: 978086946542673787, guid: 8afa164a0f6d4d0418e1d86824d9cf8f, type: 3}
       propertyPath: m_LocalPosition.z
