@@ -16,10 +16,6 @@ public class SamplePrefabCreate : MonoBehaviour
     [SerializeField] private Transform parent_Sphere;
     [SerializeField] private Transform parent_Alpha;
 
-    [SerializeField] private CombineTest combineTest_Cube;
-    [SerializeField] private CombineTest combineTest_Sphere;
-    [SerializeField] private CombineTest combineTest_Alpha;
-
     ShapeData.Shape[] shapeType;
 
     private Vector3 mapSize;
@@ -101,7 +97,6 @@ public class SamplePrefabCreate : MonoBehaviour
             if (shapeType[i] != ShapeData.Shape.Empty)
             {
                 Transform parent = GetParent(shapeType[i]);
-                CombineTest ct = GetCombineTest(shapeType[i]);
                 //ct.Combine(stageName, shapeType[i], parent);
             }
         }
@@ -116,16 +111,5 @@ public class SamplePrefabCreate : MonoBehaviour
         if (_shape == ShapeData.Shape.Alpha) objParent = parent_Alpha;
 
         return objParent;
-    }
-
-    CombineTest GetCombineTest(ShapeData.Shape _shape)
-    {
-        CombineTest ct = null;
-
-        if (_shape == ShapeData.Shape.Cube) ct = combineTest_Cube;
-        if (_shape == ShapeData.Shape.Sphere) ct = combineTest_Sphere;
-        if (_shape == ShapeData.Shape.Alpha) ct = combineTest_Alpha;
-
-        return ct;
     }
 }
