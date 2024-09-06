@@ -259,6 +259,7 @@ public class SelectPhase : MonoBehaviour, IPhase
                 for (int x = 0; x < mapSize.x; x++)
                 {
                     stageController.PlayerAnswer[x, y, z] = playerAnswer[x, y, z];
+                    selectButtons[x, z].AnimationReset();
                 }
             }
         }

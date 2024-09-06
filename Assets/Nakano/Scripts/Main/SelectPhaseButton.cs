@@ -243,6 +243,18 @@ public class SelectPhaseButton : MonoBehaviour
         nextText.text = inputNum.ToString();
     }
 
+    /// <summary>
+    /// アニメーションリセット
+    /// </summary>
+    public void AnimationReset()
+    {
+        textMoveAnim.SetTrigger("Default");
+
+        currentText.text = inputNum.ToString();
+        countUpAnimation.isAnimationEnd = false;
+        isInAnimation = false;
+    }
+
     void SEPlay()
     {
         if (sm != null)

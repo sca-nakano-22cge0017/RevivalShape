@@ -402,8 +402,11 @@ public class PlayPhase : MonoBehaviour, IPhase
                         finalObj = mapObj[x, y, z];
                     }
 
-                    if (!isSkip)
+                    if (!isSkip && !IsFastForward)
                         yield return new WaitForSeconds(fallInterval);
+                    
+                    if (IsFastForward)
+                        yield return new WaitForSeconds(fallInterval / FastForwardRatio);
                 }
             }
         }
