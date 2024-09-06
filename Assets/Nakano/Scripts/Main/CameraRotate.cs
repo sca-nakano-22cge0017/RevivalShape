@@ -149,6 +149,8 @@ public class CameraRotate : MonoBehaviour
         TweenPauseControll();
     }
 
+    int count = 0;
+
     public void CameraUpdate()
     {
         if(!stageController.IsPause)
@@ -167,6 +169,11 @@ public class CameraRotate : MonoBehaviour
                 DoubleTap();
             }
         }
+
+        if (count > 1)
+        {
+
+        }
     }
 
     bool isLeftSwip = false, isRightSwip = false;
@@ -176,8 +183,12 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void Swip()
     {
-        if (stageController.IsTutorial && tutorial.MethodName != "CheckB" && !tutorial.TutorialCompleteByPhase) return;
-
+        if (stageController.IsTutorial)
+        {
+            if (tutorial.MethodName != "CheckB" && !tutorial.TutorialCompleteByPhase && !tutorial.IsTutorialComplete)
+                return;
+        }
+        
         if (Input.touchCount == 1)
         {
             Touch t = Input.GetTouch(0);
@@ -287,7 +298,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void Scaling()
     {
-        if (stageController.IsTutorial && !tutorial.TutorialCompleteByPhase) return;
+        if (stageController.IsTutorial && !tutorial.TutorialCompleteByPhase && !tutorial.IsTutorialComplete) return;
 
         if (Input.touchCount == 2)
         {
@@ -362,7 +373,11 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     private void DoubleTap()
     {
-        if (stageController.IsTutorial && tutorial.MethodName != "CheckD" && !tutorial.TutorialCompleteByPhase) return;
+        if (stageController.IsTutorial)
+        {
+            if (tutorial.MethodName != "CheckD" && !tutorial.TutorialCompleteByPhase && !tutorial.IsTutorialComplete)
+                return;
+        }
 
         tapManager.DoubleTap(
             () =>
@@ -414,7 +429,7 @@ public class CameraRotate : MonoBehaviour
 
         if (is90Rotate)
         {
-            if(stageController.IsTutorial)
+            if (stageController.IsTutorial && !tutorial.IsTutorialComplete)
             {
                 // チュートリアル 確認フェーズD
                 // 右方向にのみダブルタップで移動可能
@@ -882,6 +897,9 @@ public class CameraRotate : MonoBehaviour
 
         didSwip = true;
         currentCameraPos = CameraPos.UP;
+
+        TapReset();
+        count++;
     }
 
     /// <summary>
@@ -892,6 +910,7 @@ public class CameraRotate : MonoBehaviour
         //currentCameraPos = CameraPos.UP;
         //didSwip = true;
         RotateReset(false);
+        TapReset();
     }
 
     /// <summary>

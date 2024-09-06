@@ -384,6 +384,7 @@ public class StageController : MonoBehaviour
                 UIUnControllable();
                 break;
             case PHASE.PLAY:
+                isRetry = false;
                 playPhase.PhaseEnd();
                 Miss++;
                 cameraRotate.FromPlayPhase();
