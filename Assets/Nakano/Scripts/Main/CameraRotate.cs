@@ -218,8 +218,8 @@ public class CameraRotate : MonoBehaviour
                 {
                     ty = 0;
 
-                    if (tx > 0)  isRightSwip = true;
-                    if (tx <= 0) isLeftSwip = true;
+                    if (tx > 5)  isRightSwip = true;
+                    if (tx < -5) isLeftSwip = true;
                 }
 
                 // 移動量から回転角度を求める
@@ -273,7 +273,7 @@ public class CameraRotate : MonoBehaviour
                 if (stageController.IsTutorial)
                 {
                     // 右ドラッグで次へ
-                    if (!tutorial.ToCheckB_2 && isRightSwip) tutorial.ToCheckB_2 = true;
+                    if (tutorial.IsCheckB_1 && !tutorial.ToCheckB_2 && isRightSwip) tutorial.ToCheckB_2 = true;
 
                     // 左ドラッグで次へ
                     if (tutorial.IsCheckB_2 && !tutorial.ToCheckC && isLeftSwip) tutorial.ToCheckC = true;

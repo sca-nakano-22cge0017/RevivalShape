@@ -135,7 +135,7 @@ public class StageController : MonoBehaviour
         }
     }
 
-    private bool isPause = false;
+    [SerializeField] private bool isPause = false;
     /// <summary>
     /// ポーズ状態かどうか
     /// </summary>
@@ -184,15 +184,16 @@ public class StageController : MonoBehaviour
         if (!stageDataLoader.stageDataLoadComlete && gameStart) return;
 
         // 実行フェーズ/チュートリアルでの説明中は時間計測が行われているかどうかに関わらずポーズ状態を解除
-        if (phase == PHASE.PLAY) isPause = false;
-        else isPause = !timeManager.TimeActive;
-
         if (isTutorial)
         {
-            if (!tutorial.TutorialCompleteByPhase) isPause = false;
+            if (!tutorial.TutorialCompleteByPhase || phase == PHASE.PLAY) isPause = false;
             else isPause = !timeManager.TimeActive;
         }
-
+        else
+        {
+            if (phase == PHASE.PLAY) isPause = false;
+            else isPause = !timeManager.TimeActive;
+        }
 
         // データを変数として取得していなければ取得・初期化
         if (!dataGot) Initialize();
