@@ -47,6 +47,9 @@ public class Tutorial : MonoBehaviour
     private string methodName = "";
     public string MethodName { get { return methodName; } private set { methodName = value; } }
 
+    private bool isCoolTime = false;
+    private WaitForSeconds coolTime = new WaitForSeconds(0.8f); // 次のウィンドウ表示までのクールタイム
+
     // SE
     private SoundManager soundManager;
 
@@ -78,7 +81,7 @@ public class Tutorial : MonoBehaviour
             methodName = playFunc.Method.Name;
         }
 
-        if(isTutorialComplete)
+        if (isTutorialComplete)
         {
             obstruct.SetActive(false);
         }
@@ -108,8 +111,13 @@ public class Tutorial : MonoBehaviour
     public bool ToCheckB_2 { 
         get { return toCheckB_2;} 
         set {
-            if(toCheckB_2) return;
+            if(toCheckB_2 || isTutorialComplete) return;
             toCheckB_2 = value;
+
+            StartCoroutine(DelayCoroutine(0.2f, () =>
+            {
+                isCheckB_2 = true;
+            }));
 
             // 左スワイプ指示
             if (!checkPhase[1].objects[1].activeSelf)
@@ -119,6 +127,14 @@ public class Tutorial : MonoBehaviour
             }
         } 
     }
+
+    private bool isCheckB_2 = false;
+    public bool IsCheckB_2
+    {
+        get { return isCheckB_2; }
+        private set { isCheckB_2 = value; }
+    }
+
     // ドラッグ操作の説明
     void CheckB()
     {
@@ -131,7 +147,7 @@ public class Tutorial : MonoBehaviour
         get { return toCheckC; }
         set
         {
-            if (toCheckC) return;
+            if (toCheckC || isTutorialComplete) return;
             toCheckC = true;
 
             // スワイプ指示非表示
@@ -157,7 +173,7 @@ public class Tutorial : MonoBehaviour
         get { return isCheckC; }
         set
         {
-            if (isCheckC) return;
+            if (isCheckC || isTutorialComplete) return;
             isCheckC = value;
 
             // リセットボタンが押されたらウィンドウの表示を消す
@@ -185,7 +201,7 @@ public class Tutorial : MonoBehaviour
         get { return toCheckD; }
         set
         {
-            if(toCheckD) return;
+            if(toCheckD || isTutorialComplete) return;
             toCheckD = value;
 
             // 回転演出が終わったら次へ
@@ -204,7 +220,7 @@ public class Tutorial : MonoBehaviour
     public bool IsCheckD { 
         get { return isCheckD; } 
         set {
-            if (isCheckD) return;
+            if (isCheckD || isTutorialComplete) return;
             isCheckD = value;
 
             // ダブルタップしたらウィンドウを非表示にする
@@ -224,7 +240,7 @@ public class Tutorial : MonoBehaviour
         get { return toCheckE; }
         set
         {
-            if(toCheckE) return;
+            if(toCheckE || isTutorialComplete) return;
             toCheckE = value;
 
             // 回転演出が終わったら次へ
@@ -257,7 +273,7 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if(toSelectA) return;
+            if(toSelectA || isTutorialComplete) return;
             toSelectA = value;
 
             ExplainDisplaing(true);
@@ -300,7 +316,7 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if (toSelectC) return;
+            if (toSelectC || isTutorialComplete) return;
             toSelectC = value;
 
             // 入力されたら
@@ -423,7 +439,7 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if (toPlayB) return;
+            if (toPlayB || isTutorialComplete) return;
             toPlayB = value;
 
             playFunc = PlayB;
@@ -455,7 +471,7 @@ public class Tutorial : MonoBehaviour
         }
         set
         {
-            if (toPlayC) return;
+            if (toPlayC || isTutorialComplete) return;
             toPlayC = value;
 
             playFunc = PlayC;
@@ -474,7 +490,7 @@ public class Tutorial : MonoBehaviour
             ExplainDisplaing(false);
             endPlayC = true;
             isTutorialComplete = true;
-            timeManager.OnStart();
+            obstruct.SetActive(false);
         });
     }
 
