@@ -10170,7 +10170,7 @@ MonoBehaviour:
   rotateCancellRangeMax: {x: 890, y: 1500}
   restoreTime: 0.5
   vMax: 80
-  vMin: 10
+  vMin: 25
   vDefault: 60
   vSpeed: 0.1
   cantDoubleTapRangeMin: {x: 340, y: 950}
