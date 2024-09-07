@@ -22,6 +22,8 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
         }
         DontDestroyOnLoad(gameObject);
+
+        BGMPlay1();
     }
     public void Start()
     {
