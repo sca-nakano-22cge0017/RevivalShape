@@ -149,8 +149,6 @@ public class CameraRotate : MonoBehaviour
         TweenPauseControll();
     }
 
-    int count = 0;
-
     public void CameraUpdate()
     {
         if(!stageController.IsPause)
@@ -169,11 +167,6 @@ public class CameraRotate : MonoBehaviour
                 DoubleTap();
             }
         }
-
-        if (count > 1)
-        {
-
-        }
     }
 
     bool isLeftSwip = false, isRightSwip = false;
@@ -185,7 +178,7 @@ public class CameraRotate : MonoBehaviour
     {
         if (stageController.IsTutorial)
         {
-            if (tutorial.MethodName != "CheckB" && !tutorial.TutorialCompleteByPhase && !tutorial.IsTutorialComplete)
+            if (tutorial.MethodName != "CheckB" && tutorial.MethodName != "CheckC2" && !tutorial.TutorialCompleteByPhase && !tutorial.IsTutorialComplete)
                 return;
         }
         
@@ -205,7 +198,7 @@ public class CameraRotate : MonoBehaviour
                 // 判定範囲内だったら処理する
                 if (didSwip &&
                     tapManager.TapOrDragRange(t.position, rotateCancellRangeMin, rotateCancellRangeMax) &&
-                    ((stageController.IsTutorial && tutorial.TutorialCompleteByPhase) ||
+                    ((stageController.IsTutorial && (tutorial.TutorialCompleteByPhase || tutorial.MethodName == "CheckC2")) ||
                     !stageController.IsTutorial))
                 {
                     restoreTargetPos = adjustPoint_DoubleTap[currentCameraPos];
@@ -214,6 +207,8 @@ public class CameraRotate : MonoBehaviour
             }
             else if (t.phase == TouchPhase.Moved)
             {
+                if (tutorial.MethodName == "CheckC2") return;
+
                 // 範囲外からスワイプしたとき用の調整
                 if (!tapManager.TapOrDragRange(t.position))
                 {
@@ -761,7 +756,7 @@ public class CameraRotate : MonoBehaviour
             ty = 0;
             didSwip = false;
 
-            if (stageController.IsTutorial && tutorial.IsCheckC)
+            if (stageController.IsTutorial && tutorial.MethodName == "CheckC2")
             {
                 tutorial.ToCheckD = true;
             }
@@ -899,7 +894,6 @@ public class CameraRotate : MonoBehaviour
         currentCameraPos = CameraPos.UP;
 
         TapReset();
-        count++;
     }
 
     /// <summary>
