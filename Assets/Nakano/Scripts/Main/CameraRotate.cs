@@ -878,6 +878,7 @@ public class CameraRotate : MonoBehaviour
     /// </summary>
     public void ToPlayPhase()
     {
+        m_camera.fieldOfView = vDefault;
         StopAllCoroutines();
 
         thisTransform.rotation = Quaternion.Euler(0, 0, 0);
