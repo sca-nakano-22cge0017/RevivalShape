@@ -104,8 +104,11 @@ public class GameManager : MonoBehaviour
 
                 for (int i = 0; i < missionAmount; i++)
                 {
-                    d.IsMissionClear[i] = _isMissionClear[i];
-
+                    if (!d.IsMissionClear[i])
+                    {
+                        d.IsMissionClear[i] = _isMissionClear[i];
+                    }
+                    
                     if (_isMissionClear[i] == true && d.GotStar < 3)
                     {
                         d.GotStar++;
