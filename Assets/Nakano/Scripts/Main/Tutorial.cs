@@ -58,11 +58,14 @@ public class Tutorial : MonoBehaviour
     private void Awake()
     {
         soundManager = FindObjectOfType<SoundManager>();
+
+        tutorialCanvas.SetActive(false);
+        obstruct.SetActive(false);
     }
 
     public void TutorialStart()
     {
-        if (!isFirst) return;
+        if (!isFirst || !stageController.IsTutorial) return;
 
         tutorialCanvas.SetActive(true);
         obstruct.SetActive(true);
@@ -195,7 +198,7 @@ public class Tutorial : MonoBehaviour
         set
         {
             if (isCheckC || isTutorialComplete) return;
-            isCheckC = value;
+            isCheckC = true;
 
             // リセットボタンが押されたらウィンドウの表示を消す
             checkPhase[2].order.SetActive(false);
