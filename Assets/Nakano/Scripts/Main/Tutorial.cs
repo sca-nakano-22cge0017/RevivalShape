@@ -50,6 +50,8 @@ public class Tutorial : MonoBehaviour
     private bool isCoolTime = false;
     private WaitForSeconds coolTime = new WaitForSeconds(0.1f); // 次のウィンドウ表示までのクールタイム
 
+    private bool isFirst = true; // 初回か
+    
     // SE
     private SoundManager soundManager;
 
@@ -60,15 +62,19 @@ public class Tutorial : MonoBehaviour
 
     public void TutorialStart()
     {
+        if (!isFirst) return;
+
         tutorialCanvas.SetActive(true);
         obstruct.SetActive(true);
         timeManager.OnStop();
 
-        StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () => 
+        StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () =>
         {
             playFunc = CheckA;
             SEPlay();
         }));
+
+        isFirst = true;
     }
 
     public void TutorialUpdate()
