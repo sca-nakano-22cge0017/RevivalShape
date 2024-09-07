@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 192339080}
   m_Layer: 0
   m_Name: SoundSetingManager
-  m_TagString: Untagged
+  m_TagString: SaveSoundSetingManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -349,7 +349,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -1154,7 +1154,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -5965031779747725420, guid: 4bb43fae2d0a59c488ceae9b53a07206, type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -2731,7 +2731,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 1900094682224934913, guid: 4bb43fae2d0a59c488ceae9b53a07206, type: 2}
   m_audioClip: {fileID: 8300000, guid: 43e108e432314034a8881bb4054f570f, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -3454,7 +3454,7 @@ GameObject:
   - component: {fileID: 1899581301}
   m_Layer: 0
   m_Name: MainSoundManager
-  m_TagString: Untagged
+  m_TagString: SaveSoundManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3749,7 +3749,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 4bb43fae2d0a59c488ceae9b53a07206, type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
