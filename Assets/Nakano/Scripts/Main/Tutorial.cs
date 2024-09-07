@@ -214,12 +214,19 @@ public class Tutorial : MonoBehaviour
         {
             checkPhase[1].order.SetActive(false);
         }
+
+        NextFunctionByTap(checkPhase[2], CheckC2, () =>
+        {
+            if (!checkPhase[5].order.activeSelf)
+            {
+                checkPhase[5].order.SetActive(true);
+                SEPlay();
+            }
+        });
     }
 
-    // リセットボタンを押す
-    public void GoToCheckD()
+    void CheckC2()
     {
-        IsCheckC = true;
     }
 
     // カメラを初期位置に戻す演出が終わったか
@@ -234,6 +241,11 @@ public class Tutorial : MonoBehaviour
 
             // 回転演出が終わったら次へ
             playFunc = CheckD;
+
+            if (checkPhase[5].order.activeSelf)
+            {
+                checkPhase[5].order.SetActive(false);
+            }
 
             if (!checkPhase[3].order.activeSelf)
             {
