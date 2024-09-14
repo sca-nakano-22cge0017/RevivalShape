@@ -331,7 +331,6 @@ public class Tutorial : MonoBehaviour
             StartCoroutine(DelayCoroutine(phaseChangeCoolTime, () =>
             {
                 playFunc = SelectA;
-                obstruct.SetActive(false);
                 SEPlay();
             }));
         }
@@ -347,6 +346,7 @@ public class Tutorial : MonoBehaviour
                 if (!selectPhase[1].order.activeSelf)
                 {
                     selectPhase[1].order.SetActive(true);
+                    obstruct.SetActive(false);
                     SEPlay();
                 }
             }));
